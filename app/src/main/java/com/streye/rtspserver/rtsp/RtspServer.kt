@@ -16,6 +16,19 @@ import java.net.Socket
 import java.net.SocketException
 import java.nio.ByteBuffer
 
+/**
+ *
+ * Created by pedro on 13/02/19.
+ *
+ *
+ * TODO Use regular expression to get info from requests.
+ *
+ * TODO Send RTSP message error on not recognize command.
+ *
+ * TODO Multi client support (Use different session per client).
+ *
+ * TODO TCP support.
+ */
 
 class RtspServer(context: Context, private val connectCheckerRtsp: ConnectCheckerRtsp,
   private val port: Int) : Thread() {
@@ -166,10 +179,11 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
         action.contains("play", true) -> createPlay()
         action.contains("pause", true) -> createPause()
         action.contains("teardown", true) -> createTeardown()
-        else -> "Fail"  //TODO This should be a error response
+        else -> "Fail"  //TODO This should be an error response
       }
     }
 
+    //TODO Use regular expression
     private fun loadPorts(request: String) {
       var ports: List<String> = ArrayList()
       var track = 0
@@ -196,6 +210,7 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
       }
     }
 
+    //TODO Use regular expression
     private fun getCSeq(request: String): Int {
       request.split("\n").forEach {
         if (it.contains("cseq", true)) {
@@ -216,35 +231,60 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
       return request
     }
 
+    private fun createHeader(): String {
+      return "RTSP/1.0 200 OK\r\n" +
+          "Server: pedroSG94 Server\r\n" +
+          "Cseq: $cSeq\r\n"
+    }
+
     private fun createOptions(): String {
-      return "RTSP/1.0 200 OK\r\n" + "Server: pedroSG94 Server\r\n" + "Cseq: $cSeq\r\n" + "Public: DESCRIBE,SETUP,TEARDOWN,PLAY,PAUSE\r\n\r\n"
+      return createHeader() +
+          "Public: DESCRIBE,SETUP,TEARDOWN,PLAY,PAUSE\r\n\r\n"
     }
 
     private fun createDescribe(): String {
       val body = createBody()
-      return "RTSP/1.0 200 OK\r\n" + "Server: pedroSG94 Server\r\n" + "Cseq: $cSeq\r\n" + "Content-Length: ${body.length}\r\n" + "Content-Base: $serverIp:$serverPort/\r\n" + "Content-Type: application/sdp\r\n\r\n" + body
+      return createHeader() +
+          "Content-Length: ${body.length}\r\n" +
+          "Content-Base: $serverIp:$serverPort/\r\n" +
+          "Content-Type: application/sdp\r\n\r\n" +
+          body
     }
 
     private fun createBody(): String {
       val bodyAudio = Body.createAacBody(trackAudio, sampleRate, isStereo)
       val bodyVideo = Body.createH264Body(trackVideo, "Z0KAHtoHgUZA", "aM4NiA==")
-      return "v=0\r\n" + "o=- 0 0 IN IP4 $serverIp\r\n" + "s=Unnamed\r\n" + "i=N/A\r\n" + "c=IN IP4 $clientIp\r\n" + "t=0 0\r\n" + "a=recvonly\r\n" + bodyAudio + bodyVideo + "\r\n"
+      return "v=0\r\n" +
+          "o=- 0 0 IN IP4 $serverIp\r\n" +
+          "s=Unnamed\r\n" + "i=N/A\r\n" +
+          "c=IN IP4 $clientIp\r\n" +
+          "t=0 0\r\n" +
+          "a=recvonly\r\n" +
+          bodyAudio + bodyVideo + "\r\n"
     }
 
     private fun createSetup(): String {
-      return "RTSP/1.0 200 OK\r\n" + "Server: pedroSG94 Server\r\n" + "Cseq: $cSeq\r\n" + "Content-Length: 0\r\n" + "Transport: RTP/AVP/UDP;unicast;destination=$clientIp;client_port=8000-8001;server_port=39000-35968;ssrc=46a81ad7;mode=play\r\n" + "Session: 1185d20035702ca\r\n" + "Cache-Control: no-cache\r\n\r\n"
+      return createHeader() +
+          "Content-Length: 0\r\n" +
+          "Transport: RTP/AVP/UDP;unicast;destination=$clientIp;client_port=8000-8001;server_port=39000-35968;ssrc=46a81ad7;mode=play\r\n" +
+          "Session: 1185d20035702ca\r\n" +
+          "Cache-Control: no-cache\r\n\r\n"
     }
 
     private fun createPlay(): String {
-      return "RTSP/1.0 200 OK\r\n" + "Server: pedroSG94 Server\r\n" + "Cseq: $cSeq\r\n" + "Content-Length: 0\r\n" + "RTP-Info: url=rtsp://$serverIp:$serverPort/\r\n" + "Session: 1185d20035702ca\r\n\r\n"
+      return createHeader() +
+          "Content-Length: 0\r\n" +
+          "RTP-Info: url=rtsp://$serverIp:$serverPort/\r\n" +
+          "Session: 1185d20035702ca\r\n\r\n"
     }
 
     private fun createPause(): String {
-      return "RTSP/1.0 200 OK\r\n" + "Server: pedroSG94 Server\r\n" + "Cseq: $cSeq\r\n" + "Content-Length: 0\r\n\r\n"
+      return createHeader() +
+          "Content-Length: 0\r\n\r\n"
     }
 
     private fun createTeardown(): String {
-      return "RTSP/1.0 200 OK\r\n" + "Cseq: $cSeq\r\n\r\n"
+      return createHeader() + "\r\n"
     }
   }
 }

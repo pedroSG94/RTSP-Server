@@ -1,6 +1,5 @@
 package com.streye.rtspserver
 
-import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.support.v7.app.AppCompatActivity
@@ -56,8 +55,7 @@ class MainActivity : AppCompatActivity(), ConnectCheckerRtsp, View.OnClickListen
 
   override fun onConnectionFailedRtsp(reason: String) {
     runOnUiThread {
-      Toast.makeText(this@MainActivity, "Connection failed. $reason", Toast.LENGTH_SHORT)
-          .show()
+      Toast.makeText(this@MainActivity, "Connection failed. $reason", Toast.LENGTH_SHORT).show()
       rtspServerCamera1!!.stopStream()
       button!!.setText(R.string.start_button)
     }
@@ -103,44 +101,39 @@ class MainActivity : AppCompatActivity(), ConnectCheckerRtsp, View.OnClickListen
         Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show()
       }
 
-      R.id.b_record -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-        if (!rtspServerCamera1!!.isRecording) {
-          try {
-            if (!folder.exists()) {
-              folder.mkdir()
-            }
-            val sdf = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault())
-            currentDateAndTime = sdf.format(Date())
-            if (!rtspServerCamera1!!.isStreaming) {
-              if (rtspServerCamera1!!.prepareAudio() && rtspServerCamera1!!.prepareVideo()) {
-                rtspServerCamera1!!.startRecord(folder.absolutePath + "/" + currentDateAndTime + ".mp4")
-                bRecord!!.setText(R.string.stop_record)
-                Toast.makeText(this, "Recording... ", Toast.LENGTH_SHORT).show()
-              } else {
-                Toast.makeText(this, "Error preparing stream, This device cant do it",
-                  Toast.LENGTH_SHORT).show()
-              }
-            } else {
+      R.id.b_record -> if (!rtspServerCamera1!!.isRecording) {
+        try {
+          if (!folder.exists()) {
+            folder.mkdir()
+          }
+          val sdf = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault())
+          currentDateAndTime = sdf.format(Date())
+          if (!rtspServerCamera1!!.isStreaming) {
+            if (rtspServerCamera1!!.prepareAudio() && rtspServerCamera1!!.prepareVideo()) {
               rtspServerCamera1!!.startRecord(
                 folder.absolutePath + "/" + currentDateAndTime + ".mp4")
               bRecord!!.setText(R.string.stop_record)
               Toast.makeText(this, "Recording... ", Toast.LENGTH_SHORT).show()
+            } else {
+              Toast.makeText(this, "Error preparing stream, This device cant do it",
+                Toast.LENGTH_SHORT).show()
             }
-          } catch (e: IOException) {
-            rtspServerCamera1!!.stopRecord()
-            bRecord!!.setText(R.string.start_record)
-            Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show()
+          } else {
+            rtspServerCamera1!!.startRecord(folder.absolutePath + "/" + currentDateAndTime + ".mp4")
+            bRecord!!.setText(R.string.stop_record)
+            Toast.makeText(this, "Recording... ", Toast.LENGTH_SHORT).show()
           }
-        } else {
+
+        } catch (e: IOException) {
           rtspServerCamera1!!.stopRecord()
           bRecord!!.setText(R.string.start_record)
-          Toast.makeText(this,
-            "file " + currentDateAndTime + ".mp4 saved in " + folder.getAbsolutePath(),
-            Toast.LENGTH_SHORT).show()
+          Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show()
         }
       } else {
-        Toast.makeText(this, "You need min JELLY_BEAN_MR2(API 18) for do it...", Toast.LENGTH_SHORT)
-            .show()
+        rtspServerCamera1!!.stopRecord()
+        bRecord!!.setText(R.string.start_record)
+        Toast.makeText(this, "file " + currentDateAndTime + ".mp4 saved in " + folder.absolutePath,
+          Toast.LENGTH_SHORT).show()
       }
       else -> {
       }
@@ -156,7 +149,7 @@ class MainActivity : AppCompatActivity(), ConnectCheckerRtsp, View.OnClickListen
   }
 
   override fun surfaceDestroyed(surfaceHolder: SurfaceHolder) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 && rtspServerCamera1!!.isRecording) {
+    if (rtspServerCamera1!!.isRecording) {
       rtspServerCamera1!!.stopRecord()
       bRecord!!.setText(R.string.start_record)
       Toast.makeText(this, "file " + currentDateAndTime + ".mp4 saved in " + folder.absolutePath,

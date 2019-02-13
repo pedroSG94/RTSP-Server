@@ -14,7 +14,9 @@ import com.pedro.rtsp.rtsp.VideoCodec
 import com.pedro.rtsp.utils.ConnectCheckerRtsp
 import java.nio.ByteBuffer
 
-
+/**
+ * Created by pedro on 13/02/19.
+ */
 class RtspServerCamera1 : Camera1Base {
 
   private var rtspServer: RtspServer? = null
