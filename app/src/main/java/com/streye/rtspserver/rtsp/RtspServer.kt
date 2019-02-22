@@ -15,17 +15,17 @@ import java.net.ServerSocket
 import java.net.Socket
 import java.net.SocketException
 import java.nio.ByteBuffer
+import java.util.regex.Pattern
 
 /**
  *
  * Created by pedro on 13/02/19.
  *
  *
- * TODO Use regular expression to get info from requests.
  *
  * TODO Send RTSP message error on not recognize command.
  *
- * TODO Multi client support (Use different session per client).
+ * TODO Use different session per client.
  *
  * TODO TCP support.
  */
@@ -41,17 +41,20 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
   var vps: ByteArray? = null
   var sampleRate = 32000
   var isStereo = true
-  private var client: Client? = null
+  private val clients = mutableListOf<Client>()
 
   override fun run() {
     super.run()
     while (!Thread.interrupted()) {
       Log.e(TAG, "Server started $serverIp:$port")
       try {
-        client = Client(server.accept(), serverIp, port, connectCheckerRtsp, sps, pps, vps, sampleRate,
-          isStereo)
-        client?.start()
+        val client =
+            Client(server.accept(), serverIp, port, connectCheckerRtsp, sps, pps, vps, sampleRate,
+              isStereo)
+        client.start()
+        clients.add(client)
       } catch (e: SocketException) {
+        Log.e(TAG, "Error", e)
         break
       } catch (e: IOException) {
         Log.e(TAG, e.message)
@@ -62,13 +65,15 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
   }
 
   fun stopServer() {
-    client?.interrupt()
-    try {
-      client?.join(100)
-    } catch (e: InterruptedException) {
-      client?.interrupt()
+    clients.forEach {
+      it.interrupt()
+      try {
+        it.join(100)
+      } catch (e: InterruptedException) {
+        it.interrupt()
+      }
     }
-    client = null
+    clients.clear()
     this.interrupt()
     try {
       this.join(100)
@@ -78,14 +83,18 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
   }
 
   fun sendVideo(h264Buffer: ByteBuffer, info: MediaCodec.BufferInfo) {
-    if (client != null && client!!.isAlive) {
-      client?.rtspSender?.sendVideoFrame(h264Buffer, info)
+    clients.forEach {
+      if (it.isAlive) {
+        it.rtspSender?.sendVideoFrame(h264Buffer.duplicate(), info)
+      }
     }
   }
 
   fun sendAudio(aacBuffer: ByteBuffer, info: MediaCodec.BufferInfo) {
-    if (client != null && client!!.isAlive) {
-      client?.rtspSender?.sendAudioFrame(aacBuffer, info)
+    clients.forEach {
+      if (it.isAlive) {
+        it.rtspSender?.sendAudioFrame(aacBuffer.duplicate(), info)
+      }
     }
   }
 
@@ -183,41 +192,38 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
       }
     }
 
-    //TODO Use regular expression
     private fun loadPorts(request: String) {
-      var ports: List<String> = ArrayList()
-      var track = 0
-      request.split("\n").forEach {
-        if (it.contains("trackID", true)) {
-          Log.e(TAG, "get track")
-          track = it.split("=")[1].split(" ")[0].toInt()
-        }
-        if (it.contains("client_port=", true)) {
-          Log.e(TAG, "get ports")
-          ports = it.split("=")[1].split("-")
-        }
+      val ports = ArrayList<Int>()
+      val portsMatcher = Pattern.compile("client_port=(\\d+)(?:-(\\d+))?", Pattern.CASE_INSENSITIVE)
+          .matcher(request)
+      if (portsMatcher.find()) {
+        ports.add(portsMatcher.group(1).toInt())
+        ports.add(portsMatcher.group(2).toInt())
       }
-      if (ports.isNotEmpty()) { //udp ports
+      val trackMatcher =
+          Pattern.compile("trackID=(\\w+)", Pattern.CASE_INSENSITIVE).matcher(request)
+      if (trackMatcher.find()) {
+        val track = trackMatcher.group(1).toInt()
         if (track == 0) { //audio ports
           audioPorts.clear()
-          audioPorts.add(ports[0].toInt())
-          audioPorts.add(ports[1].toInt())
+          audioPorts.add(ports[0])
+          audioPorts.add(ports[1])
         } else { //video ports
           videoPorts.clear()
-          videoPorts.add(ports[0].toInt())
-          videoPorts.add(ports[1].toInt())
+          videoPorts.add(ports[0])
+          videoPorts.add(ports[1])
         }
       }
     }
 
-    //TODO Use regular expression
     private fun getCSeq(request: String): Int {
-      request.split("\n").forEach {
-        if (it.contains("cseq", true)) {
-          return it.toLowerCase().replace("cseq:", "").replace(" ", "").toInt()
-        }
+      val cSeqMatcher =
+          Pattern.compile("CSeq\\s*:\\s*(\\d+)", Pattern.CASE_INSENSITIVE).matcher(request)
+      var cSeq = 0
+      if (cSeqMatcher.find()) {
+        cSeq = cSeqMatcher.group(1).toInt()
       }
-      return 0
+      return cSeq
     }
 
     @Throws(IOException::class, IllegalStateException::class, SocketException::class)
