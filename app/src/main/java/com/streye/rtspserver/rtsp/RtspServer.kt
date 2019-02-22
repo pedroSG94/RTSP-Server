@@ -31,55 +31,54 @@ import java.util.regex.Pattern
  */
 
 class RtspServer(context: Context, private val connectCheckerRtsp: ConnectCheckerRtsp,
-  private val port: Int) : Thread() {
+  val port: Int) {
 
   private val TAG = "RtspServer"
-  private val server: ServerSocket = ServerSocket(port)
-  private val serverIp = getServerIp(context)
+  private lateinit var server: ServerSocket
+  val serverIp = getServerIp(context)
   var sps: ByteArray? = null
   var pps: ByteArray? = null
   var vps: ByteArray? = null
   var sampleRate = 32000
   var isStereo = true
   private val clients = mutableListOf<Client>()
+  private var thread: Thread? = null
 
-  override fun run() {
-    super.run()
-    while (!Thread.interrupted()) {
-      Log.e(TAG, "Server started $serverIp:$port")
-      try {
-        val client =
-            Client(server.accept(), serverIp, port, connectCheckerRtsp, sps, pps, vps, sampleRate,
-              isStereo)
-        client.start()
-        clients.add(client)
-      } catch (e: SocketException) {
-        Log.e(TAG, "Error", e)
-        break
-      } catch (e: IOException) {
-        Log.e(TAG, e.message)
-        continue
+  fun startServer() {
+    thread = Thread{
+      server = ServerSocket(port)
+      while (!Thread.interrupted()) {
+        Log.e(TAG, "Server started $serverIp:$port")
+        try {
+          val client =
+              Client(server.accept(), serverIp, port, connectCheckerRtsp, sps, pps, vps, sampleRate,
+                isStereo)
+          client.start()
+          clients.add(client)
+        } catch (e: SocketException) {
+          Log.e(TAG, "Error", e)
+          break
+        } catch (e: IOException) {
+          Log.e(TAG, e.message)
+          continue
+        }
       }
+      Log.i(TAG, "Server finished")
     }
-    Log.i(TAG, "Server finished")
+    thread?.start()
   }
 
   fun stopServer() {
-    clients.forEach {
-      it.interrupt()
-      try {
-        it.join(100)
-      } catch (e: InterruptedException) {
-        it.interrupt()
-      }
-    }
+    clients.forEach { it.stopClient() }
     clients.clear()
-    this.interrupt()
+    thread?.interrupt()
     try {
-      this.join(100)
+      thread?.join(100)
     } catch (e: InterruptedException) {
-      this.interrupt()
+      thread?.interrupt()
     }
+    thread = null
+    if (!server.isClosed) server.close()
   }
 
   fun sendVideo(h264Buffer: ByteBuffer, info: MediaCodec.BufferInfo) {
@@ -141,7 +140,7 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
 
     override fun run() {
       super.run()
-      Log.e(TAG, "New client $clientIp")
+      Log.i(TAG, "New client $clientIp")
       while (!Thread.interrupted()) {
         try {
           val request = getRequest(input)
@@ -177,6 +176,17 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
           // We don't understand the request :/
           Log.e(TAG, "wtf is this?")
         }
+      }
+    }
+
+    fun stopClient() {
+      interrupt()
+      try {
+        join(100)
+      } catch (e: InterruptedException) {
+        interrupt()
+      } finally {
+        socket.close()
       }
     }
 

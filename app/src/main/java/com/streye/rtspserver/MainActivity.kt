@@ -7,8 +7,8 @@ import android.view.SurfaceHolder
 import android.view.View
 import android.view.WindowManager
 import android.widget.Button
-import android.widget.EditText
 import android.widget.Toast
+import com.pedro.encoder.input.video.CameraHelper
 import com.pedro.encoder.input.video.CameraOpenException
 import com.pedro.rtsp.utils.ConnectCheckerRtsp
 import com.streye.rtspserver.rtsp.RtspServerCamera1
@@ -25,7 +25,6 @@ class MainActivity : AppCompatActivity(), ConnectCheckerRtsp, View.OnClickListen
   private var rtspServerCamera1: RtspServerCamera1? = null
   private var button: Button? = null
   private var bRecord: Button? = null
-  private var etUrl: EditText? = null
 
   private var currentDateAndTime = ""
   private val folder =
@@ -41,8 +40,6 @@ class MainActivity : AppCompatActivity(), ConnectCheckerRtsp, View.OnClickListen
     bRecord = findViewById(R.id.b_record)
     bRecord!!.setOnClickListener(this)
     switch_camera.setOnClickListener(this)
-    etUrl = findViewById(R.id.et_rtp_url)
-    etUrl!!.setHint(R.string.hint_rtsp)
     rtspServerCamera1 = RtspServerCamera1(surfaceView, this, 1935)
     surfaceView.holder.addCallback(this)
   }
@@ -72,6 +69,7 @@ class MainActivity : AppCompatActivity(), ConnectCheckerRtsp, View.OnClickListen
       Toast.makeText(this@MainActivity, "Auth error", Toast.LENGTH_SHORT).show()
       rtspServerCamera1!!.stopStream()
       button!!.setText(R.string.start_button)
+      tv_url.text = ""
     }
   }
 
@@ -84,9 +82,11 @@ class MainActivity : AppCompatActivity(), ConnectCheckerRtsp, View.OnClickListen
   override fun onClick(view: View) {
     when (view.id) {
       R.id.b_start_stop -> if (!rtspServerCamera1!!.isStreaming) {
-        if (rtspServerCamera1!!.isRecording || rtspServerCamera1!!.prepareAudio() && rtspServerCamera1!!.prepareVideo()) {
+        if (rtspServerCamera1!!.isRecording || rtspServerCamera1!!.prepareAudio() && rtspServerCamera1!!.prepareVideo(
+              1920, 1080, 30, 3500 * 1024, false, CameraHelper.getCameraOrientation(this))) {
           button!!.setText(R.string.stop_button)
-          rtspServerCamera1!!.startStream(etUrl!!.text.toString())
+          rtspServerCamera1!!.startStream()
+          tv_url.text = rtspServerCamera1?.getEndPointConnection()
         } else {
           Toast.makeText(this, "Error preparing stream, This device cant do it", Toast.LENGTH_SHORT)
               .show()
@@ -94,6 +94,7 @@ class MainActivity : AppCompatActivity(), ConnectCheckerRtsp, View.OnClickListen
       } else {
         button!!.setText(R.string.start_button)
         rtspServerCamera1!!.stopStream()
+        tv_url.text = ""
       }
       R.id.switch_camera -> try {
         rtspServerCamera1!!.switchCamera()
@@ -159,6 +160,7 @@ class MainActivity : AppCompatActivity(), ConnectCheckerRtsp, View.OnClickListen
     if (rtspServerCamera1!!.isStreaming) {
       rtspServerCamera1!!.stopStream()
       button!!.text = resources.getString(R.string.start_button)
+      tv_url.text = ""
     }
     rtspServerCamera1!!.stopPreview()
   }

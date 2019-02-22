@@ -58,8 +58,14 @@ class RtspServerCamera1 : Camera1Base {
         if (videoCodec == VideoCodec.H265) CodecUtil.H265_MIME else CodecUtil.H264_MIME
   }
 
+  fun getEndPointConnection() : String = "rtsp://${rtspServer?.serverIp}:${rtspServer?.port}/"
+
   override fun setAuthorization(user: String, password: String) {
     //not developed
+  }
+
+  fun startStream() {
+    super.startStream("")
   }
 
   override fun prepareAudioRtp(isStereo: Boolean, sampleRate: Int) {
@@ -84,7 +90,7 @@ class RtspServerCamera1 : Camera1Base {
     val newPps = pps.duplicate()
     val newVps = vps?.duplicate()
     rtspServer?.setVideoInfo(newSps, newPps, newVps)
-    rtspServer?.start()
+    rtspServer?.startServer()
   }
 
   override fun getH264DataRtp(h264Buffer: ByteBuffer, info: MediaCodec.BufferInfo) {

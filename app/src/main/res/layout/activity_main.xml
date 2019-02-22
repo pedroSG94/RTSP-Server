@@ -10,15 +10,15 @@
         android:id="@+id/surfaceView"
         />
 
-    <EditText
+    <TextView
+        android:textSize="24sp"
         android:textColor="@color/appColor"
         android:textColorHint="@color/appColor"
-        android:inputType="textUri"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:layout_margin="20dp"
-        android:id="@+id/et_rtp_url"
+        android:id="@+id/tv_url"
         />
 
     <LinearLayout
