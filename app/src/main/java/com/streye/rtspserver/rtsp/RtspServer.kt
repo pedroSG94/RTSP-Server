@@ -4,13 +4,13 @@ import android.content.Context
 import android.media.MediaCodec
 import android.net.wifi.WifiManager
 import android.support.v7.app.AppCompatActivity
-import android.text.format.Formatter
 import android.util.Log
 import com.pedro.rtsp.rtsp.Body
 import com.pedro.rtsp.rtsp.Protocol
 import com.pedro.rtsp.rtsp.RtspSender
 import com.pedro.rtsp.utils.ConnectCheckerRtsp
 import java.io.*
+import java.net.InetAddress
 import java.net.ServerSocket
 import java.net.Socket
 import java.net.SocketException
@@ -42,10 +42,10 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
   private var thread: Thread? = null
 
   fun startServer() {
-    thread = Thread{
+    thread = Thread {
       server = ServerSocket(port)
       while (!Thread.interrupted()) {
-        Log.e(TAG, "Server started $serverIp:$port")
+        Log.i(TAG, "Server started $serverIp:$port")
         try {
           val client =
               Client(server.accept(), serverIp, port, connectCheckerRtsp, sps, pps, vps, sampleRate,
@@ -81,7 +81,7 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
   fun sendVideo(h264Buffer: ByteBuffer, info: MediaCodec.BufferInfo) {
     clients.forEach {
       if (it.isAlive) {
-        it.rtspSender?.sendVideoFrame(h264Buffer.duplicate(), info)
+        it.rtspSender.sendVideoFrame(h264Buffer.duplicate(), info)
       }
     }
   }
@@ -89,7 +89,7 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
   fun sendAudio(aacBuffer: ByteBuffer, info: MediaCodec.BufferInfo) {
     clients.forEach {
       if (it.isAlive) {
-        it.rtspSender?.sendAudioFrame(aacBuffer.duplicate(), info)
+        it.rtspSender.sendAudioFrame(aacBuffer.duplicate(), info)
       }
     }
   }
@@ -113,14 +113,16 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
 
   private fun getServerIp(context: Context): String {
     val wm =
-        context.applicationContext.getSystemService(AppCompatActivity.WIFI_SERVICE) as WifiManager?
-    return Formatter.formatIpAddress(wm!!.connectionInfo.ipAddress)
+        context.applicationContext.getSystemService(AppCompatActivity.WIFI_SERVICE) as WifiManager
+    return InetAddress.getByAddress(ByteArray(4) { i ->
+      wm.connectionInfo.ipAddress.shr(i * 8).and(255).toByte()
+    }).hostAddress
   }
 
   internal class Client(private val socket: Socket, private val serverIp: String,
-    private val serverPort: Int, private val connectCheckerRtsp: ConnectCheckerRtsp,
-    private val sps: ByteArray?, private val pps: ByteArray?, private val vps: ByteArray?,
-    private val sampleRate: Int, private val isStereo: Boolean) : Thread() {
+    private val serverPort: Int, connectCheckerRtsp: ConnectCheckerRtsp, sps: ByteArray?,
+    pps: ByteArray?, vps: ByteArray?, private val sampleRate: Int, private val isStereo: Boolean) :
+      Thread() {
 
     private val TAG = "Client"
     private var cSeq = 0
@@ -128,7 +130,7 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
     private val output = BufferedWriter(OutputStreamWriter(socket.getOutputStream()))
     private val input = BufferedReader(InputStreamReader(socket.getInputStream()))
     private val clientIp = socket.inetAddress.hostAddress
-    var rtspSender: RtspSender? = null
+    val rtspSender = RtspSender(connectCheckerRtsp, Protocol.UDP, sps, pps, vps, sampleRate)
 
     private val trackAudio = 0
     private val trackVideo = 1
@@ -155,13 +157,12 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
           output.flush()
 
           if (action.contains("play", true)) {
-            rtspSender = RtspSender(connectCheckerRtsp, Protocol.UDP, sps, pps, vps, sampleRate)
-            rtspSender?.setDataStream(socket.getOutputStream(), clientIp)
+            rtspSender.setDataStream(socket.getOutputStream(), clientIp)
 
-            rtspSender?.setVideoPorts(videoPorts[0], videoPorts[1])
-            rtspSender?.setAudioPorts(audioPorts[0], audioPorts[1])
+            rtspSender.setVideoPorts(videoPorts[0], videoPorts[1])
+            rtspSender.setAudioPorts(audioPorts[0], audioPorts[1])
 
-            rtspSender?.start()
+            rtspSender.start()
           }
         } catch (e: SocketException) {
           // Client has left
@@ -174,6 +175,7 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
     }
 
     fun stopClient() {
+      rtspSender.stop()
       interrupt()
       try {
         join(100)
@@ -256,7 +258,7 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
     }
 
     private fun createStatus(code: Int): String {
-      return when(code) {
+      return when (code) {
         200 -> "200 OK"
         400 -> "400 Bad Request"
         401 -> "401 Unauthorized"
