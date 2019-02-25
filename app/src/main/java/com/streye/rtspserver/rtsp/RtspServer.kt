@@ -22,9 +22,6 @@ import java.util.regex.Pattern
  * Created by pedro on 13/02/19.
  *
  *
- *
- * TODO Send RTSP message error on not recognize command.
- *
  * TODO Use different session per client.
  *
  * TODO TCP support.
@@ -145,12 +142,18 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
         try {
           val request = getRequest(input)
           cSeq = getCSeq(request) //update cSeq
+          if (cSeq == -1) { //If cSeq parsed fail send error to client
+            output.write(createError(500))
+            output.flush()
+            continue
+          }
           val action = request.split("\n")[0]
-          Log.e(TAG, request)
-          val response = createResponse(action)
-          Log.e(TAG, response)
+          Log.i(TAG, request)
+          val response = createResponse(action, request)
+          Log.i(TAG, response)
           output.write(response)
           output.flush()
+
           if (action.contains("play", true)) {
             rtspSender = RtspSender(connectCheckerRtsp, Protocol.UDP, sps, pps, vps, sampleRate)
             rtspSender?.setDataStream(socket.getOutputStream(), clientIp)
@@ -159,22 +162,13 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
             rtspSender?.setAudioPorts(audioPorts[0], audioPorts[1])
 
             rtspSender?.start()
-          } else if (action.contains("setup", true)) {
-            try {
-              loadPorts(request)
-            } catch (e: Exception) {
-              Log.e(TAG, "error", e)
-            }
-            Log.e(TAG, "Video ports: $videoPorts")
-            Log.e(TAG, "Audio ports: $audioPorts")
           }
         } catch (e: SocketException) {
           // Client has left
           Log.e(TAG, "Client disconnected")
           break
         } catch (e: Exception) {
-          // We don't understand the request :/
-          Log.e(TAG, "wtf is this?")
+          Log.e(TAG, "Unexpected error")
         }
       }
     }
@@ -190,25 +184,30 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
       }
     }
 
-    private fun createResponse(action: String): String {
+    private fun createResponse(action: String, request: String): String {
       return when {
         action.contains("options", true) -> createOptions()
         action.contains("describe", true) -> createDescribe()
-        action.contains("setup", true) -> createSetup()
+        action.contains("setup", true) -> {
+          if (loadPorts(request)) createSetup() else createError(500)
+        }
         action.contains("play", true) -> createPlay()
         action.contains("pause", true) -> createPause()
         action.contains("teardown", true) -> createTeardown()
-        else -> "Fail"  //TODO This should be an error response
+        else -> createError(400)
       }
     }
 
-    private fun loadPorts(request: String) {
+    private fun loadPorts(request: String): Boolean {
       val ports = ArrayList<Int>()
       val portsMatcher = Pattern.compile("client_port=(\\d+)(?:-(\\d+))?", Pattern.CASE_INSENSITIVE)
           .matcher(request)
       if (portsMatcher.find()) {
         ports.add(portsMatcher.group(1).toInt())
         ports.add(portsMatcher.group(2).toInt())
+      } else {
+        Log.e(TAG, "UDP ports not found")
+        return false
       }
       val trackMatcher =
           Pattern.compile("trackID=(\\w+)", Pattern.CASE_INSENSITIVE).matcher(request)
@@ -223,15 +222,24 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
           videoPorts.add(ports[0])
           videoPorts.add(ports[1])
         }
+      } else {
+        Log.e(TAG, "Track id not found")
+        return false
       }
+      Log.i(TAG, "Video ports: $videoPorts")
+      Log.i(TAG, "Audio ports: $audioPorts")
+      return true
     }
 
     private fun getCSeq(request: String): Int {
       val cSeqMatcher =
           Pattern.compile("CSeq\\s*:\\s*(\\d+)", Pattern.CASE_INSENSITIVE).matcher(request)
-      var cSeq = 0
+      val cSeq: Int
       if (cSeqMatcher.find()) {
         cSeq = cSeqMatcher.group(1).toInt()
+      } else {
+        Log.e(TAG, "cSeq not found")
+        return -1
       }
       return cSeq
     }
@@ -247,8 +255,25 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
       return request
     }
 
+    private fun createStatus(code: Int): String {
+      return when(code) {
+        200 -> "200 OK"
+        400 -> "400 Bad Request"
+        401 -> "401 Unauthorized"
+        404 -> "404 Not Found"
+        500 -> "500 Internal Server Error"
+        else -> "500 Internal Server Error"
+      }
+    }
+
+    private fun createError(code: Int): String {
+      return "RTSP/1.0 ${createStatus(code)}\r\n" +
+              "Server: pedroSG94 Server\r\n" +
+              "Cseq: $cSeq\r\n\r\n"
+    }
+
     private fun createHeader(): String {
-      return "RTSP/1.0 200 OK\r\n" +
+      return "RTSP/1.0 ${createStatus(200)}\r\n" +
           "Server: pedroSG94 Server\r\n" +
           "Cseq: $cSeq\r\n"
     }
