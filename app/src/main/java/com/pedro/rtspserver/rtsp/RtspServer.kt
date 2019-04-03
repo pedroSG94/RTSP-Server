@@ -27,8 +27,7 @@ import java.util.regex.Pattern
  * TODO TCP support.
  */
 
-class RtspServer(context: Context, private val connectCheckerRtsp: ConnectCheckerRtsp,
-  val port: Int) {
+class RtspServer(context: Context, private val connectCheckerRtsp: ConnectCheckerRtsp, val port: Int) {
 
   private val TAG = "RtspServer"
   private lateinit var server: ServerSocket
@@ -49,7 +48,7 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
         try {
           val client =
               Client(server.accept(), serverIp, port, connectCheckerRtsp, sps, pps, vps, sampleRate,
-                isStereo)
+                  isStereo)
           client.start()
           clients.add(client)
         } catch (e: SocketException) {
@@ -81,7 +80,7 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
   fun sendVideo(h264Buffer: ByteBuffer, info: MediaCodec.BufferInfo) {
     clients.forEach {
       if (it.isAlive) {
-        it.rtspSender?.sendVideoFrame(h264Buffer.duplicate(), info)
+        it.rtspSender.sendVideoFrame(h264Buffer.duplicate(), info)
       }
     }
   }
@@ -89,7 +88,7 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
   fun sendAudio(aacBuffer: ByteBuffer, info: MediaCodec.BufferInfo) {
     clients.forEach {
       if (it.isAlive) {
-        it.rtspSender?.sendAudioFrame(aacBuffer.duplicate(), info)
+        it.rtspSender.sendAudioFrame(aacBuffer.duplicate(), info)
       }
     }
   }
@@ -120,9 +119,10 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
   }
 
   internal class Client(private val socket: Socket, private val serverIp: String,
-    private val serverPort: Int, private val connectCheckerRtsp: ConnectCheckerRtsp,
-    private val sps: ByteArray?, private val pps: ByteArray?, private val vps: ByteArray?,
-    private val sampleRate: Int, private val isStereo: Boolean) : Thread() {
+                        private val serverPort: Int, connectCheckerRtsp: ConnectCheckerRtsp,
+                        private val sps: ByteArray?, private val pps: ByteArray?,
+                        private val vps: ByteArray?, private val sampleRate: Int,
+                        private val isStereo: Boolean) : Thread() {
 
     private val TAG = "Client"
     private var cSeq = 0
@@ -130,7 +130,7 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
     private val output = BufferedWriter(OutputStreamWriter(socket.getOutputStream()))
     private val input = BufferedReader(InputStreamReader(socket.getInputStream()))
     private val clientIp = socket.inetAddress.hostAddress
-    var rtspSender: RtspSender? = null
+    val rtspSender = RtspSender(connectCheckerRtsp)
     private val protocol: Protocol = Protocol.UDP
 
     private val trackAudio = 0
@@ -158,14 +158,13 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
           output.flush()
 
           if (action.contains("play", true)) {
-            rtspSender = RtspSender(connectCheckerRtsp)
-            rtspSender?.setInfo(protocol, sps, pps, vps, sampleRate)
-            rtspSender?.setDataStream(socket.getOutputStream(), clientIp)
+            rtspSender.setInfo(protocol, sps, pps, vps, sampleRate)
+            rtspSender.setDataStream(socket.getOutputStream(), clientIp)
 
-            rtspSender?.setVideoPorts(videoPorts[0], videoPorts[1])
-            rtspSender?.setAudioPorts(audioPorts[0], audioPorts[1])
+            rtspSender.setVideoPorts(videoPorts[0], videoPorts[1])
+            rtspSender.setAudioPorts(audioPorts[0], audioPorts[1])
 
-            rtspSender?.start()
+            rtspSender.start()
           }
         } catch (e: SocketException) {
           // Client has left
@@ -178,7 +177,7 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
     }
 
     fun stopClient() {
-      rtspSender?.stop()
+      rtspSender.stop()
       interrupt()
       try {
         join(100)
