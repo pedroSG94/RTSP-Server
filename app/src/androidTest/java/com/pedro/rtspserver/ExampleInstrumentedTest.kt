@@ -1,4 +1,4 @@
-package com.streye.rtspserver
+package com.pedro.rtspserver
 
 import android.support.test.InstrumentationRegistry
 import android.support.test.runner.AndroidJUnit4

@@ -1,4 +1,4 @@
-package com.streye.rtspserver
+package com.pedro.rtspserver
 
 import android.os.Bundle
 import android.os.Environment
@@ -11,7 +11,7 @@ import android.widget.Toast
 import com.pedro.encoder.input.video.CameraHelper
 import com.pedro.encoder.input.video.CameraOpenException
 import com.pedro.rtsp.utils.ConnectCheckerRtsp
-import com.streye.rtspserver.rtsp.RtspServerCamera1
+import com.pedro.rtspserver.rtsp.RtspServerCamera1
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
 import java.io.IOException

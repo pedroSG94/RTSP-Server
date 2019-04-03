@@ -1,4 +1,4 @@
-package com.streye.rtspserver
+package com.pedro.rtspserver
 
 import org.junit.Test
 

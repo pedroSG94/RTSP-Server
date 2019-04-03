@@ -1,4 +1,4 @@
-package com.streye.rtspserver.rtsp
+package com.pedro.rtspserver.rtsp
 
 import android.content.Context
 import android.media.MediaCodec
@@ -131,6 +131,7 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
     private val input = BufferedReader(InputStreamReader(socket.getInputStream()))
     private val clientIp = socket.inetAddress.hostAddress
     var rtspSender: RtspSender? = null
+    private val protocol: Protocol = Protocol.UDP
 
     private val trackAudio = 0
     private val trackVideo = 1
@@ -157,7 +158,8 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
           output.flush()
 
           if (action.contains("play", true)) {
-            rtspSender = RtspSender(connectCheckerRtsp, Protocol.UDP, sps, pps, vps, sampleRate)
+            rtspSender = RtspSender(connectCheckerRtsp)
+            rtspSender?.setInfo(protocol, sps, pps, vps, sampleRate)
             rtspSender?.setDataStream(socket.getOutputStream(), clientIp)
 
             rtspSender?.setVideoPorts(videoPorts[0], videoPorts[1])
