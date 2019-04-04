@@ -20,20 +20,23 @@ class RtspServerFromFile : FromFileBase {
   private val rtspServer: RtspServer
 
   constructor(openGlView: OpenGlView, connectCheckerRtsp: ConnectCheckerRtsp, port: Int,
-    videoDecoderInterface: VideoDecoderInterface, audioDecoderInterface: AudioDecoderInterface)
-      : super(openGlView, videoDecoderInterface, audioDecoderInterface) {
+    videoDecoderInterface: VideoDecoderInterface,
+    audioDecoderInterface: AudioDecoderInterface) : super(openGlView, videoDecoderInterface,
+    audioDecoderInterface) {
     rtspServer = RtspServer(openGlView.context, connectCheckerRtsp, port)
   }
 
   constructor(lightOpenGlView: LightOpenGlView, connectCheckerRtsp: ConnectCheckerRtsp, port: Int,
-    videoDecoderInterface: VideoDecoderInterface, audioDecoderInterface: AudioDecoderInterface)
-      : super(lightOpenGlView, videoDecoderInterface, audioDecoderInterface) {
+    videoDecoderInterface: VideoDecoderInterface,
+    audioDecoderInterface: AudioDecoderInterface) : super(lightOpenGlView, videoDecoderInterface,
+    audioDecoderInterface) {
     rtspServer = RtspServer(lightOpenGlView.context, connectCheckerRtsp, port)
   }
 
   constructor(context: Context, connectCheckerRtsp: ConnectCheckerRtsp, port: Int,
-    videoDecoderInterface: VideoDecoderInterface, audioDecoderInterface: AudioDecoderInterface)
-      : super(context, videoDecoderInterface, audioDecoderInterface) {
+    videoDecoderInterface: VideoDecoderInterface,
+    audioDecoderInterface: AudioDecoderInterface) : super(context, videoDecoderInterface,
+    audioDecoderInterface) {
     rtspServer = RtspServer(context, connectCheckerRtsp, port)
   }
 
@@ -44,8 +47,7 @@ class RtspServerFromFile : FromFileBase {
 
   fun getEndPointConnection(): String = "rtsp://${rtspServer.serverIp}:${rtspServer.port}/"
 
-  override fun setAuthorization(user: String, password: String) {
-    //not developed
+  override fun setAuthorization(user: String, password: String) { //not developed
   }
 
   fun startStream() {
@@ -57,8 +59,7 @@ class RtspServerFromFile : FromFileBase {
     rtspServer.sampleRate = sampleRate
   }
 
-  override fun startStreamRtp(url: String) {
-    //unused
+  override fun startStreamRtp(url: String) { //unused
   }
 
   override fun stopStreamRtp() {
@@ -84,7 +85,8 @@ class RtspServerFromFile : FromFileBase {
   /**
    * Unused functions
    */
-  @Throws(RuntimeException::class) override fun resizeCache(newSize: Int) {
+  @Throws(RuntimeException::class)
+  override fun resizeCache(newSize: Int) {
   }
 
   override fun getCacheSize(): Int {
@@ -108,18 +110,14 @@ class RtspServerFromFile : FromFileBase {
   }
 
   override fun resetSentAudioFrames() {
-
   }
 
   override fun resetSentVideoFrames() {
-
   }
 
   override fun resetDroppedAudioFrames() {
-
   }
 
   override fun resetDroppedVideoFrames() {
-
   }
 }

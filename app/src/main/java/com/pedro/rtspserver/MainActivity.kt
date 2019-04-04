@@ -18,9 +18,8 @@ import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 
-
 class MainActivity : AppCompatActivity(), ConnectCheckerRtsp, View.OnClickListener,
-    SurfaceHolder.Callback {
+  SurfaceHolder.Callback {
 
   private var rtspServerCamera1: RtspServerCamera1? = null
   private var button: Button? = null
@@ -28,7 +27,7 @@ class MainActivity : AppCompatActivity(), ConnectCheckerRtsp, View.OnClickListen
 
   private var currentDateAndTime = ""
   private val folder =
-      File(Environment.getExternalStorageDirectory().absolutePath + "/rtmp-rtsp-stream-client-java")
+    File(Environment.getExternalStorageDirectory().absolutePath + "/rtmp-rtsp-stream-client-java")
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -83,13 +82,12 @@ class MainActivity : AppCompatActivity(), ConnectCheckerRtsp, View.OnClickListen
     when (view.id) {
       R.id.b_start_stop -> if (!rtspServerCamera1!!.isStreaming) {
         if (rtspServerCamera1!!.isRecording || rtspServerCamera1!!.prepareAudio() && rtspServerCamera1!!.prepareVideo(
-              1920, 1080, 30, 3500 * 1024, false, CameraHelper.getCameraOrientation(this))) {
+            1920, 1080, 30, 3500 * 1024, false, CameraHelper.getCameraOrientation(this))) {
           button!!.setText(R.string.stop_button)
           rtspServerCamera1!!.startStream()
           tv_url.text = rtspServerCamera1?.getEndPointConnection()
         } else {
-          Toast.makeText(this, "Error preparing stream, This device cant do it", Toast.LENGTH_SHORT)
-              .show()
+          Toast.makeText(this, "Error preparing stream, This device cant do it", Toast.LENGTH_SHORT).show()
         }
       } else {
         button!!.setText(R.string.start_button)
@@ -124,7 +122,6 @@ class MainActivity : AppCompatActivity(), ConnectCheckerRtsp, View.OnClickListen
             bRecord!!.setText(R.string.stop_record)
             Toast.makeText(this, "Recording... ", Toast.LENGTH_SHORT).show()
           }
-
         } catch (e: IOException) {
           rtspServerCamera1!!.stopRecord()
           bRecord!!.setText(R.string.start_record)
@@ -142,7 +139,6 @@ class MainActivity : AppCompatActivity(), ConnectCheckerRtsp, View.OnClickListen
   }
 
   override fun surfaceCreated(surfaceHolder: SurfaceHolder) {
-
   }
 
   override fun surfaceChanged(surfaceHolder: SurfaceHolder, i: Int, i1: Int, i2: Int) {

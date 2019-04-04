@@ -11,8 +11,8 @@ import com.pedro.rtsp.utils.ConnectCheckerRtsp
 import java.nio.ByteBuffer
 
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-class RtspServerDisplay(context: Context, useOpengl: Boolean, connectCheckerRtsp: ConnectCheckerRtsp,
-  port: Int) : DisplayBase(context, useOpengl) {
+class RtspServerDisplay(context: Context, useOpengl: Boolean,
+  connectCheckerRtsp: ConnectCheckerRtsp, port: Int) : DisplayBase(context, useOpengl) {
 
   private val rtspServer: RtspServer = RtspServer(context, connectCheckerRtsp, port)
 
@@ -23,8 +23,7 @@ class RtspServerDisplay(context: Context, useOpengl: Boolean, connectCheckerRtsp
 
   fun getEndPointConnection(): String = "rtsp://${rtspServer.serverIp}:${rtspServer.port}/"
 
-  override fun setAuthorization(user: String, password: String) {
-    //not developed
+  override fun setAuthorization(user: String, password: String) { //not developed
   }
 
   fun startStream() {
@@ -36,8 +35,7 @@ class RtspServerDisplay(context: Context, useOpengl: Boolean, connectCheckerRtsp
     rtspServer.sampleRate = sampleRate
   }
 
-  override fun startStreamRtp(url: String) {
-    //unused
+  override fun startStreamRtp(url: String) { //unused
   }
 
   override fun stopStreamRtp() {
@@ -88,18 +86,14 @@ class RtspServerDisplay(context: Context, useOpengl: Boolean, connectCheckerRtsp
   }
 
   override fun resetSentAudioFrames() {
-
   }
 
   override fun resetSentVideoFrames() {
-
   }
 
   override fun resetDroppedAudioFrames() {
-
   }
 
   override fun resetDroppedVideoFrames() {
-
   }
 }

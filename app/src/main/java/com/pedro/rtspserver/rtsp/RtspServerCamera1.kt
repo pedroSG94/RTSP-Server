@@ -31,31 +31,32 @@ class RtspServerCamera1 : Camera1Base {
     rtspServer = RtspServer(textureView.context, connectCheckerRtsp, port)
   }
 
-  @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2) constructor(openGlView: OpenGlView,
-    connectCheckerRtsp: ConnectCheckerRtsp, port: Int) : super(openGlView) {
+  @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
+  constructor(openGlView: OpenGlView, connectCheckerRtsp: ConnectCheckerRtsp, port: Int) : super(
+    openGlView) {
     rtspServer = RtspServer(openGlView.context, connectCheckerRtsp, port)
   }
 
-  @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2) constructor(
-    lightOpenGlView: LightOpenGlView, connectCheckerRtsp: ConnectCheckerRtsp, port: Int) : super(
-    lightOpenGlView) {
+  @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
+  constructor(lightOpenGlView: LightOpenGlView, connectCheckerRtsp: ConnectCheckerRtsp,
+    port: Int) : super(lightOpenGlView) {
     rtspServer = RtspServer(lightOpenGlView.context, connectCheckerRtsp, port)
   }
 
-  @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2) constructor(context: Context,
-    connectCheckerRtsp: ConnectCheckerRtsp, port: Int) : super(context) {
+  @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
+  constructor(context: Context, connectCheckerRtsp: ConnectCheckerRtsp, port: Int) : super(
+    context) {
     rtspServer = RtspServer(context, connectCheckerRtsp, port)
   }
 
   fun setVideoCodec(videoCodec: VideoCodec) {
     videoEncoder.type =
-        if (videoCodec == VideoCodec.H265) CodecUtil.H265_MIME else CodecUtil.H264_MIME
+      if (videoCodec == VideoCodec.H265) CodecUtil.H265_MIME else CodecUtil.H264_MIME
   }
 
-  fun getEndPointConnection() : String = "rtsp://${rtspServer.serverIp}:${rtspServer.port}/"
+  fun getEndPointConnection(): String = "rtsp://${rtspServer.serverIp}:${rtspServer.port}/"
 
-  override fun setAuthorization(user: String, password: String) {
-    //not developed
+  override fun setAuthorization(user: String, password: String) { //not developed
   }
 
   fun startStream() {
@@ -67,8 +68,7 @@ class RtspServerCamera1 : Camera1Base {
     rtspServer.sampleRate = sampleRate
   }
 
-  override fun startStreamRtp(url: String) {
-    //unused
+  override fun startStreamRtp(url: String) { //unused
   }
 
   override fun stopStreamRtp() {
@@ -119,18 +119,14 @@ class RtspServerCamera1 : Camera1Base {
   }
 
   override fun resetSentAudioFrames() {
-
   }
 
   override fun resetSentVideoFrames() {
-
   }
 
   override fun resetDroppedAudioFrames() {
-
   }
 
   override fun resetDroppedVideoFrames() {
-
   }
 }

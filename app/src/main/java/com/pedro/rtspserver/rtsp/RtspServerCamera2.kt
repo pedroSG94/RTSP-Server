@@ -4,8 +4,6 @@ import android.content.Context
 import android.media.MediaCodec
 import android.os.Build
 import android.support.annotation.RequiresApi
-import android.view.SurfaceView
-import android.view.TextureView
 import com.pedro.encoder.utils.CodecUtil
 import com.pedro.rtplibrary.base.Camera2Base
 import com.pedro.rtplibrary.view.LightOpenGlView
@@ -19,40 +17,29 @@ class RtspServerCamera2 : Camera2Base {
 
   private val rtspServer: RtspServer
 
-  constructor(surfaceView: SurfaceView, connectCheckerRtsp: ConnectCheckerRtsp, port: Int) : super(
-      surfaceView) {
-    rtspServer = RtspServer(surfaceView.context, connectCheckerRtsp, port)
-  }
-
-  constructor(textureView: TextureView, connectCheckerRtsp: ConnectCheckerRtsp, port: Int) : super(
-      textureView) {
-    rtspServer = RtspServer(textureView.context, connectCheckerRtsp, port)
-  }
-
   constructor(openGlView: OpenGlView, connectCheckerRtsp: ConnectCheckerRtsp, port: Int) : super(
-      openGlView) {
+    openGlView) {
     rtspServer = RtspServer(openGlView.context, connectCheckerRtsp, port)
   }
 
   constructor(lightOpenGlView: LightOpenGlView, connectCheckerRtsp: ConnectCheckerRtsp,
-              port: Int) : super(lightOpenGlView) {
+    port: Int) : super(lightOpenGlView) {
     rtspServer = RtspServer(lightOpenGlView.context, connectCheckerRtsp, port)
   }
 
   constructor(context: Context, useOpengl: Boolean, connectCheckerRtsp: ConnectCheckerRtsp,
-              port: Int) : super(context, useOpengl) {
+    port: Int) : super(context, useOpengl) {
     rtspServer = RtspServer(context, connectCheckerRtsp, port)
   }
 
   fun setVideoCodec(videoCodec: VideoCodec) {
     videoEncoder.type =
-        if (videoCodec == VideoCodec.H265) CodecUtil.H265_MIME else CodecUtil.H264_MIME
+      if (videoCodec == VideoCodec.H265) CodecUtil.H265_MIME else CodecUtil.H264_MIME
   }
 
   fun getEndPointConnection(): String = "rtsp://${rtspServer.serverIp}:${rtspServer.port}/"
 
-  override fun setAuthorization(user: String, password: String) {
-    //not developed
+  override fun setAuthorization(user: String, password: String) { //not developed
   }
 
   fun startStream() {
@@ -64,8 +51,7 @@ class RtspServerCamera2 : Camera2Base {
     rtspServer.sampleRate = sampleRate
   }
 
-  override fun startStreamRtp(url: String) {
-    //unused
+  override fun startStreamRtp(url: String) { //unused
   }
 
   override fun stopStreamRtp() {
@@ -116,18 +102,14 @@ class RtspServerCamera2 : Camera2Base {
   }
 
   override fun resetSentAudioFrames() {
-
   }
 
   override fun resetSentVideoFrames() {
-
   }
 
   override fun resetDroppedAudioFrames() {
-
   }
 
   override fun resetDroppedVideoFrames() {
-
   }
 }

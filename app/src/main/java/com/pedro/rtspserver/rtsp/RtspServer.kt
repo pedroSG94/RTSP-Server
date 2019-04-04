@@ -27,7 +27,8 @@ import java.util.regex.Pattern
  * TODO TCP support.
  */
 
-class RtspServer(context: Context, private val connectCheckerRtsp: ConnectCheckerRtsp, val port: Int) {
+class RtspServer(context: Context, private val connectCheckerRtsp: ConnectCheckerRtsp,
+  val port: Int) {
 
   private val TAG = "RtspServer"
   private lateinit var server: ServerSocket
@@ -47,8 +48,8 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
         Log.i(TAG, "Server started $serverIp:$port")
         try {
           val client =
-              Client(server.accept(), serverIp, port, connectCheckerRtsp, sps, pps, vps, sampleRate,
-                  isStereo)
+            Client(server.accept(), serverIp, port, connectCheckerRtsp, sps, pps, vps, sampleRate,
+              isStereo)
           client.start()
           clients.add(client)
         } catch (e: SocketException) {
@@ -79,7 +80,7 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
 
   fun sendVideo(h264Buffer: ByteBuffer, info: MediaCodec.BufferInfo) {
     clients.forEach {
-      if (it.isAlive) {
+      if (it.isAlive && it.canSend) {
         it.rtspSender.sendVideoFrame(h264Buffer.duplicate(), info)
       }
     }
@@ -87,7 +88,7 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
 
   fun sendAudio(aacBuffer: ByteBuffer, info: MediaCodec.BufferInfo) {
     clients.forEach {
-      if (it.isAlive) {
+      if (it.isAlive && it.canSend) {
         it.rtspSender.sendAudioFrame(aacBuffer.duplicate(), info)
       }
     }
@@ -112,17 +113,16 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
 
   private fun getServerIp(context: Context): String {
     val wm =
-        context.applicationContext.getSystemService(AppCompatActivity.WIFI_SERVICE) as WifiManager
+      context.applicationContext.getSystemService(AppCompatActivity.WIFI_SERVICE) as WifiManager
     return InetAddress.getByAddress(ByteArray(4) { i ->
       wm.connectionInfo.ipAddress.shr(i * 8).and(255).toByte()
     }).hostAddress
   }
 
   internal class Client(private val socket: Socket, private val serverIp: String,
-                        private val serverPort: Int, connectCheckerRtsp: ConnectCheckerRtsp,
-                        private val sps: ByteArray?, private val pps: ByteArray?,
-                        private val vps: ByteArray?, private val sampleRate: Int,
-                        private val isStereo: Boolean) : Thread() {
+    private val serverPort: Int, connectCheckerRtsp: ConnectCheckerRtsp,
+    private val sps: ByteArray?, private val pps: ByteArray?, private val vps: ByteArray?,
+    private val sampleRate: Int, private val isStereo: Boolean) : Thread() {
 
     private val TAG = "Client"
     private var cSeq = 0
@@ -137,6 +137,7 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
     private val trackVideo = 1
     private var audioPorts = ArrayList<Int>()
     private var videoPorts = ArrayList<Int>()
+    var canSend = false
 
     override fun run() {
       super.run()
@@ -160,14 +161,12 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
           if (action.contains("play", true)) {
             rtspSender.setInfo(protocol, sps, pps, vps, sampleRate)
             rtspSender.setDataStream(socket.getOutputStream(), clientIp)
-
             rtspSender.setVideoPorts(videoPorts[0], videoPorts[1])
             rtspSender.setAudioPorts(audioPorts[0], audioPorts[1])
-
             rtspSender.start()
+            canSend = true
           }
-        } catch (e: SocketException) {
-          // Client has left
+        } catch (e: SocketException) { // Client has left
           Log.e(TAG, "Client disconnected")
           break
         } catch (e: Exception) {
@@ -177,6 +176,7 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
     }
 
     fun stopClient() {
+      canSend = false
       rtspSender.stop()
       interrupt()
       try {
@@ -204,8 +204,8 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
 
     private fun loadPorts(request: String): Boolean {
       val ports = ArrayList<Int>()
-      val portsMatcher = Pattern.compile("client_port=(\\d+)(?:-(\\d+))?", Pattern.CASE_INSENSITIVE)
-          .matcher(request)
+      val portsMatcher =
+        Pattern.compile("client_port=(\\d+)(?:-(\\d+))?", Pattern.CASE_INSENSITIVE).matcher(request)
       if (portsMatcher.find()) {
         ports.add(portsMatcher.group(1).toInt())
         ports.add(portsMatcher.group(2).toInt())
@@ -214,7 +214,7 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
         return false
       }
       val trackMatcher =
-          Pattern.compile("trackID=(\\w+)", Pattern.CASE_INSENSITIVE).matcher(request)
+        Pattern.compile("trackID=(\\w+)", Pattern.CASE_INSENSITIVE).matcher(request)
       if (trackMatcher.find()) {
         val track = trackMatcher.group(1).toInt()
         if (track == 0) { //audio ports
@@ -237,15 +237,13 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
 
     private fun getCSeq(request: String): Int {
       val cSeqMatcher =
-          Pattern.compile("CSeq\\s*:\\s*(\\d+)", Pattern.CASE_INSENSITIVE).matcher(request)
-      val cSeq: Int
-      if (cSeqMatcher.find()) {
-        cSeq = cSeqMatcher.group(1).toInt()
+        Pattern.compile("CSeq\\s*:\\s*(\\d+)", Pattern.CASE_INSENSITIVE).matcher(request)
+      return if (cSeqMatcher.find()) {
+        cSeqMatcher.group(1).toInt()
       } else {
         Log.e(TAG, "cSeq not found")
         return -1
       }
-      return cSeq
     }
 
     @Throws(IOException::class, IllegalStateException::class, SocketException::class)
@@ -272,8 +270,8 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
 
     private fun createError(code: Int): String {
       return "RTSP/1.0 ${createStatus(code)}\r\n" +
-              "Server: pedroSG94 Server\r\n" +
-              "Cseq: $cSeq\r\n\r\n"
+          "Server: pedroSG94 Server\r\n" +
+          "Cseq: $cSeq\r\n\r\n"
     }
 
     private fun createHeader(): String {
@@ -301,11 +299,14 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
       val bodyVideo = Body.createH264Body(trackVideo, "Z0KAHtoHgUZA", "aM4NiA==")
       return "v=0\r\n" +
           "o=- 0 0 IN IP4 $serverIp\r\n" +
-          "s=Unnamed\r\n" + "i=N/A\r\n" +
+          "s=Unnamed\r\n" +
+          "i=N/A\r\n" +
           "c=IN IP4 $clientIp\r\n" +
           "t=0 0\r\n" +
           "a=recvonly\r\n" +
-          bodyAudio + bodyVideo + "\r\n"
+          bodyAudio +
+          bodyVideo +
+          "\r\n"
     }
 
     private fun createSetup(): String {
