@@ -1,17 +1,16 @@
-package com.pedro.rtspserver
+package com.pedro.sample
 
 import android.os.Bundle
 import android.os.Environment
-import android.support.v7.app.AppCompatActivity
 import android.view.SurfaceHolder
 import android.view.View
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.Toast
-import com.pedro.encoder.input.video.CameraHelper
+import androidx.appcompat.app.AppCompatActivity
 import com.pedro.encoder.input.video.CameraOpenException
 import com.pedro.rtsp.utils.ConnectCheckerRtsp
-import com.pedro.rtspserver.rtsp.RtspServerCamera1
+import com.pedro.rtspserver.RtspServerCamera1
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
 import java.io.IOException
@@ -19,7 +18,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class MainActivity : AppCompatActivity(), ConnectCheckerRtsp, View.OnClickListener,
-  SurfaceHolder.Callback {
+    SurfaceHolder.Callback {
 
   private var rtspServerCamera1: RtspServerCamera1? = null
   private var button: Button? = null
@@ -27,7 +26,7 @@ class MainActivity : AppCompatActivity(), ConnectCheckerRtsp, View.OnClickListen
 
   private var currentDateAndTime = ""
   private val folder =
-    File(Environment.getExternalStorageDirectory().absolutePath + "/rtmp-rtsp-stream-client-java")
+      File(Environment.getExternalStorageDirectory().absolutePath + "/rtmp-rtsp-stream-client-java")
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -39,8 +38,12 @@ class MainActivity : AppCompatActivity(), ConnectCheckerRtsp, View.OnClickListen
     bRecord = findViewById(R.id.b_record)
     bRecord!!.setOnClickListener(this)
     switch_camera.setOnClickListener(this)
-    rtspServerCamera1 = RtspServerCamera1(surfaceView, this, 1935)
+    rtspServerCamera1 = com.pedro.rtspserver.RtspServerCamera1(surfaceView, this, 1935)
     surfaceView.holder.addCallback(this)
+  }
+
+  override fun onNewBitrateRtsp(bitrate: Long) {
+
   }
 
   override fun onConnectionSuccessRtsp() {
@@ -81,13 +84,13 @@ class MainActivity : AppCompatActivity(), ConnectCheckerRtsp, View.OnClickListen
   override fun onClick(view: View) {
     when (view.id) {
       R.id.b_start_stop -> if (!rtspServerCamera1!!.isStreaming) {
-        if (rtspServerCamera1!!.isRecording || rtspServerCamera1!!.prepareAudio() && rtspServerCamera1!!.prepareVideo(
-            1920, 1080, 30, 3500 * 1024, false, CameraHelper.getCameraOrientation(this))) {
+        if (rtspServerCamera1!!.isRecording || rtspServerCamera1!!.prepareAudio() && rtspServerCamera1!!.prepareVideo()) {
           button!!.setText(R.string.stop_button)
           rtspServerCamera1!!.startStream()
           tv_url.text = rtspServerCamera1?.getEndPointConnection()
         } else {
-          Toast.makeText(this, "Error preparing stream, This device cant do it", Toast.LENGTH_SHORT).show()
+          Toast.makeText(this, "Error preparing stream, This device cant do it", Toast.LENGTH_SHORT)
+              .show()
         }
       } else {
         button!!.setText(R.string.start_button)

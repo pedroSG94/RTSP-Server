@@ -1,11 +1,11 @@
-package com.pedro.rtspserver.rtsp
+package com.pedro.rtspserver
 
 import android.content.Context
 import android.media.MediaCodec
 import android.os.Build
-import android.support.annotation.RequiresApi
 import android.view.SurfaceView
 import android.view.TextureView
+import androidx.annotation.RequiresApi
 import com.pedro.encoder.utils.CodecUtil
 import com.pedro.rtplibrary.base.Camera1Base
 import com.pedro.rtplibrary.view.LightOpenGlView
@@ -98,25 +98,23 @@ class RtspServerCamera1 : Camera1Base {
   override fun resizeCache(newSize: Int) {
   }
 
-  override fun getCacheSize(): Int {
-    return 0
+  override fun shouldRetry(reason: String?): Boolean = false
+
+  override fun reConnect(delay: Long) {
   }
 
-  override fun getSentAudioFrames(): Long {
-    return 0
+  override fun setReTries(reTries: Int) {
   }
 
-  override fun getSentVideoFrames(): Long {
-    return 0
-  }
+  override fun getCacheSize(): Int = 0
 
-  override fun getDroppedAudioFrames(): Long {
-    return 0
-  }
+  override fun getSentAudioFrames(): Long = 0
 
-  override fun getDroppedVideoFrames(): Long {
-    return 0
-  }
+  override fun getSentVideoFrames(): Long = 0
+
+  override fun getDroppedAudioFrames(): Long = 0
+
+  override fun getDroppedVideoFrames(): Long = 0
 
   override fun resetSentAudioFrames() {
   }

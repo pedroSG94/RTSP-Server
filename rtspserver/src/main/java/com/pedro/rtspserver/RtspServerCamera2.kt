@@ -1,20 +1,36 @@
-package com.pedro.rtspserver.rtsp
+package com.pedro.rtspserver
 
 import android.content.Context
 import android.media.MediaCodec
 import android.os.Build
-import android.support.annotation.RequiresApi
+import androidx.annotation.RequiresApi
 import com.pedro.encoder.utils.CodecUtil
-import com.pedro.rtplibrary.base.DisplayBase
+import com.pedro.rtplibrary.base.Camera2Base
+import com.pedro.rtplibrary.view.LightOpenGlView
+import com.pedro.rtplibrary.view.OpenGlView
 import com.pedro.rtsp.rtsp.VideoCodec
 import com.pedro.rtsp.utils.ConnectCheckerRtsp
 import java.nio.ByteBuffer
 
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-class RtspServerDisplay(context: Context, useOpengl: Boolean,
-  connectCheckerRtsp: ConnectCheckerRtsp, port: Int) : DisplayBase(context, useOpengl) {
+class RtspServerCamera2 : Camera2Base {
 
-  private val rtspServer: RtspServer = RtspServer(context, connectCheckerRtsp, port)
+  private val rtspServer: RtspServer
+
+  constructor(openGlView: OpenGlView, connectCheckerRtsp: ConnectCheckerRtsp, port: Int) : super(
+    openGlView) {
+    rtspServer = RtspServer(openGlView.context, connectCheckerRtsp, port)
+  }
+
+  constructor(lightOpenGlView: LightOpenGlView, connectCheckerRtsp: ConnectCheckerRtsp,
+    port: Int) : super(lightOpenGlView) {
+    rtspServer = RtspServer(lightOpenGlView.context, connectCheckerRtsp, port)
+  }
+
+  constructor(context: Context, useOpengl: Boolean, connectCheckerRtsp: ConnectCheckerRtsp,
+    port: Int) : super(context, useOpengl) {
+    rtspServer = RtspServer(context, connectCheckerRtsp, port)
+  }
 
   fun setVideoCodec(videoCodec: VideoCodec) {
     videoEncoder.type =
@@ -65,25 +81,23 @@ class RtspServerDisplay(context: Context, useOpengl: Boolean,
   override fun resizeCache(newSize: Int) {
   }
 
-  override fun getCacheSize(): Int {
-    return 0
+  override fun shouldRetry(reason: String?): Boolean = false
+
+  override fun reConnect(delay: Long) {
   }
 
-  override fun getSentAudioFrames(): Long {
-    return 0
+  override fun setReTries(reTries: Int) {
   }
 
-  override fun getSentVideoFrames(): Long {
-    return 0
-  }
+  override fun getCacheSize(): Int = 0
 
-  override fun getDroppedAudioFrames(): Long {
-    return 0
-  }
+  override fun getSentAudioFrames(): Long = 0
 
-  override fun getDroppedVideoFrames(): Long {
-    return 0
-  }
+  override fun getSentVideoFrames(): Long = 0
+
+  override fun getDroppedAudioFrames(): Long = 0
+
+  override fun getDroppedVideoFrames(): Long = 0
 
   override fun resetSentAudioFrames() {
   }
