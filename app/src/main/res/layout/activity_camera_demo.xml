@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/activity_example_rtmp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+
+<!--    Used to support api 16 but OpenGlView is recommended-->
+    <SurfaceView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/surfaceView"
+        />
+
+<!--    <com.pedro.rtplibrary.view.OpenGlView-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:id="@+id/surfaceView"-->
+<!--        />-->
+
+    <TextView
+        android:textSize="24sp"
+        android:textColor="@color/appColor"
+        android:textColorHint="@color/appColor"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_margin="20dp"
+        android:id="@+id/tv_url"
+        />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="20dp"
+        android:gravity="center"
+        android:weightSum="3"
+        >
+
+        <Button
+            android:layout_weight="1"
+            android:text="@string/start_record"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="5dp"
+            android:id="@+id/b_record"
+            android:layout_marginEnd="5dp" />
+
+        <Button
+            android:layout_weight="1"
+            android:text="@string/start_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="5dp"
+            android:id="@+id/b_start_stop"
+            android:layout_marginEnd="5dp" />
+
+        <Button
+            android:layout_weight="1"
+            android:text="@string/switch_camera_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/switch_camera"
+            />
+    </LinearLayout>
+</RelativeLayout>
