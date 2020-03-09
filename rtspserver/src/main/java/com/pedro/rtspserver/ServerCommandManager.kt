@@ -1,5 +1,6 @@
 package com.pedro.rtspserver
 
+import android.util.Base64
 import android.util.Log
 import com.pedro.rtsp.rtsp.Body
 import com.pedro.rtsp.rtsp.CommandsManager
@@ -119,9 +120,9 @@ class ServerCommandManager(private val serverIp: String, private val serverPort:
   }
 
   private fun createBody(): String {
-    val bodyAudio = Body.createAacBody(trackAudio, sampleRate, isStereo)
-    val bodyVideo = Body.createH264Body(trackVideo, "Z0KAHtoHgUZA", "aM4NiA==")
-    return "v=0\r\n" + "o=- 0 0 IN IP4 $serverIp\r\n" + "s=Unnamed\r\n" + "i=N/A\r\n" + "c=IN IP4 $clientIp\r\n" + "t=0 0\r\n" + "a=recvonly\r\n" + bodyAudio + bodyVideo + "\r\n"
+    val audioBody = Body.createAacBody(trackAudio, sampleRate, isStereo)
+    val videoBody = if (vps == null) Body.createH264Body(trackVideo, encodeToString(sps), encodeToString(pps)) else Body.createH265Body(trackVideo, encodeToString(sps), encodeToString(pps), encodeToString(vps))
+    return "v=0\r\n" + "o=- 0 0 IN IP4 $serverIp\r\n" + "s=Unnamed\r\n" + "i=N/A\r\n" + "c=IN IP4 $clientIp\r\n" + "t=0 0\r\n" + "a=recvonly\r\n" + audioBody + videoBody + "\r\n"
   }
 
   override fun createSetup(cSeq: Int): String {
@@ -140,5 +141,9 @@ class ServerCommandManager(private val serverIp: String, private val serverPort:
 
   private fun createTeardown(cSeq: Int): String {
     return createHeader(cSeq) + "\r\n"
+  }
+
+  private fun encodeToString(bytes: ByteArray): String? {
+    return Base64.encodeToString(bytes, 0, bytes.size, Base64.NO_WRAP)
   }
 }

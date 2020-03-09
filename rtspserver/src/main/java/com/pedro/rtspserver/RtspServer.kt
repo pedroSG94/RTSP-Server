@@ -30,9 +30,9 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
   private val TAG = "RtspServer"
   private lateinit var server: ServerSocket
   val serverIp = getServerIp(context)
-  var sps: ByteArray? = null
-  var pps: ByteArray? = null
-  var vps: ByteArray? = null
+  var sps: ByteBuffer? = null
+  var pps: ByteBuffer? = null
+  var vps: ByteBuffer? = null
   var sampleRate = 32000
   var isStereo = true
   private val clients = mutableListOf<Client>()
@@ -45,10 +45,8 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
         Log.i(TAG, "Server started $serverIp:$port")
         try {
           val client =
-            Client(
-              server.accept(), serverIp, port, connectCheckerRtsp, sps, pps, vps, sampleRate,
-              isStereo
-            )
+            Client(server.accept(), serverIp, port, connectCheckerRtsp, sps!!, pps!!, vps, sampleRate,
+              isStereo)
           client.start()
           clients.add(client)
         } catch (e: SocketException) {
@@ -94,20 +92,9 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
   }
 
   fun setVideoInfo(sps: ByteBuffer, pps: ByteBuffer, vps: ByteBuffer?) {
-    this.sps = getData(sps)
-    this.pps = getData(pps)
-    this.vps = getData(vps)  //H264 has no vps so if not null assume H265
-  }
-
-  private fun getData(byteBuffer: ByteBuffer?): ByteArray? {
-    return if (byteBuffer != null) {
-      val bytes = ByteArray(byteBuffer.capacity() - 4)
-      byteBuffer.position(4)
-      byteBuffer.get(bytes, 0, bytes.size)
-      bytes
-    } else {
-      null
-    }
+    this.sps = sps
+    this.pps = pps
+    this.vps = vps  //H264 has no vps so if not null assume H265
   }
 
   private fun getServerIp(context: Context): String {
@@ -118,8 +105,8 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
   }
 
   internal class Client(private val socket: Socket, serverIp: String, serverPort: Int,
-    connectCheckerRtsp: ConnectCheckerRtsp, private val sps: ByteArray?,
-    private val pps: ByteArray?, private val vps: ByteArray?, private val sampleRate: Int,
+    connectCheckerRtsp: ConnectCheckerRtsp, sps: ByteBuffer,
+    pps: ByteBuffer, vps: ByteBuffer?, private val sampleRate: Int,
     isStereo: Boolean) : Thread() {
 
     private val TAG = "Client"
@@ -138,6 +125,7 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
 
     init {
       commandsManager.setIsStereo(isStereo)
+      commandsManager.setVideoInfo(sps, pps, vps)
     }
 
     override fun run() {
@@ -162,7 +150,7 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
           if (action.contains("play", true)) {
             rtspSender.setSocketsInfo(protocol, commandsManager.videoClientPorts,
               commandsManager.audioClientPorts)
-            rtspSender.setVideoInfo(sps, pps, vps)
+            rtspSender.setVideoInfo(commandsManager.sps, commandsManager.pps, commandsManager.vps)
             rtspSender.setAudioInfo(sampleRate)
             rtspSender.setDataStream(socket.getOutputStream(), commandsManager.clientIp)
             rtspSender.setVideoPorts(commandsManager.videoPorts[0], commandsManager.videoPorts[1])
