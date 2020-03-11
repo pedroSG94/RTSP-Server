@@ -20,8 +20,6 @@ import java.nio.ByteBuffer
  *
  *
  * TODO Use different session per client.
- *
- * TODO TCP support.
  */
 
 class RtspServer(context: Context, private val connectCheckerRtsp: ConnectCheckerRtsp,
@@ -114,7 +112,6 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
     private val output = BufferedWriter(OutputStreamWriter(socket.getOutputStream()))
     private val input = BufferedReader(InputStreamReader(socket.getInputStream()))
     val rtspSender = RtspSender(connectCheckerRtsp)
-    private val protocol: Protocol = Protocol.UDP
     private val commandsManager =
       ServerCommandManager(
         serverIp,
@@ -148,21 +145,24 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
           output.flush()
 
           if (action.contains("play", true)) {
-            rtspSender.setSocketsInfo(protocol, commandsManager.videoClientPorts,
+            Log.i(TAG, "Protocol ${commandsManager.protocol}")
+            rtspSender.setSocketsInfo(commandsManager.protocol, commandsManager.videoClientPorts,
               commandsManager.audioClientPorts)
             rtspSender.setVideoInfo(commandsManager.sps, commandsManager.pps, commandsManager.vps)
             rtspSender.setAudioInfo(sampleRate)
             rtspSender.setDataStream(socket.getOutputStream(), commandsManager.clientIp)
-            rtspSender.setVideoPorts(commandsManager.videoPorts[0], commandsManager.videoPorts[1])
-            rtspSender.setAudioPorts(commandsManager.audioPorts[0], commandsManager.audioPorts[1])
+            if (commandsManager.protocol == Protocol.UDP) {
+              rtspSender.setVideoPorts(commandsManager.videoPorts[0], commandsManager.videoPorts[1])
+              rtspSender.setAudioPorts(commandsManager.audioPorts[0], commandsManager.audioPorts[1])
+            }
             rtspSender.start()
             canSend = true
           }
         } catch (e: SocketException) { // Client has left
-          Log.e(TAG, "Client disconnected")
+          Log.e(TAG, "Client disconnected", e)
           break
         } catch (e: Exception) {
-          Log.e(TAG, "Unexpected error")
+          Log.e(TAG, "Unexpected error", e)
         }
       }
     }
