@@ -50,12 +50,10 @@ class ServerCommandManager(private val serverIp: String, private val serverPort:
   }
 
   private fun getProtocol(request: String): Protocol? {
-    return if (request.contains("UDP", true)) {
+    return if (request.contains("UDP", true) || loadPorts(request)) {
       Protocol.UDP
-    } else if (request.contains("TCP", true)) {
-      Protocol.TCP
     } else {
-      null
+      Protocol.TCP
     }
   }
 
