@@ -122,6 +122,7 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
 
     init {
       commandsManager.setIsStereo(isStereo)
+      commandsManager.sampleRate = sampleRate
       commandsManager.setVideoInfo(sps, pps, vps)
     }
 
