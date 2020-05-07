@@ -8,11 +8,9 @@ import com.pedro.rtsp.rtsp.Protocol
 import com.pedro.rtsp.rtsp.RtspSender
 import com.pedro.rtsp.utils.ConnectCheckerRtsp
 import java.io.*
-import java.net.InetAddress
-import java.net.ServerSocket
-import java.net.Socket
-import java.net.SocketException
+import java.net.*
 import java.nio.ByteBuffer
+import java.util.*
 
 /**
  *
@@ -27,7 +25,7 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
 
   private val TAG = "RtspServer"
   private lateinit var server: ServerSocket
-  val serverIp = getServerIp(context)
+  val serverIp = getIPAddress(true)
   var sps: ByteBuffer? = null
   var pps: ByteBuffer? = null
   var vps: ByteBuffer? = null
@@ -95,11 +93,32 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
     this.vps = vps  //H264 has no vps so if not null assume H265
   }
 
-  private fun getServerIp(context: Context): String {
-    val wm = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-    return InetAddress.getByAddress(ByteArray(4) { i ->
-      wm.connectionInfo.ipAddress.shr(i * 8).and(255).toByte()
-    }).hostAddress
+  private fun getIPAddress(useIPv4: Boolean): String {
+    try {
+      val interfaces: List<NetworkInterface> =
+        Collections.list(NetworkInterface.getNetworkInterfaces())
+      for (intf in interfaces) {
+        val addrs: List<InetAddress> =
+          Collections.list(intf.inetAddresses)
+        for (addr in addrs) {
+          if (!addr.isLoopbackAddress) {
+            val sAddr = addr.hostAddress
+            val isIPv4 = sAddr.indexOf(':') < 0
+            if (useIPv4) {
+              if (isIPv4) return sAddr
+            } else {
+              if (!isIPv4) {
+                val delim = sAddr.indexOf('%') // drop ip6 zone suffix
+                return if (delim < 0) sAddr.toUpperCase() else sAddr.substring(0, delim)
+                  .toUpperCase()
+              }
+            }
+          }
+        }
+      }
+    } catch (ignored: java.lang.Exception) {
+    } // for now eat exceptions
+    return "0.0.0.0"
   }
 
   internal class Client(private val socket: Socket, serverIp: String, serverPort: Int,
