@@ -24,7 +24,7 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
   val port: Int) {
 
   private val TAG = "RtspServer"
-  private lateinit var server: ServerSocket
+  private var server: ServerSocket? = null
   val serverIp = getIPAddress(true)
   var sps: ByteBuffer? = null
   var pps: ByteBuffer? = null
@@ -35,13 +35,14 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
   private var thread: Thread? = null
 
   fun startServer() {
+    stopServer()
     thread = Thread {
       server = ServerSocket(port)
       while (!Thread.interrupted()) {
         Log.i(TAG, "Server started $serverIp:$port")
         try {
           val client =
-            Client(server.accept(), serverIp, port, connectCheckerRtsp, sps!!, pps!!, vps, sampleRate,
+            Client(server!!.accept(), serverIp, port, connectCheckerRtsp, sps!!, pps!!, vps, sampleRate,
               isStereo)
           client.start()
           clients.add(client)
@@ -68,7 +69,9 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
       thread?.interrupt()
     }
     thread = null
-    if (!server.isClosed) server.close()
+    if (server != null) {
+      if (!server!!.isClosed) server!!.close()
+    }
   }
 
   fun sendVideo(h264Buffer: ByteBuffer, info: MediaCodec.BufferInfo) {
