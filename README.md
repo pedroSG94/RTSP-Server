@@ -1,4 +1,7 @@
 # RTSP-Server
+
+[![Release](https://jitpack.io/v/pedroSG94/RTSP-Server.svg)](https://jitpack.io/#pedroSG94/RTSP-Server)
+
 Plugin of rtmp-rtsp-stream-client-java to stream directly to RTSP player.
 
 ## Compile
