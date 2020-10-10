@@ -70,6 +70,10 @@ class RtspServerFromFile : FromFileBase {
     rtspServer.sendAudio(aacBuffer, info)
   }
 
+  override fun setLogs(enable: Boolean) {
+    rtspServer.setLogs(enable)
+  }
+
   override fun onSpsPpsVpsRtp(sps: ByteBuffer, pps: ByteBuffer, vps: ByteBuffer?) {
     val newSps = sps.duplicate()
     val newPps = pps.duplicate()

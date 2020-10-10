@@ -59,6 +59,10 @@ class RtspServerDisplay(context: Context, useOpengl: Boolean,
     rtspServer.sendVideo(h264Buffer, info)
   }
 
+  override fun setLogs(enable: Boolean) {
+    rtspServer.setLogs(enable)
+  }
+
   /**
    * Unused functions
    */

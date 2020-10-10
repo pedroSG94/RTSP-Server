@@ -74,6 +74,10 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
     }
   }
 
+  fun setLogs(enable: Boolean) {
+    clients.forEach { it.rtspSender.setLogs(enable) }
+  }
+
   fun sendVideo(h264Buffer: ByteBuffer, info: MediaCodec.BufferInfo) {
     clients.forEach {
       if (it.isAlive && it.canSend) {

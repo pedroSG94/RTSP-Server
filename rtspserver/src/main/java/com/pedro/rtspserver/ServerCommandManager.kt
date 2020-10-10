@@ -132,28 +132,26 @@ class ServerCommandManager(private val serverIp: String, private val serverPort:
   }
 
   fun createError(code: Int, cSeq: Int): String {
-    return "RTSP/1.0 ${createStatus(
-        code)}\r\n" + "Server: pedroSG94 Server\r\n" + "Cseq: $cSeq\r\n\r\n"
+    return "RTSP/1.0 ${createStatus(code)}\r\nServer: pedroSG94 Server\r\nCseq: $cSeq\r\n\r\n"
   }
 
   private fun createHeader(cSeq: Int): String {
-    return "RTSP/1.0 ${createStatus(200)}\r\n" + "Server: pedroSG94 Server\r\n" + "Cseq: $cSeq\r\n"
+    return "RTSP/1.0 ${createStatus(200)}\r\nServer: pedroSG94 Server\r\nCseq: $cSeq\r\n"
   }
 
   private fun createOptions(cSeq: Int): String {
-    return createHeader(cSeq) + "Public: DESCRIBE,SETUP,TEARDOWN,PLAY,PAUSE\r\n\r\n"
+    return "${createHeader(cSeq)}Public: DESCRIBE,SETUP,TEARDOWN,PLAY,PAUSE\r\n\r\n"
   }
 
   private fun createDescribe(cSeq: Int): String {
     val body = createBody()
-    return createHeader(
-        cSeq) + "Content-Length: ${body.length}\r\n" + "Content-Base: $serverIp:$serverPort/\r\n" + "Content-Type: application/sdp\r\n\r\n" + body
+    return "${createHeader(cSeq)}Content-Length: ${body.length}\r\nContent-Base: $serverIp:$serverPort/\r\nContent-Type: application/sdp\r\n\r\n$body"
   }
 
   private fun createBody(): String {
     val audioBody = Body.createAacBody(trackAudio, sampleRate, isStereo)
     val videoBody = if (vps == null) Body.createH264Body(trackVideo, encodeToString(sps), encodeToString(pps)) else Body.createH265Body(trackVideo, encodeToString(sps), encodeToString(pps), encodeToString(vps))
-    return "v=0\r\n" + "o=- 0 0 IN IP4 $serverIp\r\n" + "s=Unnamed\r\n" + "i=N/A\r\n" + "c=IN IP4 $clientIp\r\n" + "t=0 0\r\n" + "a=recvonly\r\n" + audioBody + videoBody + "\r\n"
+    return "v=0\r\no=- 0 0 IN IP4 $serverIp\r\ns=Unnamed\r\ni=N/A\r\nc=IN IP4 $clientIp\r\nt=0 0\r\na=recvonly\r\n$audioBody$videoBody\r\n"
   }
 
   override fun createSetup(cSeq: Int): String {
@@ -162,22 +160,19 @@ class ServerCommandManager(private val serverIp: String, private val serverPort:
     } else {
       "TCP;unicast;interleaved=" + (2 * track!!) + "-" + (2 * track!! + 1)
     }
-    return createHeader(
-        cSeq) + "Content-Length: 0\r\n" +
-        "Transport: RTP/AVP/$protocolSetup;mode=play\r\n" + "Session: 1185d20035702ca\r\n" + "Cache-Control: no-cache\r\n\r\n"
+    return "${createHeader(cSeq)}Content-Length: 0\r\nTransport: RTP/AVP/$protocolSetup;mode=play\r\nSession: 1185d20035702ca\r\nCache-Control: no-cache\r\n\r\n"
   }
 
   private fun createPlay(cSeq: Int): String {
-    return createHeader(
-        cSeq) + "Content-Length: 0\r\n" + "RTP-Info: url=rtsp://$serverIp:$serverPort/\r\n" + "Session: 1185d20035702ca\r\n\r\n"
+    return "${createHeader(cSeq)}Content-Length: 0\r\nRTP-Info: url=rtsp://$serverIp:$serverPort/\r\nSession: 1185d20035702ca\r\n\r\n"
   }
 
   private fun createPause(cSeq: Int): String {
-    return createHeader(cSeq) + "Content-Length: 0\r\n\r\n"
+    return "${createHeader(cSeq)}Content-Length: 0\r\n\r\n"
   }
 
   private fun createTeardown(cSeq: Int): String {
-    return createHeader(cSeq) + "\r\n"
+    return "${createHeader(cSeq)}\r\n"
   }
 
   private fun encodeToString(bytes: ByteArray): String? {

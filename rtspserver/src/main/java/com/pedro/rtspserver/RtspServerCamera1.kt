@@ -91,6 +91,10 @@ class RtspServerCamera1 : Camera1Base {
     rtspServer.sendVideo(h264Buffer, info)
   }
 
+  override fun setLogs(enable: Boolean) {
+    rtspServer.setLogs(enable)
+  }
+
   /**
    * Unused functions
    */
