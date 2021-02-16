@@ -128,6 +128,13 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
     return "0.0.0.0"
   }
 
+  fun hasCongestion(): Boolean {
+    var congestion = false
+    clients.forEach { if (it.hasCongestion()) congestion = true }
+    return congestion
+  }
+
+
   internal class Client(private val socket: Socket, serverIp: String, serverPort: Int,
     connectCheckerRtsp: ConnectCheckerRtsp, sps: ByteBuffer,
     pps: ByteBuffer, vps: ByteBuffer?, private val sampleRate: Int,
@@ -142,12 +149,13 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
       ServerCommandManager(
         serverIp,
         serverPort,
-        socket.inetAddress.hostAddress
+        socket.inetAddress.hostAddress,
+        connectCheckerRtsp
       )
     var canSend = false
 
     init {
-      commandsManager.setIsStereo(isStereo)
+      commandsManager.isStereo = isStereo
       commandsManager.sampleRate = sampleRate
       commandsManager.setVideoInfo(sps, pps, vps)
     }
@@ -175,9 +183,9 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
             Log.i(TAG, "Protocol ${commandsManager.protocol}")
             rtspSender.setSocketsInfo(commandsManager.protocol, commandsManager.videoClientPorts,
               commandsManager.audioClientPorts)
-            rtspSender.setVideoInfo(commandsManager.sps, commandsManager.pps, commandsManager.vps)
+            rtspSender.setVideoInfo(commandsManager.sps!!, commandsManager.pps!!, commandsManager.vps)
             rtspSender.setAudioInfo(sampleRate)
-            rtspSender.setDataStream(socket.getOutputStream(), commandsManager.clientIp)
+            rtspSender.setDataStream(socket.getOutputStream(), commandsManager.clientIp!!)
             if (commandsManager.protocol == Protocol.UDP) {
               rtspSender.setVideoPorts(commandsManager.videoPorts[0], commandsManager.videoPorts[1])
               rtspSender.setAudioPorts(commandsManager.audioPorts[0], commandsManager.audioPorts[1])
@@ -206,5 +214,7 @@ class RtspServer(context: Context, private val connectCheckerRtsp: ConnectChecke
         socket.close()
       }
     }
+
+    fun hasCongestion(): Boolean = rtspSender.hasCongestion()
   }
 }

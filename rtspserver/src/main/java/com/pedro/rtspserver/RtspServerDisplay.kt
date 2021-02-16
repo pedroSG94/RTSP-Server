@@ -75,6 +75,8 @@ class RtspServerDisplay(context: Context, useOpengl: Boolean,
   override fun reConnect(delay: Long) {
   }
 
+  override fun hasCongestion(): Boolean = rtspServer.hasCongestion()
+
   override fun setReTries(reTries: Int) {
   }
 

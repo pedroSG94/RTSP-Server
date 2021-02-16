@@ -98,6 +98,8 @@ class RtspServerFromFile : FromFileBase {
   override fun reConnect(delay: Long) {
   }
 
+  override fun hasCongestion(): Boolean = rtspServer.hasCongestion()
+
   override fun setReTries(reTries: Int) {
   }
 

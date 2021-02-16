@@ -5,6 +5,8 @@ import android.util.Log
 import com.pedro.rtsp.rtsp.Body
 import com.pedro.rtsp.rtsp.CommandsManager
 import com.pedro.rtsp.rtsp.Protocol
+import com.pedro.rtsp.utils.ConnectCheckerRtsp
+import com.pedro.rtsp.utils.RtpConstants
 import java.io.BufferedReader
 import java.io.IOException
 import java.net.SocketException
@@ -16,7 +18,7 @@ import java.util.regex.Pattern
  *
  */
 class ServerCommandManager(private val serverIp: String, private val serverPort: Int,
-                           val clientIp: String?) : CommandsManager() {
+                           val clientIp: String?, connectCheckerRtsp: ConnectCheckerRtsp) : CommandsManager(connectCheckerRtsp) {
 
   private val TAG = "ServerCommandManager"
   var audioPorts = ArrayList<Int>()
@@ -49,7 +51,7 @@ class ServerCommandManager(private val serverIp: String, private val serverPort:
     }
   }
 
-  private fun getProtocol(request: String): Protocol? {
+  private fun getProtocol(request: String): Protocol {
     return if (request.contains("UDP", true) || loadPorts(request)) {
       Protocol.UDP
     } else {
@@ -149,8 +151,8 @@ class ServerCommandManager(private val serverIp: String, private val serverPort:
   }
 
   private fun createBody(): String {
-    val audioBody = Body.createAacBody(trackAudio, sampleRate, isStereo)
-    val videoBody = if (vps == null) Body.createH264Body(trackVideo, encodeToString(sps), encodeToString(pps)) else Body.createH265Body(trackVideo, encodeToString(sps), encodeToString(pps), encodeToString(vps))
+    val audioBody = Body.createAacBody(RtpConstants.trackAudio, sampleRate, isStereo)
+    val videoBody = if (vps == null) Body.createH264Body(RtpConstants.trackVideo, encodeToString(sps!!)!!, encodeToString(pps!!)!!) else Body.createH265Body(RtpConstants.trackVideo, encodeToString(sps!!)!!, encodeToString(pps!!)!!, encodeToString(vps!!)!!)
     return "v=0\r\no=- 0 0 IN IP4 $serverIp\r\ns=Unnamed\r\ni=N/A\r\nc=IN IP4 $clientIp\r\nt=0 0\r\na=recvonly\r\n$audioBody$videoBody\r\n"
   }
 

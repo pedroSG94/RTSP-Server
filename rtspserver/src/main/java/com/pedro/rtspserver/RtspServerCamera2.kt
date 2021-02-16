@@ -90,6 +90,8 @@ class RtspServerCamera2 : Camera2Base {
   override fun reConnect(delay: Long) {
   }
 
+  override fun hasCongestion(): Boolean = rtspServer.hasCongestion()
+
   override fun setReTries(reTries: Int) {
   }
 
