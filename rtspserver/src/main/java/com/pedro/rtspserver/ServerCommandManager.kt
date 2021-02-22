@@ -72,21 +72,21 @@ class ServerCommandManager(private val serverIp: String, private val serverPort:
     }
     getTrack(request)
     if (track != null) {
-      if (track == 0) { //audio ports
+      if (track == RtpConstants.trackAudio) { //audio ports
         audioPorts.clear()
         audioPorts.add(ports[0])
         audioPorts.add(ports[1])
+        Log.i(TAG, "Audio ports: $audioPorts")
       } else { //video ports
         videoPorts.clear()
         videoPorts.add(ports[0])
         videoPorts.add(ports[1])
+        Log.i(TAG, "Video ports: $videoPorts")
       }
     } else {
       Log.e(TAG, "Track id not found")
       return false
     }
-    Log.i(TAG, "Video ports: $videoPorts")
-    Log.i(TAG, "Audio ports: $audioPorts")
     return true
   }
 
