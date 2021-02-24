@@ -15,7 +15,7 @@ allprojects {
   }
 }
 dependencies {
-  implementation 'com.github.pedroSG94.RTSP-Server:rtspserver:1.0.5'
+  implementation 'com.github.pedroSG94.RTSP-Server:rtspserver:1.0.6'
   implementation 'com.github.pedroSG94.rtmp-rtsp-stream-client-java:rtplibrary:1.9.8'
 }
 
