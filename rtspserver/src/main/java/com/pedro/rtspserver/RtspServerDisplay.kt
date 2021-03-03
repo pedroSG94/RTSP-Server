@@ -15,12 +15,14 @@ class RtspServerDisplay(context: Context, useOpengl: Boolean,
   connectCheckerRtsp: ConnectCheckerRtsp, port: Int) : DisplayBase(context, useOpengl) {
 
   private val rtspServer: RtspServer =
-      RtspServer(context, connectCheckerRtsp, port)
+      RtspServer(connectCheckerRtsp, port)
 
   fun setVideoCodec(videoCodec: VideoCodec) {
     videoEncoder.type =
       if (videoCodec == VideoCodec.H265) CodecUtil.H265_MIME else CodecUtil.H264_MIME
   }
+
+  fun getNumClients(): Int = rtspServer.getNumClients()
 
   fun getEndPointConnection(): String = "rtsp://${rtspServer.serverIp}:${rtspServer.port}/"
 

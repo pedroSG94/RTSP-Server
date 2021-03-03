@@ -23,27 +23,29 @@ class RtspServerFromFile : FromFileBase {
     videoDecoderInterface: VideoDecoderInterface,
     audioDecoderInterface: AudioDecoderInterface) : super(openGlView, videoDecoderInterface,
     audioDecoderInterface) {
-    rtspServer = RtspServer(openGlView.context, connectCheckerRtsp, port)
+    rtspServer = RtspServer(connectCheckerRtsp, port)
   }
 
   constructor(lightOpenGlView: LightOpenGlView, connectCheckerRtsp: ConnectCheckerRtsp, port: Int,
     videoDecoderInterface: VideoDecoderInterface,
     audioDecoderInterface: AudioDecoderInterface) : super(lightOpenGlView, videoDecoderInterface,
     audioDecoderInterface) {
-    rtspServer = RtspServer(lightOpenGlView.context, connectCheckerRtsp, port)
+    rtspServer = RtspServer(connectCheckerRtsp, port)
   }
 
   constructor(context: Context, connectCheckerRtsp: ConnectCheckerRtsp, port: Int,
     videoDecoderInterface: VideoDecoderInterface,
     audioDecoderInterface: AudioDecoderInterface) : super(context, videoDecoderInterface,
     audioDecoderInterface) {
-    rtspServer = RtspServer(context, connectCheckerRtsp, port)
+    rtspServer = RtspServer(connectCheckerRtsp, port)
   }
 
   fun setVideoCodec(videoCodec: VideoCodec) {
     videoEncoder.type =
       if (videoCodec == VideoCodec.H265) CodecUtil.H265_MIME else CodecUtil.H264_MIME
   }
+
+  fun getNumClients(): Int = rtspServer.getNumClients()
 
   fun getEndPointConnection(): String = "rtsp://${rtspServer.serverIp}:${rtspServer.port}/"
 

@@ -19,23 +19,25 @@ class RtspServerCamera2 : Camera2Base {
 
   constructor(openGlView: OpenGlView, connectCheckerRtsp: ConnectCheckerRtsp, port: Int) : super(
     openGlView) {
-    rtspServer = RtspServer(openGlView.context, connectCheckerRtsp, port)
+    rtspServer = RtspServer(connectCheckerRtsp, port)
   }
 
   constructor(lightOpenGlView: LightOpenGlView, connectCheckerRtsp: ConnectCheckerRtsp,
     port: Int) : super(lightOpenGlView) {
-    rtspServer = RtspServer(lightOpenGlView.context, connectCheckerRtsp, port)
+    rtspServer = RtspServer(connectCheckerRtsp, port)
   }
 
   constructor(context: Context, useOpengl: Boolean, connectCheckerRtsp: ConnectCheckerRtsp,
     port: Int) : super(context, useOpengl) {
-    rtspServer = RtspServer(context, connectCheckerRtsp, port)
+    rtspServer = RtspServer(connectCheckerRtsp, port)
   }
 
   fun setVideoCodec(videoCodec: VideoCodec) {
     videoEncoder.type =
       if (videoCodec == VideoCodec.H265) CodecUtil.H265_MIME else CodecUtil.H264_MIME
   }
+
+  fun getNumClients(): Int = rtspServer.getNumClients()
 
   fun getEndPointConnection(): String = "rtsp://${rtspServer.serverIp}:${rtspServer.port}/"
 

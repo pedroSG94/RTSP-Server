@@ -23,36 +23,38 @@ class RtspServerCamera1 : Camera1Base {
 
   constructor(surfaceView: SurfaceView, connectCheckerRtsp: ConnectCheckerRtsp, port: Int) : super(
     surfaceView) {
-    rtspServer = RtspServer(surfaceView.context, connectCheckerRtsp, port)
+    rtspServer = RtspServer(connectCheckerRtsp, port)
   }
 
   constructor(textureView: TextureView, connectCheckerRtsp: ConnectCheckerRtsp, port: Int) : super(
     textureView) {
-    rtspServer = RtspServer(textureView.context, connectCheckerRtsp, port)
+    rtspServer = RtspServer(connectCheckerRtsp, port)
   }
 
   @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
   constructor(openGlView: OpenGlView, connectCheckerRtsp: ConnectCheckerRtsp, port: Int) : super(
     openGlView) {
-    rtspServer = RtspServer(openGlView.context, connectCheckerRtsp, port)
+    rtspServer = RtspServer(connectCheckerRtsp, port)
   }
 
   @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
   constructor(lightOpenGlView: LightOpenGlView, connectCheckerRtsp: ConnectCheckerRtsp,
     port: Int) : super(lightOpenGlView) {
-    rtspServer = RtspServer(lightOpenGlView.context, connectCheckerRtsp, port)
+    rtspServer = RtspServer(connectCheckerRtsp, port)
   }
 
   @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
   constructor(context: Context, connectCheckerRtsp: ConnectCheckerRtsp, port: Int) : super(
     context) {
-    rtspServer = RtspServer(context, connectCheckerRtsp, port)
+    rtspServer = RtspServer(connectCheckerRtsp, port)
   }
 
   fun setVideoCodec(videoCodec: VideoCodec) {
     videoEncoder.type =
       if (videoCodec == VideoCodec.H265) CodecUtil.H265_MIME else CodecUtil.H264_MIME
   }
+
+  fun getNumClients(): Int = rtspServer.getNumClients()
 
   fun getEndPointConnection(): String = "rtsp://${rtspServer.serverIp}:${rtspServer.port}/"
 
