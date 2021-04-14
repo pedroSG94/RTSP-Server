@@ -3,6 +3,7 @@ package com.pedro.rtspserver
 import android.util.Log
 import com.pedro.rtsp.rtsp.Protocol
 import com.pedro.rtsp.rtsp.RtspSender
+import com.pedro.rtsp.rtsp.commands.Method
 import com.pedro.rtsp.utils.ConnectCheckerRtsp
 import java.io.BufferedReader
 import java.io.BufferedWriter
@@ -27,7 +28,6 @@ class ServerClient(private val socket: Socket, serverIp: String, serverPort: Int
           serverIp,
           serverPort,
           socket.inetAddress.hostAddress,
-          connectCheckerRtsp
       )
   var canSend = false
 
@@ -43,20 +43,18 @@ class ServerClient(private val socket: Socket, serverIp: String, serverPort: Int
     while (!interrupted()) {
       try {
         val request = commandsManager.getRequest(input)
-        cSeq = commandsManager.getCSeq(request) //update cSeq
+        cSeq = request.cSeq //update cSeq
         if (cSeq == -1) { //If cSeq parsed fail send error to client
           output.write(commandsManager.createError(500, cSeq))
           output.flush()
           continue
         }
-        val action = request.split("\n")[0]
-        Log.i(TAG, request)
-        val response = commandsManager.createResponse(action, request, cSeq)
+        val response = commandsManager.createResponse(request.method, request.text, cSeq)
         Log.i(TAG, response)
         output.write(response)
         output.flush()
 
-        if (action.contains("play", true)) {
+        if (request.method == Method.PLAY) {
           Log.i(TAG, "Protocol ${commandsManager.protocol}")
           rtspSender.setSocketsInfo(commandsManager.protocol, commandsManager.videoClientPorts,
               commandsManager.audioClientPorts)

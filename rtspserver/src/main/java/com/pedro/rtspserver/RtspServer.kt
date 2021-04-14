@@ -1,11 +1,7 @@
 package com.pedro.rtspserver
 
-import android.content.Context
 import android.media.MediaCodec
-import android.net.wifi.WifiManager
 import android.util.Log
-import com.pedro.rtsp.rtsp.Protocol
-import com.pedro.rtsp.rtsp.RtspSender
 import com.pedro.rtsp.utils.ConnectCheckerRtsp
 import java.io.*
 import java.net.*

@@ -2,10 +2,11 @@ package com.pedro.rtspserver
 
 import android.util.Base64
 import android.util.Log
-import com.pedro.rtsp.rtsp.Body
-import com.pedro.rtsp.rtsp.CommandsManager
 import com.pedro.rtsp.rtsp.Protocol
-import com.pedro.rtsp.utils.ConnectCheckerRtsp
+import com.pedro.rtsp.rtsp.commands.Command
+import com.pedro.rtsp.rtsp.commands.CommandsManager
+import com.pedro.rtsp.rtsp.commands.Method
+import com.pedro.rtsp.rtsp.commands.SdpBody
 import com.pedro.rtsp.utils.RtpConstants
 import java.io.BufferedReader
 import java.io.IOException
@@ -18,18 +19,18 @@ import java.util.regex.Pattern
  *
  */
 class ServerCommandManager(private val serverIp: String, private val serverPort: Int,
-                           val clientIp: String?, connectCheckerRtsp: ConnectCheckerRtsp) : CommandsManager(connectCheckerRtsp) {
+                           val clientIp: String?) : CommandsManager() {
 
   private val TAG = "ServerCommandManager"
   var audioPorts = ArrayList<Int>()
   var videoPorts = ArrayList<Int>()
   private var track: Int? = null
 
-  fun createResponse(action: String, request: String, cSeq: Int): String {
-    return when {
-      action.contains("options", true) -> createOptions(cSeq)
-      action.contains("describe", true) -> createDescribe(cSeq)
-      action.contains("setup", true) -> {
+  fun createResponse(method: Method, request: String, cSeq: Int): String {
+    return when (method){
+      Method.OPTIONS -> createOptions(cSeq)
+      Method.DESCRIBE -> createDescribe(cSeq)
+      Method.SETUP -> {
         protocol = getProtocol(request)
         return when (protocol) {
           Protocol.TCP -> {
@@ -44,9 +45,9 @@ class ServerCommandManager(private val serverIp: String, private val serverPort:
           }
         }
       }
-      action.contains("play", true) -> createPlay(cSeq)
-      action.contains("pause", true) -> createPause(cSeq)
-      action.contains("teardown", true) -> createTeardown(cSeq)
+      Method.PLAY -> createPlay(cSeq)
+      Method.PAUSE -> createPause(cSeq)
+      Method.TEARDOWN -> createTeardown(cSeq)
       else -> createError(400, cSeq)
     }
   }
@@ -91,7 +92,7 @@ class ServerCommandManager(private val serverIp: String, private val serverPort:
   }
 
   private fun getTrack(request: String) {
-    val trackMatcher = Pattern.compile("trackID=(\\w+)", Pattern.CASE_INSENSITIVE).matcher(request)
+    val trackMatcher = Pattern.compile("streamid=(\\w+)", Pattern.CASE_INSENSITIVE).matcher(request)
     return if (trackMatcher.find()) {
       track = trackMatcher.group(1)?.toInt()
     } else {
@@ -99,27 +100,9 @@ class ServerCommandManager(private val serverIp: String, private val serverPort:
     }
   }
 
-  fun getCSeq(request: String): Int {
-    val cSeqMatcher =
-        Pattern.compile("CSeq\\s*:\\s*(\\d+)", Pattern.CASE_INSENSITIVE).matcher(request)
-    return if (cSeqMatcher.find()) {
-      cSeqMatcher.group(1)?.toInt() ?: -1
-    } else {
-      Log.e(TAG, "cSeq not found")
-      return -1
-    }
-  }
-
   @Throws(IOException::class, IllegalStateException::class, SocketException::class)
-  fun getRequest(
-      input: BufferedReader): String {
-    var request = ""
-    var line: String? = input.readLine()
-    while (line != null && line.length > 3) {
-      request += "$line\n"
-      line = input.readLine()
-    }
-    return request
+  fun getRequest(input: BufferedReader): Command {
+    return super.getResponse(input, Method.UNKNOWN)
   }
 
   private fun createStatus(code: Int): String {
@@ -151,9 +134,9 @@ class ServerCommandManager(private val serverIp: String, private val serverPort:
   }
 
   private fun createBody(): String {
-    val audioBody = Body.createAacBody(RtpConstants.trackAudio, sampleRate, isStereo)
-    val videoBody = if (vps == null) Body.createH264Body(RtpConstants.trackVideo, encodeToString(sps!!)!!, encodeToString(pps!!)!!) else Body.createH265Body(RtpConstants.trackVideo, encodeToString(sps!!)!!, encodeToString(pps!!)!!, encodeToString(vps!!)!!)
-    return "v=0\r\no=- 0 0 IN IP4 $serverIp\r\ns=Unnamed\r\ni=N/A\r\nc=IN IP4 $clientIp\r\nt=0 0\r\na=recvonly\r\n$audioBody$videoBody\r\n"
+    val audioBody = SdpBody.createAacBody(RtpConstants.trackAudio, sampleRate, isStereo)
+    val videoBody = if (vps == null) SdpBody.createH264Body(RtpConstants.trackVideo, encodeToString(sps!!)!!, encodeToString(pps!!)!!) else SdpBody.createH265Body(RtpConstants.trackVideo, encodeToString(sps!!)!!, encodeToString(pps!!)!!, encodeToString(vps!!)!!)
+    return "v=0\r\no=- 0 0 IN IP4 $serverIp\r\ns=Unnamed\r\ni=N/A\r\nc=IN IP4 $clientIp\r\nt=0 0\r\na=recvonly\r\n$videoBody$audioBody\r\n"
   }
 
   override fun createSetup(cSeq: Int): String {

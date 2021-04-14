@@ -9,8 +9,8 @@ android {
         applicationId "com.pedro.sample"
         minSdkVersion 16
         targetSdkVersion 30
-        versionCode 106
-        versionName "1.0.6"
+        versionCode 107
+        versionName "1.0.7"
     }
     buildTypes {
         release {
@@ -22,7 +22,7 @@ android {
 
 dependencies {
     implementation project(':rtspserver')
-    implementation 'com.github.pedroSG94.rtmp-rtsp-stream-client-java:rtplibrary:1.9.8'
+    implementation 'com.github.pedroSG94.rtmp-rtsp-stream-client-java:rtplibrary:2.0.2'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
