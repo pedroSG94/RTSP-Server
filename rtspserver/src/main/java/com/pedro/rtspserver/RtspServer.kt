@@ -3,6 +3,7 @@ package com.pedro.rtspserver
 import android.media.MediaCodec
 import android.util.Log
 import com.pedro.rtsp.utils.ConnectCheckerRtsp
+import com.pedro.rtsp.utils.RtpConstants
 import java.io.*
 import java.net.*
 import java.nio.ByteBuffer
@@ -28,6 +29,7 @@ class RtspServer(private val connectCheckerRtsp: ConnectCheckerRtsp,
   var sampleRate = 32000
   var isStereo = true
   private val clients = mutableListOf<ServerClient>()
+  private var isOnlyAudio = false
   private var thread: Thread? = null
 
   fun startServer() {
@@ -38,8 +40,8 @@ class RtspServer(private val connectCheckerRtsp: ConnectCheckerRtsp,
         Log.i(TAG, "Server started $serverIp:$port")
         try {
           val client =
-            ServerClient(server!!.accept(), serverIp, port, connectCheckerRtsp, sps!!, pps!!, vps, sampleRate,
-              isStereo, this)
+            ServerClient(server!!.accept(), serverIp, port, connectCheckerRtsp, sps, pps, vps, sampleRate,
+              isStereo, isOnlyAudio, this)
           client.start()
           synchronized(clients) {
             clients.add(client)
@@ -74,6 +76,17 @@ class RtspServer(private val connectCheckerRtsp: ConnectCheckerRtsp,
     if (server != null) {
       if (!server!!.isClosed) server!!.close()
     }
+  }
+
+  fun setOnlyAudio(onlyAudio: Boolean) {
+    if (onlyAudio) {
+      RtpConstants.trackAudio = 0
+      RtpConstants.trackVideo = 1
+    } else {
+      RtpConstants.trackVideo = 0
+      RtpConstants.trackAudio = 1
+    }
+    this.isOnlyAudio = onlyAudio
   }
 
   fun setLogs(enable: Boolean) {
@@ -145,6 +158,7 @@ class RtspServer(private val connectCheckerRtsp: ConnectCheckerRtsp,
 
   override fun onDisconnected(client: ServerClient) {
     synchronized(clients) {
+      client.stopClient()
       clients.remove(client)
     }
   }

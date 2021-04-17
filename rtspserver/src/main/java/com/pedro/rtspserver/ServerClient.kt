@@ -14,9 +14,9 @@ import java.net.SocketException
 import java.nio.ByteBuffer
 
 class ServerClient(private val socket: Socket, serverIp: String, serverPort: Int,
-    connectCheckerRtsp: ConnectCheckerRtsp, sps: ByteBuffer,
-    pps: ByteBuffer, vps: ByteBuffer?, private val sampleRate: Int,
-    isStereo: Boolean, private val listener: ClientListener) : Thread() {
+    connectCheckerRtsp: ConnectCheckerRtsp, sps: ByteBuffer?,
+    pps: ByteBuffer?, vps: ByteBuffer?, private val sampleRate: Int,
+    isStereo: Boolean, isOnlyAudio: Boolean, private val listener: ClientListener) : Thread() {
 
   private val TAG = "Client"
   private var cSeq = 0
@@ -32,6 +32,7 @@ class ServerClient(private val socket: Socket, serverIp: String, serverPort: Int
   var canSend = false
 
   init {
+    commandsManager.isOnlyAudio = isOnlyAudio
     commandsManager.isStereo = isStereo
     commandsManager.sampleRate = sampleRate
     commandsManager.setVideoInfo(sps, pps, vps)
@@ -58,11 +59,15 @@ class ServerClient(private val socket: Socket, serverIp: String, serverPort: Int
           Log.i(TAG, "Protocol ${commandsManager.protocol}")
           rtspSender.setSocketsInfo(commandsManager.protocol, commandsManager.videoClientPorts,
               commandsManager.audioClientPorts)
-          rtspSender.setVideoInfo(commandsManager.sps!!, commandsManager.pps!!, commandsManager.vps)
+          if (!commandsManager.isOnlyAudio) {
+            rtspSender.setVideoInfo(commandsManager.sps!!, commandsManager.pps!!, commandsManager.vps)
+          }
           rtspSender.setAudioInfo(sampleRate)
           rtspSender.setDataStream(socket.getOutputStream(), commandsManager.clientIp!!)
           if (commandsManager.protocol == Protocol.UDP) {
-            rtspSender.setVideoPorts(commandsManager.videoPorts[0], commandsManager.videoPorts[1])
+            if (!commandsManager.isOnlyAudio) {
+              rtspSender.setVideoPorts(commandsManager.videoPorts[0], commandsManager.videoPorts[1])
+            }
             rtspSender.setAudioPorts(commandsManager.audioPorts[0], commandsManager.audioPorts[1])
           }
           rtspSender.start()

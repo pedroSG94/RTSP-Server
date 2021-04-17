@@ -135,7 +135,11 @@ class ServerCommandManager(private val serverIp: String, private val serverPort:
 
   private fun createBody(): String {
     val audioBody = SdpBody.createAacBody(RtpConstants.trackAudio, sampleRate, isStereo)
-    val videoBody = if (vps == null) SdpBody.createH264Body(RtpConstants.trackVideo, encodeToString(sps!!)!!, encodeToString(pps!!)!!) else SdpBody.createH265Body(RtpConstants.trackVideo, encodeToString(sps!!)!!, encodeToString(pps!!)!!, encodeToString(vps!!)!!)
+    var videoBody = ""
+    if (!isOnlyAudio) {
+      videoBody = if (vps == null) SdpBody.createH264Body(RtpConstants.trackVideo, encodeToString(sps!!)!!, encodeToString(pps!!)!!)
+      else SdpBody.createH265Body(RtpConstants.trackVideo, encodeToString(sps!!)!!, encodeToString(pps!!)!!, encodeToString(vps!!)!!)
+    }
     return "v=0\r\no=- 0 0 IN IP4 $serverIp\r\ns=Unnamed\r\ni=N/A\r\nc=IN IP4 $clientIp\r\nt=0 0\r\na=recvonly\r\n$videoBody$audioBody\r\n"
   }
 

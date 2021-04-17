@@ -9,8 +9,8 @@ android {
         applicationId "com.pedro.sample"
         minSdkVersion 16
         targetSdkVersion 30
-        versionCode 107
-        versionName "1.0.7"
+        versionCode 108
+        versionName "1.0.8"
     }
     buildTypes {
         release {
