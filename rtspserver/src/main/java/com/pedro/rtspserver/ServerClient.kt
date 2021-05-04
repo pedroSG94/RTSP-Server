@@ -16,7 +16,8 @@ import java.nio.ByteBuffer
 class ServerClient(private val socket: Socket, serverIp: String, serverPort: Int,
     connectCheckerRtsp: ConnectCheckerRtsp, sps: ByteBuffer?,
     pps: ByteBuffer?, vps: ByteBuffer?, private val sampleRate: Int,
-    isStereo: Boolean, isOnlyAudio: Boolean, private val listener: ClientListener) : Thread() {
+    isStereo: Boolean, isOnlyAudio: Boolean, user: String?, password: String?,
+    private val listener: ClientListener) : Thread() {
 
   private val TAG = "Client"
   private var cSeq = 0
@@ -36,6 +37,7 @@ class ServerClient(private val socket: Socket, serverIp: String, serverPort: Int
     commandsManager.isStereo = isStereo
     commandsManager.sampleRate = sampleRate
     commandsManager.setVideoInfo(sps, pps, vps)
+    commandsManager.setAuth(user, password)
   }
 
   override fun run() {

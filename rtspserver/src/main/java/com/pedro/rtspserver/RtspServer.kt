@@ -31,6 +31,13 @@ class RtspServer(private val connectCheckerRtsp: ConnectCheckerRtsp,
   private val clients = mutableListOf<ServerClient>()
   private var isOnlyAudio = false
   private var thread: Thread? = null
+  private var user: String? = null
+  private var password: String? = null
+
+  fun setAuth(user: String?, password: String?) {
+    this.user = user
+    this.password = password
+  }
 
   fun startServer() {
     stopServer()
@@ -41,7 +48,7 @@ class RtspServer(private val connectCheckerRtsp: ConnectCheckerRtsp,
         try {
           val client =
             ServerClient(server!!.accept(), serverIp, port, connectCheckerRtsp, sps, pps, vps, sampleRate,
-              isStereo, isOnlyAudio, this)
+              isStereo, isOnlyAudio, user, password, this)
           client.start()
           synchronized(clients) {
             clients.add(client)

@@ -20,7 +20,8 @@ class RtspServerOnlyAudio(connectCheckerRtsp: ConnectCheckerRtsp, port: Int) : O
 
   fun getEndPointConnection(): String = "rtsp://${rtspServer.serverIp}:${rtspServer.port}/"
 
-  override fun setAuthorization(user: String, password: String) { //not developed
+  override fun setAuthorization(user: String, password: String) {
+    rtspServer.setAuth(user, password)
   }
 
   fun startStream() {

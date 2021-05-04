@@ -29,7 +29,22 @@ class ServerCommandManager(private val serverIp: String, private val serverPort:
   fun createResponse(method: Method, request: String, cSeq: Int): String {
     return when (method){
       Method.OPTIONS -> createOptions(cSeq)
-      Method.DESCRIBE -> createDescribe(cSeq)
+      Method.DESCRIBE -> {
+        if (needAuth()) {
+          val auth = getAuth(request)
+          val data = "$user:$password"
+          val base64Data = Base64.encodeToString(data.toByteArray(), Base64.DEFAULT)
+          if (base64Data.trim() == auth.trim()) {
+            Log.i(TAG, "basic auth success")
+            createDescribe(cSeq) // auth accepted
+          } else {
+            Log.e(TAG, "basic auth error")
+            createError(401, cSeq)
+          }
+        } else {
+          createDescribe(cSeq)
+        }
+      }
       Method.SETUP -> {
         protocol = getProtocol(request)
         return when (protocol) {
@@ -49,6 +64,20 @@ class ServerCommandManager(private val serverIp: String, private val serverPort:
       Method.PAUSE -> createPause(cSeq)
       Method.TEARDOWN -> createTeardown(cSeq)
       else -> createError(400, cSeq)
+    }
+  }
+
+  private fun needAuth(): Boolean {
+    return !user.isNullOrEmpty() && !password.isNullOrEmpty()
+  }
+
+  private fun getAuth(request: String): String {
+    val rtspPattern = Pattern.compile("Authorization: Basic ([\\w+/=]+)")
+    val matcher = rtspPattern.matcher(request)
+    return if (matcher.find()) {
+      matcher.group(1) ?: ""
+    } else {
+      ""
     }
   }
 
@@ -117,7 +146,10 @@ class ServerCommandManager(private val serverIp: String, private val serverPort:
   }
 
   fun createError(code: Int, cSeq: Int): String {
-    return "RTSP/1.0 ${createStatus(code)}\r\nServer: pedroSG94 Server\r\nCseq: $cSeq\r\n\r\n"
+    val auth = if (code == 401) {
+      "WWW-Authenticate: Basic realm=\"pedroSG94\"\r\n"
+    } else ""
+    return "RTSP/1.0 ${createStatus(code)}\r\nServer: pedroSG94 Server\r\n${auth}Cseq: $cSeq\r\n\r\n"
   }
 
   private fun createHeader(cSeq: Int): String {
