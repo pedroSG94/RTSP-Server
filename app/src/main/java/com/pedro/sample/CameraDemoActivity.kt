@@ -60,6 +60,9 @@ class CameraDemoActivity : AppCompatActivity(), ConnectCheckerRtsp, View.OnClick
     }
   }
 
+  override fun onConnectionStartedRtsp(rtspUrl: String) {
+  }
+
   override fun onDisconnectRtsp() {
     runOnUiThread {
       Toast.makeText(this@CameraDemoActivity, "Disconnected", Toast.LENGTH_SHORT).show()
