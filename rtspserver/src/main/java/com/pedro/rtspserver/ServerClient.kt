@@ -13,7 +13,7 @@ import java.net.Socket
 import java.net.SocketException
 import java.nio.ByteBuffer
 
-class ServerClient(private val socket: Socket, serverIp: String, serverPort: Int,
+open class ServerClient(private val socket: Socket, serverIp: String, serverPort: Int,
     connectCheckerRtsp: ConnectCheckerRtsp, sps: ByteBuffer?,
     pps: ByteBuffer?, vps: ByteBuffer?, private val sampleRate: Int,
     isStereo: Boolean, isOnlyAudio: Boolean, user: String?, password: String?,

@@ -11,7 +11,7 @@ import com.pedro.rtsp.utils.ConnectCheckerRtsp
 import java.nio.ByteBuffer
 
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-class RtspServerDisplay(context: Context, useOpengl: Boolean,
+open class RtspServerDisplay(context: Context, useOpengl: Boolean,
   connectCheckerRtsp: ConnectCheckerRtsp, port: Int) : DisplayBase(context, useOpengl) {
 
   private val rtspServer: RtspServer =

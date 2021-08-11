@@ -18,7 +18,7 @@ import java.util.regex.Pattern
  * Created by pedro on 23/10/19.
  *
  */
-class ServerCommandManager(private val serverIp: String, private val serverPort: Int,
+open class ServerCommandManager(private val serverIp: String, private val serverPort: Int,
                            val clientIp: String?) : CommandsManager() {
 
   private val TAG = "ServerCommandManager"

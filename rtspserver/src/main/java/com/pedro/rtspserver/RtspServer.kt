@@ -17,7 +17,7 @@ import java.util.*
  * TODO Use different session per client.
  */
 
-class RtspServer(private val connectCheckerRtsp: ConnectCheckerRtsp,
+open class RtspServer(private val connectCheckerRtsp: ConnectCheckerRtsp,
   val port: Int): ClientListener {
 
   private val TAG = "RtspServer"

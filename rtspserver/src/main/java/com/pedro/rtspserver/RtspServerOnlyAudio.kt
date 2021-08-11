@@ -8,7 +8,7 @@ import java.nio.ByteBuffer
 /**
  * Created by pedro on 17/04/21.
  */
-class RtspServerOnlyAudio(connectCheckerRtsp: ConnectCheckerRtsp, port: Int) : OnlyAudioBase() {
+open class RtspServerOnlyAudio(connectCheckerRtsp: ConnectCheckerRtsp, port: Int) : OnlyAudioBase() {
 
   private val rtspServer = RtspServer(connectCheckerRtsp, port)
 

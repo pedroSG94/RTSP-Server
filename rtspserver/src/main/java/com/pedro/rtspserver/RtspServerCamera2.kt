@@ -13,7 +13,7 @@ import com.pedro.rtsp.utils.ConnectCheckerRtsp
 import java.nio.ByteBuffer
 
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-class RtspServerCamera2 : Camera2Base {
+open class RtspServerCamera2 : Camera2Base {
 
   private val rtspServer: RtspServer
 
