@@ -29,7 +29,8 @@ open class RtspServer(private val connectCheckerRtsp: ConnectCheckerRtsp,
   var sampleRate = 32000
   var isStereo = true
   private val clients = mutableListOf<ServerClient>()
-  private var isOnlyAudio = false
+  private var videoDisabled = false
+  private var audioDisabled = false
   private var thread: Thread? = null
   private var user: String? = null
   private var password: String? = null
@@ -48,7 +49,7 @@ open class RtspServer(private val connectCheckerRtsp: ConnectCheckerRtsp,
         try {
           val client =
             ServerClient(server!!.accept(), serverIp, port, connectCheckerRtsp, sps, pps, vps, sampleRate,
-              isStereo, isOnlyAudio, user, password, this)
+              isStereo, videoDisabled, audioDisabled, user, password, this)
           client.start()
           synchronized(clients) {
             clients.add(client)
@@ -93,7 +94,15 @@ open class RtspServer(private val connectCheckerRtsp: ConnectCheckerRtsp,
       RtpConstants.trackVideo = 0
       RtpConstants.trackAudio = 1
     }
-    this.isOnlyAudio = onlyAudio
+    audioDisabled = false
+    videoDisabled = onlyAudio
+  }
+
+  fun setOnlyVideo(onlyVideo: Boolean) {
+    RtpConstants.trackVideo = 0
+    RtpConstants.trackAudio = 1
+    videoDisabled = false
+    audioDisabled = onlyVideo
   }
 
   fun setLogs(enable: Boolean) {
@@ -105,7 +114,7 @@ open class RtspServer(private val connectCheckerRtsp: ConnectCheckerRtsp,
   fun sendVideo(h264Buffer: ByteBuffer, info: MediaCodec.BufferInfo) {
     synchronized(clients) {
       clients.forEach {
-        if (it.isAlive && it.canSend) {
+        if (it.isAlive && it.canSend && !it.commandsManager.videoDisabled) {
           it.rtspSender.sendVideoFrame(h264Buffer.duplicate(), info)
         }
       }
@@ -115,7 +124,7 @@ open class RtspServer(private val connectCheckerRtsp: ConnectCheckerRtsp,
   fun sendAudio(aacBuffer: ByteBuffer, info: MediaCodec.BufferInfo) {
     synchronized(clients) {
       clients.forEach {
-        if (it.isAlive && it.canSend) {
+        if (it.isAlive && it.canSend && !it.commandsManager.audioDisabled) {
           it.rtspSender.sendAudioFrame(aacBuffer.duplicate(), info)
         }
       }

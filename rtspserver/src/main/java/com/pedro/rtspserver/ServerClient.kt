@@ -16,7 +16,7 @@ import java.nio.ByteBuffer
 open class ServerClient(private val socket: Socket, serverIp: String, serverPort: Int,
     connectCheckerRtsp: ConnectCheckerRtsp, sps: ByteBuffer?,
     pps: ByteBuffer?, vps: ByteBuffer?, private val sampleRate: Int,
-    isStereo: Boolean, isOnlyAudio: Boolean, user: String?, password: String?,
+    isStereo: Boolean, videoDisabled: Boolean, audioDisabled: Boolean, user: String?, password: String?,
     private val listener: ClientListener) : Thread() {
 
   private val TAG = "Client"
@@ -24,7 +24,7 @@ open class ServerClient(private val socket: Socket, serverIp: String, serverPort
   private val output = BufferedWriter(OutputStreamWriter(socket.getOutputStream()))
   private val input = BufferedReader(InputStreamReader(socket.getInputStream()))
   val rtspSender = RtspSender(connectCheckerRtsp)
-  private val commandsManager =
+  val commandsManager =
       ServerCommandManager(
           serverIp,
           serverPort,
@@ -33,7 +33,8 @@ open class ServerClient(private val socket: Socket, serverIp: String, serverPort
   var canSend = false
 
   init {
-    commandsManager.isOnlyAudio = isOnlyAudio
+    commandsManager.videoDisabled = videoDisabled
+    commandsManager.audioDisabled = audioDisabled
     commandsManager.isStereo = isStereo
     commandsManager.sampleRate = sampleRate
     commandsManager.setVideoInfo(sps, pps, vps)
@@ -61,16 +62,20 @@ open class ServerClient(private val socket: Socket, serverIp: String, serverPort
           Log.i(TAG, "Protocol ${commandsManager.protocol}")
           rtspSender.setSocketsInfo(commandsManager.protocol, commandsManager.videoClientPorts,
               commandsManager.audioClientPorts)
-          if (!commandsManager.isOnlyAudio) {
+          if (!commandsManager.videoDisabled) {
             rtspSender.setVideoInfo(commandsManager.sps!!, commandsManager.pps!!, commandsManager.vps)
           }
-          rtspSender.setAudioInfo(sampleRate)
+          if (!commandsManager.audioDisabled) {
+            rtspSender.setAudioInfo(sampleRate)
+          }
           rtspSender.setDataStream(socket.getOutputStream(), commandsManager.clientIp!!)
           if (commandsManager.protocol == Protocol.UDP) {
-            if (!commandsManager.isOnlyAudio) {
+            if (!commandsManager.videoDisabled) {
               rtspSender.setVideoPorts(commandsManager.videoPorts[0], commandsManager.videoPorts[1])
             }
-            rtspSender.setAudioPorts(commandsManager.audioPorts[0], commandsManager.audioPorts[1])
+            if (!commandsManager.audioDisabled) {
+              rtspSender.setAudioPorts(commandsManager.audioPorts[0], commandsManager.audioPorts[1])
+            }
           }
           rtspSender.start()
           canSend = true

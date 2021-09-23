@@ -166,9 +166,12 @@ open class ServerCommandManager(private val serverIp: String, private val server
   }
 
   private fun createBody(): String {
-    val audioBody = SdpBody.createAacBody(RtpConstants.trackAudio, sampleRate, isStereo)
+    var audioBody = ""
+    if (!audioDisabled) {
+      audioBody = SdpBody.createAacBody(RtpConstants.trackAudio, sampleRate, isStereo)
+    }
     var videoBody = ""
-    if (!isOnlyAudio) {
+    if (!videoDisabled) {
       videoBody = if (vps == null) SdpBody.createH264Body(RtpConstants.trackVideo, encodeToString(sps!!)!!, encodeToString(pps!!)!!)
       else SdpBody.createH265Body(RtpConstants.trackVideo, encodeToString(sps!!)!!, encodeToString(pps!!)!!, encodeToString(vps!!)!!)
     }
