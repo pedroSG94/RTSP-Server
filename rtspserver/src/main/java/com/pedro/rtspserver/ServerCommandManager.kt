@@ -188,7 +188,15 @@ open class ServerCommandManager(private val serverIp: String, private val server
   }
 
   private fun createPlay(cSeq: Int): String {
-    return "${createHeader(cSeq)}Content-Length: 0\r\nRTP-Info: url=rtsp://$serverIp:$serverPort/\r\nSession: 1185d20035702ca\r\n\r\n"
+    var info = ""
+    if (!videoDisabled) {
+      info += "url=rtsp://$serverIp:$serverPort/streamid=${RtpConstants.trackVideo};seq=1;rtptime=0"
+    }
+    if (!audioDisabled) {
+      if (!videoDisabled) info += ","
+      info += "url=rtsp://$serverIp:$serverPort/streamid=${RtpConstants.trackAudio};seq=1;rtptime=0"
+    }
+    return "${createHeader(cSeq)}Content-Length: 0\r\nRTP-Info: $info\r\nSession: 1185d20035702ca\r\n\r\n"
   }
 
   private fun createPause(cSeq: Int): String {
