@@ -66,6 +66,9 @@ open class RtspServerDisplay(context: Context, useOpengl: Boolean,
     rtspServer.setLogs(enable)
   }
 
+  override fun setCheckServerAlive(enable: Boolean) {
+  }
+
   /**
    * Unused functions
    */

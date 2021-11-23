@@ -77,6 +77,9 @@ open class RtspServerFromFile : FromFileBase {
     rtspServer.setLogs(enable)
   }
 
+  override fun setCheckServerAlive(enable: Boolean) {
+  }
+
   override fun onSpsPpsVpsRtp(sps: ByteBuffer, pps: ByteBuffer, vps: ByteBuffer?) {
     val newSps = sps.duplicate()
     val newPps = pps.duplicate()

@@ -49,6 +49,9 @@ open class RtspServerOnlyAudio(connectCheckerRtsp: ConnectCheckerRtsp, port: Int
     rtspServer.setLogs(enable)
   }
 
+  override fun setCheckServerAlive(enable: Boolean) {
+  }
+
   /**
    * Unused functions
    */

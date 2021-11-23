@@ -81,6 +81,9 @@ open class RtspServerCamera2 : Camera2Base {
     rtspServer.setLogs(enable)
   }
 
+  override fun setCheckServerAlive(enable: Boolean) {
+  }
+
   /**
    * Unused functions
    */

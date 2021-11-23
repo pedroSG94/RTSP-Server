@@ -14,22 +14,17 @@ import java.net.SocketException
 import java.nio.ByteBuffer
 
 open class ServerClient(private val socket: Socket, serverIp: String, serverPort: Int,
-    connectCheckerRtsp: ConnectCheckerRtsp, sps: ByteBuffer?,
-    pps: ByteBuffer?, vps: ByteBuffer?, private val sampleRate: Int,
-    isStereo: Boolean, videoDisabled: Boolean, audioDisabled: Boolean, user: String?, password: String?,
-    private val listener: ClientListener) : Thread() {
+  connectCheckerRtsp: ConnectCheckerRtsp, clientAddress: String, sps: ByteBuffer?,
+  pps: ByteBuffer?, vps: ByteBuffer?, sampleRate: Int, isStereo: Boolean,
+  videoDisabled: Boolean, audioDisabled: Boolean, user: String?, password: String?,
+  private val listener: ClientListener) : Thread() {
 
   private val TAG = "Client"
   private var cSeq = 0
   private val output = BufferedWriter(OutputStreamWriter(socket.getOutputStream()))
   private val input = BufferedReader(InputStreamReader(socket.getInputStream()))
   val rtspSender = RtspSender(connectCheckerRtsp)
-  val commandsManager =
-      ServerCommandManager(
-          serverIp,
-          serverPort,
-          socket.inetAddress.hostAddress,
-      )
+  val commandsManager = ServerCommandManager(serverIp, serverPort, clientAddress)
   var canSend = false
 
   init {
@@ -66,9 +61,9 @@ open class ServerClient(private val socket: Socket, serverIp: String, serverPort
             rtspSender.setVideoInfo(commandsManager.sps!!, commandsManager.pps!!, commandsManager.vps)
           }
           if (!commandsManager.audioDisabled) {
-            rtspSender.setAudioInfo(sampleRate)
+            rtspSender.setAudioInfo(commandsManager.sampleRate)
           }
-          rtspSender.setDataStream(socket.getOutputStream(), commandsManager.clientIp!!)
+          rtspSender.setDataStream(socket.getOutputStream(), commandsManager.clientIp)
           if (commandsManager.protocol == Protocol.UDP) {
             if (!commandsManager.videoDisabled) {
               rtspSender.setVideoPorts(commandsManager.videoPorts[0], commandsManager.videoPorts[1])
@@ -79,6 +74,9 @@ open class ServerClient(private val socket: Socket, serverIp: String, serverPort
           }
           rtspSender.start()
           canSend = true
+        } else if (request.method == Method.TEARDOWN) {
+          Log.i(TAG, "Client disconnected")
+          listener.onDisconnected(this)
         }
       } catch (e: SocketException) { // Client has left
         Log.e(TAG, "Client disconnected", e)

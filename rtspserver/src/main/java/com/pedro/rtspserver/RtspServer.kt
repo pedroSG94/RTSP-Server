@@ -22,7 +22,7 @@ open class RtspServer(private val connectCheckerRtsp: ConnectCheckerRtsp,
 
   private val TAG = "RtspServer"
   private var server: ServerSocket? = null
-  val serverIp = getIPAddress(true)
+  val serverIp by lazy { getIPAddress(true) }
   var sps: ByteBuffer? = null
   var pps: ByteBuffer? = null
   var vps: ByteBuffer? = null
@@ -43,22 +43,35 @@ open class RtspServer(private val connectCheckerRtsp: ConnectCheckerRtsp,
   fun startServer() {
     stopServer()
     thread = Thread {
-      server = ServerSocket(port)
+      try {
+        server = ServerSocket(port)
+      } catch (e: IOException) {
+        connectCheckerRtsp.onConnectionFailedRtsp("Server creation failed")
+        Log.e(TAG, "Error", e)
+        return@Thread
+      }
       while (!Thread.interrupted()) {
         Log.i(TAG, "Server started $serverIp:$port")
         try {
+          val clientSocket = server?.accept() ?: continue
+          val clientAddress = clientSocket.inetAddress.hostAddress
+          if (clientAddress == null) {
+            Log.e(TAG, "Unknown client ip, closing clientSocket...")
+            if (!clientSocket.isClosed) clientSocket.close()
+            continue
+          }
           val client =
-            ServerClient(server!!.accept(), serverIp, port, connectCheckerRtsp, sps, pps, vps, sampleRate,
+            ServerClient(clientSocket, serverIp, port, connectCheckerRtsp, clientAddress, sps, pps, vps, sampleRate,
               isStereo, videoDisabled, audioDisabled, user, password, this)
           client.start()
           synchronized(clients) {
             clients.add(client)
           }
         } catch (e: SocketException) {
-          Log.e(TAG, "Error", e)
+          // server.close called
           break
         } catch (e: IOException) {
-          Log.e(TAG, e.message ?: "")
+          Log.e(TAG, "Error", e)
           continue
         }
       }
@@ -74,6 +87,7 @@ open class RtspServer(private val connectCheckerRtsp: ConnectCheckerRtsp,
       clients.forEach { it.stopClient() }
       clients.clear()
     }
+    if (server?.isClosed == false) server?.close()
     thread?.interrupt()
     try {
       thread?.join(100)
@@ -81,9 +95,6 @@ open class RtspServer(private val connectCheckerRtsp: ConnectCheckerRtsp,
       thread?.interrupt()
     }
     thread = null
-    if (server != null) {
-      if (!server!!.isClosed) server!!.close()
-    }
   }
 
   fun setOnlyAudio(onlyAudio: Boolean) {
@@ -146,21 +157,21 @@ open class RtspServer(private val connectCheckerRtsp: ConnectCheckerRtsp,
           Collections.list(intf.inetAddresses)
         for (addr in addrs) {
           if (!addr.isLoopbackAddress) {
-            val sAddr = addr.hostAddress
+            val sAddr = addr.hostAddress ?: return "0.0.0.0"
             val isIPv4 = sAddr.indexOf(':') < 0
             if (useIPv4) {
               if (isIPv4) return sAddr
             } else {
               if (!isIPv4) {
                 val delim = sAddr.indexOf('%') // drop ip6 zone suffix
-                return if (delim < 0) sAddr.toUpperCase() else sAddr.substring(0, delim).toUpperCase()
+                return if (delim < 0) sAddr.uppercase(Locale.getDefault()) else sAddr.substring(0, delim).uppercase(Locale.getDefault())
               }
             }
           }
         }
       }
-    } catch (ignored: Exception) {
-    } // for now eat exceptions
+    } catch (ignored: Exception) { }
+    // for now eat exceptions
     return "0.0.0.0"
   }
 

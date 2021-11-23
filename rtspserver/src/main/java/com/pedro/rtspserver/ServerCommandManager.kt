@@ -19,7 +19,7 @@ import java.util.regex.Pattern
  *
  */
 open class ServerCommandManager(private val serverIp: String, private val serverPort: Int,
-                           val clientIp: String?) : CommandsManager() {
+                           val clientIp: String) : CommandsManager() {
 
   private val TAG = "ServerCommandManager"
   var audioPorts = ArrayList<Int>()
