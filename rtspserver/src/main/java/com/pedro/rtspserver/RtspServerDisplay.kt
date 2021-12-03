@@ -66,6 +66,14 @@ open class RtspServerDisplay(context: Context, useOpengl: Boolean,
     rtspServer.setLogs(enable)
   }
 
+  fun setClientListener(clientListener: ClientListener) {
+    rtspServer.setClientListener(clientListener)
+  }
+
+  fun requestKeyframe() {
+    super.requestKeyFrame()
+  }
+
   override fun setCheckServerAlive(enable: Boolean) {
   }
 

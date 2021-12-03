@@ -74,6 +74,7 @@ open class ServerClient(private val socket: Socket, serverIp: String, serverPort
           }
           rtspSender.start()
           canSend = true
+          listener.onConnected(this)
         } else if (request.method == Method.TEARDOWN) {
           Log.i(TAG, "Client disconnected")
           listener.onDisconnected(this)

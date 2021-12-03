@@ -77,6 +77,10 @@ open class RtspServerFromFile : FromFileBase {
     rtspServer.setLogs(enable)
   }
 
+  fun setClientListener(clientListener: ClientListener) {
+    rtspServer.setClientListener(clientListener)
+  }
+
   override fun setCheckServerAlive(enable: Boolean) {
   }
 

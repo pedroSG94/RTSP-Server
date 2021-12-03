@@ -10,7 +10,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.pedro.encoder.input.video.CameraOpenException
 import com.pedro.rtsp.utils.ConnectCheckerRtsp
+import com.pedro.rtspserver.ClientListener
 import com.pedro.rtspserver.RtspServerCamera1
+import com.pedro.rtspserver.ServerClient
 import kotlinx.android.synthetic.main.activity_camera_demo.*
 import java.io.File
 import java.io.IOException
@@ -38,6 +40,22 @@ class CameraDemoActivity : AppCompatActivity(), ConnectCheckerRtsp, View.OnClick
     bRecord.setOnClickListener(this)
     switch_camera.setOnClickListener(this)
     rtspServerCamera1 = RtspServerCamera1(surfaceView, this, 1935)
+    rtspServerCamera1.setClientListener(object: ClientListener {
+      override fun onConnected(client: ServerClient) {
+        runOnUiThread {
+          Toast.makeText(this@CameraDemoActivity,
+            "${client.commandsManager.clientIp} connected", Toast.LENGTH_SHORT).show()
+          rtspServerCamera1.requestKeyframe()
+        }
+      }
+
+      override fun onDisconnected(client: ServerClient) {
+        runOnUiThread {
+          Toast.makeText(this@CameraDemoActivity,
+            "${client.commandsManager.clientIp} disconnected", Toast.LENGTH_SHORT).show()
+        }
+      }
+    })
     surfaceView.holder.addCallback(this)
   }
 

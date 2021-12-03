@@ -34,6 +34,11 @@ open class RtspServer(private val connectCheckerRtsp: ConnectCheckerRtsp,
   private var thread: Thread? = null
   private var user: String? = null
   private var password: String? = null
+  private var clientListener: ClientListener? = null
+
+  fun setClientListener(clientListener: ClientListener) {
+      this.clientListener = clientListener
+  }
 
   fun setAuth(user: String?, password: String?) {
     this.user = user
@@ -183,10 +188,15 @@ open class RtspServer(private val connectCheckerRtsp: ConnectCheckerRtsp,
     }
   }
 
+  override fun onConnected(client: ServerClient) {
+    clientListener?.onConnected(client)
+  }
+
   override fun onDisconnected(client: ServerClient) {
     synchronized(clients) {
       client.stopClient()
       clients.remove(client)
+      clientListener?.onDisconnected(client)
     }
   }
 }
