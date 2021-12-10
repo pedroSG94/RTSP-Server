@@ -26,7 +26,7 @@ open class RtspServerOnlyAudio(connectCheckerRtsp: ConnectCheckerRtsp, port: Int
 
   fun startStream() {
     super.startStream("")
-    rtspServer.startServer()
+    if (!rtspServer.running) rtspServer.startServer()
   }
 
   override fun prepareAudioRtp(isStereo: Boolean, sampleRate: Int) {

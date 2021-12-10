@@ -35,6 +35,7 @@ open class RtspServer(private val connectCheckerRtsp: ConnectCheckerRtsp,
   private var user: String? = null
   private var password: String? = null
   private var clientListener: ClientListener? = null
+  var running = false
 
   fun setClientListener(clientListener: ClientListener) {
       this.clientListener = clientListener
@@ -46,6 +47,7 @@ open class RtspServer(private val connectCheckerRtsp: ConnectCheckerRtsp,
   }
 
   fun startServer() {
+    if (running) return
     stopServer()
     thread = Thread {
       try {
@@ -83,6 +85,7 @@ open class RtspServer(private val connectCheckerRtsp: ConnectCheckerRtsp,
       Log.i(TAG, "Server finished")
     }
     thread?.start()
+    running = true
   }
 
   fun getNumClients(): Int = clients.size
@@ -100,6 +103,7 @@ open class RtspServer(private val connectCheckerRtsp: ConnectCheckerRtsp,
       thread?.interrupt()
     }
     thread = null
+    running = false
   }
 
   fun setOnlyAudio(onlyAudio: Boolean) {

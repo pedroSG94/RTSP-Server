@@ -89,7 +89,7 @@ open class RtspServerFromFile : FromFileBase {
     val newPps = pps.duplicate()
     val newVps = vps?.duplicate()
     rtspServer.setVideoInfo(newSps, newPps, newVps)
-    rtspServer.startServer()
+    if (!rtspServer.running) rtspServer.startServer()
   }
 
   override fun getH264DataRtp(h264Buffer: ByteBuffer, info: MediaCodec.BufferInfo) {

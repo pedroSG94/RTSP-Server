@@ -97,7 +97,7 @@ open class ServerCommandManager(private val serverIp: String, private val server
       portsMatcher.group(1)?.toInt()?.let { ports.add(it) }
       portsMatcher.group(2)?.toInt()?.let { ports.add(it) }
     } else {
-      Log.e(TAG, "UDP ports not found")
+      Log.i(TAG, "UDP ports not found")
       return false
     }
     getTrack(request)
