@@ -34,6 +34,7 @@ open class RtspServer(private val connectCheckerRtsp: ConnectCheckerRtsp,
   private var thread: Thread? = null
   private var user: String? = null
   private var password: String? = null
+  private var logs = true
 
   fun setAuth(user: String?, password: String?) {
     this.user = user
@@ -60,9 +61,9 @@ open class RtspServer(private val connectCheckerRtsp: ConnectCheckerRtsp,
             if (!clientSocket.isClosed) clientSocket.close()
             continue
           }
-          val client =
-            ServerClient(clientSocket, serverIp, port, connectCheckerRtsp, clientAddress, sps, pps, vps, sampleRate,
-              isStereo, videoDisabled, audioDisabled, user, password, this)
+          val client = ServerClient(clientSocket, serverIp, port, connectCheckerRtsp, clientAddress, sps, pps, vps,
+              sampleRate, isStereo, videoDisabled, audioDisabled, user, password, this)
+          client.rtspSender.setLogs(logs)
           client.start()
           synchronized(clients) {
             clients.add(client)
@@ -117,6 +118,7 @@ open class RtspServer(private val connectCheckerRtsp: ConnectCheckerRtsp,
   }
 
   fun setLogs(enable: Boolean) {
+    logs = enable
     synchronized(clients) {
       clients.forEach { it.rtspSender.setLogs(enable) }
     }
