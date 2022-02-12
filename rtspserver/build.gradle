@@ -19,19 +19,23 @@ android {
         }
     }
 
-    afterEvaluate {
-        publishing {
-            publications {
-                // Creates a Maven publication called "release".
-                release(MavenPublication) {
-                    // Applies the component for the release build variant.
-                    from components.release
+    publishing {
+        singleVariant("release")
+    }
+}
 
-                    // You can then customize attributes of the publication as shown below.
-                    groupId = "$library_group"
-                    artifactId = "rtspserver"
-                    version = "$version_name"
-                }
+afterEvaluate {
+    publishing {
+        publications {
+            // Creates a Maven publication called "release".
+            release(MavenPublication) {
+                // Applies the component for the release build variant.
+                from components.release
+
+                // You can then customize attributes of the publication as shown below.
+                groupId = "$library_group"
+                artifactId = "rtspserver"
+                version = "$version_name"
             }
         }
     }
@@ -39,5 +43,5 @@ android {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    implementation 'com.github.pedroSG94.rtmp-rtsp-stream-client-java:rtplibrary:2.1.4'
+    implementation 'com.github.pedroSG94.rtmp-rtsp-stream-client-java:rtplibrary:2.1.7'
 }
