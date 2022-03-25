@@ -32,6 +32,7 @@ open class RtspServerDisplay(context: Context, useOpengl: Boolean,
 
   fun startStream() {
     super.startStream("")
+    rtspServer.startServer()
   }
 
   override fun prepareAudioRtp(isStereo: Boolean, sampleRate: Int) {
@@ -55,7 +56,6 @@ open class RtspServerDisplay(context: Context, useOpengl: Boolean,
     val newPps = pps.duplicate()
     val newVps = vps?.duplicate()
     rtspServer.setVideoInfo(newSps, newPps, newVps)
-    rtspServer.startServer()
   }
 
   override fun getH264DataRtp(h264Buffer: ByteBuffer, info: MediaCodec.BufferInfo) {

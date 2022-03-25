@@ -8,6 +8,8 @@ import java.io.*
 import java.net.*
 import java.nio.ByteBuffer
 import java.util.*
+import java.util.concurrent.Semaphore
+import java.util.concurrent.TimeUnit
 
 /**
  *
@@ -35,6 +37,8 @@ open class RtspServer(private val connectCheckerRtsp: ConnectCheckerRtsp,
   private var user: String? = null
   private var password: String? = null
   private var logs = true
+  private var running = false
+  private val semaphore = Semaphore(0)
 
   fun setAuth(user: String?, password: String?) {
     this.user = user
@@ -45,6 +49,17 @@ open class RtspServer(private val connectCheckerRtsp: ConnectCheckerRtsp,
     stopServer()
     thread = Thread {
       try {
+        if (!videoDisabled) {
+          if (sps == null || pps == null) {
+            semaphore.drainPermits()
+            Log.i(TAG, "waiting for sps and pps")
+            semaphore.tryAcquire(5000, TimeUnit.MILLISECONDS)
+          }
+          if (sps == null || pps == null) {
+            connectCheckerRtsp.onConnectionFailedRtsp("sps or pps is null")
+            return@Thread
+          }
+        }
         server = ServerSocket(port)
       } catch (e: IOException) {
         connectCheckerRtsp.onConnectionFailedRtsp("Server creation failed")
@@ -78,6 +93,7 @@ open class RtspServer(private val connectCheckerRtsp: ConnectCheckerRtsp,
       }
       Log.i(TAG, "Server finished")
     }
+    running = true
     thread?.start()
   }
 
@@ -95,8 +111,12 @@ open class RtspServer(private val connectCheckerRtsp: ConnectCheckerRtsp,
     } catch (e: InterruptedException) {
       thread?.interrupt()
     }
+    semaphore.release()
+    running = false
     thread = null
   }
+
+  fun isRunning(): Boolean = running
 
   fun setOnlyAudio(onlyAudio: Boolean) {
     if (onlyAudio) {
@@ -148,6 +168,7 @@ open class RtspServer(private val connectCheckerRtsp: ConnectCheckerRtsp,
     this.sps = sps
     this.pps = pps
     this.vps = vps  //H264 has no vps so if not null assume H265
+    semaphore.release()
   }
 
   private fun getIPAddress(useIPv4: Boolean): String {

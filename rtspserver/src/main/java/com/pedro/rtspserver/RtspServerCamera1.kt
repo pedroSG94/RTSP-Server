@@ -64,6 +64,7 @@ open class RtspServerCamera1 : Camera1Base {
 
   fun startStream() {
     super.startStream("")
+    rtspServer.startServer()
   }
 
   override fun prepareAudioRtp(isStereo: Boolean, sampleRate: Int) {
@@ -87,7 +88,6 @@ open class RtspServerCamera1 : Camera1Base {
     val newPps = pps.duplicate()
     val newVps = vps?.duplicate()
     rtspServer.setVideoInfo(newSps, newPps, newVps)
-    rtspServer.startServer()
   }
 
   override fun getH264DataRtp(h264Buffer: ByteBuffer, info: MediaCodec.BufferInfo) {
