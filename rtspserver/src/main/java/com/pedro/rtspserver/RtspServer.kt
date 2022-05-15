@@ -24,7 +24,7 @@ open class RtspServer(private val connectCheckerRtsp: ConnectCheckerRtsp,
 
   private val TAG = "RtspServer"
   private var server: ServerSocket? = null
-  val serverIp by lazy { getIPAddress(true) }
+  val serverIp: String get() = getIPAddress()
   var sps: ByteBuffer? = null
   var pps: ByteBuffer? = null
   var vps: ByteBuffer? = null
@@ -171,33 +171,6 @@ open class RtspServer(private val connectCheckerRtsp: ConnectCheckerRtsp,
     semaphore.release()
   }
 
-  private fun getIPAddress(useIPv4: Boolean): String {
-    try {
-      val interfaces: List<NetworkInterface> =
-        Collections.list(NetworkInterface.getNetworkInterfaces())
-      for (intf in interfaces) {
-        val addrs: List<InetAddress> =
-          Collections.list(intf.inetAddresses)
-        for (addr in addrs) {
-          if (!addr.isLoopbackAddress) {
-            val sAddr = addr.hostAddress ?: return "0.0.0.0"
-            val isIPv4 = sAddr.indexOf(':') < 0
-            if (useIPv4) {
-              if (isIPv4) return sAddr
-            } else {
-              if (!isIPv4) {
-                val delim = sAddr.indexOf('%') // drop ip6 zone suffix
-                return if (delim < 0) sAddr.uppercase(Locale.getDefault()) else sAddr.substring(0, delim).uppercase(Locale.getDefault())
-              }
-            }
-          }
-        }
-      }
-    } catch (ignored: Exception) { }
-    // for now eat exceptions
-    return "0.0.0.0"
-  }
-
   fun hasCongestion(): Boolean {
     synchronized(clients) {
       var congestion = false
@@ -211,5 +184,31 @@ open class RtspServer(private val connectCheckerRtsp: ConnectCheckerRtsp,
       client.stopClient()
       clients.remove(client)
     }
+  }
+
+  private fun getIPAddress(): String {
+    val interfaces: List<NetworkInterface> = NetworkInterface.getNetworkInterfaces().toList()
+    val vpnInterfaces = interfaces.filter { it.displayName.contains(VPN_INTERFACE) }
+    val address: String by lazy { interfaces.findAddress().firstOrNull() ?: DEFAULT_IP }
+    return if (vpnInterfaces.isNotEmpty()) {
+      val vpnAddresses = vpnInterfaces.findAddress()
+      vpnAddresses.firstOrNull() ?: address
+    } else {
+      address
+    }
+  }
+
+  private fun List<NetworkInterface>.findAddress(): List<String?> = this.asSequence()
+    .map { addresses -> addresses.inetAddresses.asSequence() }
+    .flatten()
+    .filter { address -> !address.isLoopbackAddress }
+    .map { it.hostAddress }
+    .filter { address -> address?.contains(":") == false }
+    .toList()
+
+
+  companion object {
+    private const val VPN_INTERFACE = "tun"
+    private const val DEFAULT_IP = "0.0.0.0"
   }
 }
