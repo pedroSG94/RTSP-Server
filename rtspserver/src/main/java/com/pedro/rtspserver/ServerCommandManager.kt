@@ -24,7 +24,6 @@ open class ServerCommandManager(private val serverIp: String, private val server
   private val TAG = "ServerCommandManager"
   var audioPorts = ArrayList<Int>()
   var videoPorts = ArrayList<Int>()
-  private var track: Int? = null
 
   fun createResponse(method: Method, request: String, cSeq: Int): String {
     return when (method){
@@ -46,18 +45,22 @@ open class ServerCommandManager(private val serverIp: String, private val server
         }
       }
       Method.SETUP -> {
-        protocol = getProtocol(request)
-        return when (protocol) {
-          Protocol.TCP -> {
-            getTrack(request)
-            if (track != null) createSetup(cSeq) else createError(500, cSeq)
+        val track = getTrack(request)
+        if (track != null) {
+          protocol = getProtocol(request, track)
+          return when (protocol) {
+            Protocol.TCP -> {
+              createSetup(cSeq, track)
+            }
+            Protocol.UDP -> {
+              if (loadPorts(request, track)) createSetup(cSeq, track) else createError(500, cSeq)
+            }
+            else -> {
+              createError(500, cSeq)
+            }
           }
-          Protocol.UDP -> {
-            if (loadPorts(request)) createSetup(cSeq) else createError(500, cSeq)
-          }
-          else -> {
-            createError(500, cSeq)
-          }
+        } else {
+          createError(500, cSeq)
         }
       }
       Method.PLAY -> createPlay(cSeq)
@@ -81,15 +84,15 @@ open class ServerCommandManager(private val serverIp: String, private val server
     }
   }
 
-  private fun getProtocol(request: String): Protocol {
-    return if (request.contains("UDP", true) || loadPorts(request)) {
+  private fun getProtocol(request: String, track: Int): Protocol {
+    return if (request.contains("UDP", true) || loadPorts(request, track)) {
       Protocol.UDP
     } else {
       Protocol.TCP
     }
   }
 
-  private fun loadPorts(request: String): Boolean {
+  private fun loadPorts(request: String, track: Int): Boolean {
     val ports = ArrayList<Int>()
     val portsMatcher =
         Pattern.compile("client_port=(\\d+)(?:-(\\d+))?", Pattern.CASE_INSENSITIVE).matcher(request)
@@ -100,32 +103,26 @@ open class ServerCommandManager(private val serverIp: String, private val server
       Log.e(TAG, "UDP ports not found")
       return false
     }
-    getTrack(request)
-    if (track != null) {
-      if (track == RtpConstants.trackAudio) { //audio ports
-        audioPorts.clear()
-        audioPorts.add(ports[0])
-        audioPorts.add(ports[1])
-        Log.i(TAG, "Audio ports: $audioPorts")
-      } else { //video ports
-        videoPorts.clear()
-        videoPorts.add(ports[0])
-        videoPorts.add(ports[1])
-        Log.i(TAG, "Video ports: $videoPorts")
-      }
-    } else {
-      Log.e(TAG, "Track id not found")
-      return false
+    if (track == RtpConstants.trackAudio) { //audio ports
+      audioPorts.clear()
+      audioPorts.add(ports[0])
+      audioPorts.add(ports[1])
+      Log.i(TAG, "Audio ports: $audioPorts")
+    } else { //video ports
+      videoPorts.clear()
+      videoPorts.add(ports[0])
+      videoPorts.add(ports[1])
+      Log.i(TAG, "Video ports: $videoPorts")
     }
     return true
   }
 
-  private fun getTrack(request: String) {
+  private fun getTrack(request: String): Int? {
     val trackMatcher = Pattern.compile("streamid=(\\w+)", Pattern.CASE_INSENSITIVE).matcher(request)
     return if (trackMatcher.find()) {
-      track = trackMatcher.group(1)?.toInt()
+      trackMatcher.group(1)?.toInt()
     } else {
-      track = null
+      null
     }
   }
 
@@ -178,11 +175,13 @@ open class ServerCommandManager(private val serverIp: String, private val server
     return "v=0\r\no=- 0 0 IN IP4 $serverIp\r\ns=Unnamed\r\ni=N/A\r\nc=IN IP4 $clientIp\r\nt=0 0\r\na=recvonly\r\n$videoBody$audioBody\r\n"
   }
 
-  override fun createSetup(cSeq: Int): String {
+  private fun createSetup(track: Int, cSeq: Int): String {
     val protocolSetup = if (protocol == Protocol.UDP) {
-      "UDP;unicast;destination=$clientIp;client_port=8000-8001;server_port=39000-35968"
+      val clientPorts = if (track == RtpConstants.trackAudio) audioPorts else videoPorts
+      val serverPorts = if (track == RtpConstants.trackAudio) audioServerPorts else videoServerPorts
+      "UDP;unicast;destination=$clientIp;client_port=${clientPorts[0]}-${clientPorts[1]};server_port=${serverPorts[0]}-${serverPorts[1]}"
     } else {
-      "TCP;unicast;interleaved=" + (2 * track!!) + "-" + (2 * track!! + 1)
+      "TCP;unicast;interleaved=" + (2 * track) + "-" + (2 * track + 1)
     }
     return "${createHeader(cSeq)}Content-Length: 0\r\nTransport: RTP/AVP/$protocolSetup;mode=play\r\nSession: 1185d20035702ca\r\nCache-Control: no-cache\r\n\r\n"
   }

@@ -66,8 +66,8 @@ open class RtspServer(private val connectCheckerRtsp: ConnectCheckerRtsp,
         Log.e(TAG, "Error", e)
         return@Thread
       }
+      Log.i(TAG, "Server started $serverIp:$port")
       while (!Thread.interrupted()) {
-        Log.i(TAG, "Server started $serverIp:$port")
         try {
           val clientSocket = server?.accept() ?: continue
           val clientAddress = clientSocket.inetAddress.hostAddress

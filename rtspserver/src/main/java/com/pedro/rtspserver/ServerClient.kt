@@ -14,7 +14,7 @@ import java.net.SocketException
 import java.nio.ByteBuffer
 
 open class ServerClient(private val socket: Socket, serverIp: String, serverPort: Int,
-  connectCheckerRtsp: ConnectCheckerRtsp, clientAddress: String, sps: ByteBuffer?,
+  private val connectCheckerRtsp: ConnectCheckerRtsp, clientAddress: String, sps: ByteBuffer?,
   pps: ByteBuffer?, vps: ByteBuffer?, sampleRate: Int, isStereo: Boolean,
   videoDisabled: Boolean, audioDisabled: Boolean, user: String?, password: String?,
   private val listener: ClientListener) : Thread() {
@@ -55,8 +55,8 @@ open class ServerClient(private val socket: Socket, serverIp: String, serverPort
 
         if (request.method == Method.PLAY) {
           Log.i(TAG, "Protocol ${commandsManager.protocol}")
-          rtspSender.setSocketsInfo(commandsManager.protocol, commandsManager.videoClientPorts,
-              commandsManager.audioClientPorts)
+          rtspSender.setSocketsInfo(commandsManager.protocol, commandsManager.videoServerPorts,
+              commandsManager.audioServerPorts)
           if (!commandsManager.videoDisabled) {
             rtspSender.setVideoInfo(commandsManager.sps!!, commandsManager.pps!!, commandsManager.vps)
           }
@@ -73,6 +73,7 @@ open class ServerClient(private val socket: Socket, serverIp: String, serverPort
             }
           }
           rtspSender.start()
+          connectCheckerRtsp.onConnectionSuccessRtsp()
           canSend = true
         } else if (request.method == Method.TEARDOWN) {
           Log.i(TAG, "Client disconnected")
