@@ -175,7 +175,7 @@ open class ServerCommandManager(private val serverIp: String, private val server
     return "v=0\r\no=- 0 0 IN IP4 $serverIp\r\ns=Unnamed\r\ni=N/A\r\nc=IN IP4 $clientIp\r\nt=0 0\r\na=recvonly\r\n$videoBody$audioBody\r\n"
   }
 
-  private fun createSetup(track: Int, cSeq: Int): String {
+  private fun createSetup(cSeq: Int, track: Int): String {
     val protocolSetup = if (protocol == Protocol.UDP) {
       val clientPorts = if (track == RtpConstants.trackAudio) audioPorts else videoPorts
       val serverPorts = if (track == RtpConstants.trackAudio) audioServerPorts else videoServerPorts

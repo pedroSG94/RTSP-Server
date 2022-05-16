@@ -20,7 +20,6 @@ open class ServerClient(private val socket: Socket, serverIp: String, serverPort
   private val listener: ClientListener) : Thread() {
 
   private val TAG = "Client"
-  private var cSeq = 0
   private val output = BufferedWriter(OutputStreamWriter(socket.getOutputStream()))
   private val input = BufferedReader(InputStreamReader(socket.getInputStream()))
   val rtspSender = RtspSender(connectCheckerRtsp)
@@ -32,7 +31,9 @@ open class ServerClient(private val socket: Socket, serverIp: String, serverPort
     commandsManager.audioDisabled = audioDisabled
     commandsManager.isStereo = isStereo
     commandsManager.sampleRate = sampleRate
-    commandsManager.setVideoInfo(sps, pps, vps)
+    if (!commandsManager.videoDisabled) {
+      commandsManager.setVideoInfo(sps!!, pps!!, vps)
+    }
     commandsManager.setAuth(user, password)
   }
 
@@ -42,7 +43,7 @@ open class ServerClient(private val socket: Socket, serverIp: String, serverPort
     while (!interrupted()) {
       try {
         val request = commandsManager.getRequest(input)
-        cSeq = request.cSeq //update cSeq
+        val cSeq = request.cSeq //update cSeq
         if (cSeq == -1) { //If cSeq parsed fail send error to client
           output.write(commandsManager.createError(500, cSeq))
           output.flush()
