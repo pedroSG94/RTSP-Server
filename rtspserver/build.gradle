@@ -22,6 +22,7 @@ android {
     publishing {
         singleVariant("release")
     }
+    namespace 'com.pedro.rtspserver'
 }
 
 afterEvaluate {
@@ -42,6 +43,5 @@ afterEvaluate {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation 'com.github.pedroSG94.rtmp-rtsp-stream-client-java:rtplibrary:2.2.2'
 }
