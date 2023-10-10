@@ -7,9 +7,9 @@ import androidx.annotation.RequiresApi
 import com.pedro.encoder.input.decoder.AudioDecoderInterface
 import com.pedro.encoder.input.decoder.VideoDecoderInterface
 import com.pedro.encoder.utils.CodecUtil
-import com.pedro.rtplibrary.base.FromFileBase
-import com.pedro.rtplibrary.view.LightOpenGlView
-import com.pedro.rtplibrary.view.OpenGlView
+import com.pedro.library.base.FromFileBase
+import com.pedro.library.view.LightOpenGlView
+import com.pedro.library.view.OpenGlView
 import com.pedro.rtsp.rtsp.VideoCodec
 import com.pedro.rtsp.utils.ConnectCheckerRtsp
 import java.nio.ByteBuffer

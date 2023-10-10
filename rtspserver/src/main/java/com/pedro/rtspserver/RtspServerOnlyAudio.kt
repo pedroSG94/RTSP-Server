@@ -1,14 +1,16 @@
 package com.pedro.rtspserver
 
 import android.media.MediaCodec
-import com.pedro.rtplibrary.base.OnlyAudioBase
+import com.pedro.library.base.OnlyAudioBase
 import com.pedro.rtsp.utils.ConnectCheckerRtsp
 import java.nio.ByteBuffer
 
 /**
  * Created by pedro on 17/04/21.
  */
-open class RtspServerOnlyAudio(connectCheckerRtsp: ConnectCheckerRtsp, port: Int) : OnlyAudioBase() {
+open class RtspServerOnlyAudio(
+  connectCheckerRtsp: ConnectCheckerRtsp, port: Int
+) : OnlyAudioBase() {
 
   private val rtspServer = RtspServer(connectCheckerRtsp, port)
 

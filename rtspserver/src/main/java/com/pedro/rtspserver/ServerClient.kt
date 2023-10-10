@@ -5,6 +5,10 @@ import com.pedro.rtsp.rtsp.Protocol
 import com.pedro.rtsp.rtsp.RtspSender
 import com.pedro.rtsp.rtsp.commands.Method
 import com.pedro.rtsp.utils.ConnectCheckerRtsp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.BufferedReader
 import java.io.BufferedWriter
 import java.io.InputStreamReader
@@ -13,11 +17,13 @@ import java.net.Socket
 import java.net.SocketException
 import java.nio.ByteBuffer
 
-open class ServerClient(private val socket: Socket, serverIp: String, serverPort: Int,
+open class ServerClient(
+  private val socket: Socket, serverIp: String, serverPort: Int,
   private val connectCheckerRtsp: ConnectCheckerRtsp, clientAddress: String, sps: ByteBuffer?,
   pps: ByteBuffer?, vps: ByteBuffer?, sampleRate: Int, isStereo: Boolean,
   videoDisabled: Boolean, audioDisabled: Boolean, user: String?, password: String?,
-  private val listener: ClientListener) : Thread() {
+  private val listener: ClientListener
+) : Thread() {
 
   private val TAG = "Client"
   private val output = BufferedWriter(OutputStreamWriter(socket.getOutputStream()))
@@ -91,15 +97,19 @@ open class ServerClient(private val socket: Socket, serverIp: String, serverPort
   }
 
   fun stopClient() {
-    canSend = false
-    rtspSender.stop()
-    interrupt()
-    try {
-      join(100)
-    } catch (e: InterruptedException) {
+    CoroutineScope(Dispatchers.IO).launch {
+      canSend = false
+      rtspSender.stop()
       interrupt()
-    } finally {
-      socket.close()
+      withContext(Dispatchers.IO) {
+        try {
+          join(100)
+        } catch (e: InterruptedException) {
+          interrupt()
+        } finally {
+          socket.close()
+        }
+      }
     }
   }
 

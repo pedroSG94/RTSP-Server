@@ -5,14 +5,16 @@ import android.media.MediaCodec
 import android.os.Build
 import androidx.annotation.RequiresApi
 import com.pedro.encoder.utils.CodecUtil
-import com.pedro.rtplibrary.base.DisplayBase
+import com.pedro.library.base.DisplayBase
 import com.pedro.rtsp.rtsp.VideoCodec
 import com.pedro.rtsp.utils.ConnectCheckerRtsp
 import java.nio.ByteBuffer
 
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-open class RtspServerDisplay(context: Context, useOpengl: Boolean,
-  connectCheckerRtsp: ConnectCheckerRtsp, port: Int) : DisplayBase(context, useOpengl) {
+open class RtspServerDisplay(
+  context: Context, useOpengl: Boolean,
+  connectCheckerRtsp: ConnectCheckerRtsp, port: Int
+) : DisplayBase(context, useOpengl) {
 
   private val rtspServer: RtspServer =
       RtspServer(connectCheckerRtsp, port)

@@ -2,20 +2,23 @@ package com.pedro.sample
 
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.view.SurfaceHolder
+import android.view.SurfaceView
 import android.view.View
 import android.view.WindowManager
 import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.pedro.encoder.input.video.CameraOpenException
 import com.pedro.rtsp.utils.ConnectCheckerRtsp
 import com.pedro.rtspserver.RtspServerCamera1
-import kotlinx.android.synthetic.main.activity_camera_demo.*
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
 class CameraDemoActivity : AppCompatActivity(), ConnectCheckerRtsp, View.OnClickListener,
     SurfaceHolder.Callback {
@@ -23,6 +26,9 @@ class CameraDemoActivity : AppCompatActivity(), ConnectCheckerRtsp, View.OnClick
   private lateinit var rtspServerCamera1: RtspServerCamera1
   private lateinit var button: Button
   private lateinit var bRecord: Button
+  private lateinit var bSwitchCamera: Button
+  private lateinit var surfaceView: SurfaceView
+  private lateinit var tvUrl: TextView
 
   private var currentDateAndTime = ""
   private lateinit var folder: File
@@ -31,13 +37,17 @@ class CameraDemoActivity : AppCompatActivity(), ConnectCheckerRtsp, View.OnClick
     super.onCreate(savedInstanceState)
     window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     setContentView(R.layout.activity_camera_demo)
-    folder = File(getExternalFilesDir(null)!!.absolutePath + "/rtmp-rtsp-stream-client-java")
+    val storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES)
+    folder = File(storageDir.absolutePath + "/RootEncoder")
+    tvUrl = findViewById(R.id.tv_url)
     button = findViewById(R.id.b_start_stop)
     button.setOnClickListener(this)
     bRecord = findViewById(R.id.b_record)
     bRecord.setOnClickListener(this)
-    switch_camera.setOnClickListener(this)
-    rtspServerCamera1 = RtspServerCamera1(surfaceView, this, 1935)
+    bSwitchCamera = findViewById(R.id.switch_camera)
+    bSwitchCamera.setOnClickListener(this)
+    surfaceView = findViewById(R.id.surfaceView)
+    rtspServerCamera1 = RtspServerCamera1(surfaceView = surfaceView, this, 1935)
     surfaceView.holder.addCallback(this)
   }
 
@@ -74,7 +84,7 @@ class CameraDemoActivity : AppCompatActivity(), ConnectCheckerRtsp, View.OnClick
       Toast.makeText(this@CameraDemoActivity, "Auth error", Toast.LENGTH_SHORT).show()
       rtspServerCamera1.stopStream()
       button.setText(R.string.start_button)
-      tv_url.text = ""
+      tvUrl.text = ""
     }
   }
 
@@ -90,7 +100,7 @@ class CameraDemoActivity : AppCompatActivity(), ConnectCheckerRtsp, View.OnClick
         if (rtspServerCamera1.isRecording || rtspServerCamera1.prepareAudio() && rtspServerCamera1.prepareVideo()) {
           button.setText(R.string.stop_button)
           rtspServerCamera1.startStream()
-          tv_url.text = rtspServerCamera1.getEndPointConnection()
+          tvUrl.text = rtspServerCamera1.getEndPointConnection()
         } else {
           Toast.makeText(this, "Error preparing stream, This device cant do it", Toast.LENGTH_SHORT)
               .show()
@@ -98,7 +108,7 @@ class CameraDemoActivity : AppCompatActivity(), ConnectCheckerRtsp, View.OnClick
       } else {
         button.setText(R.string.start_button)
         rtspServerCamera1.stopStream()
-        tv_url.text = ""
+        tvUrl.text = ""
       }
       R.id.switch_camera -> try {
         rtspServerCamera1.switchCamera()
@@ -172,7 +182,7 @@ class CameraDemoActivity : AppCompatActivity(), ConnectCheckerRtsp, View.OnClick
     if (rtspServerCamera1.isStreaming) {
       rtspServerCamera1.stopStream()
       button.text = resources.getString(R.string.start_button)
-      tv_url.text = ""
+      tvUrl.text = ""
     }
     rtspServerCamera1.stopPreview()
   }
