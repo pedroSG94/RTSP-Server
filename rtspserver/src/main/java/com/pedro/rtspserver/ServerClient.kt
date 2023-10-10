@@ -85,10 +85,12 @@ open class ServerClient(
         } else if (request.method == Method.TEARDOWN) {
           Log.i(TAG, "Client disconnected")
           listener.onDisconnected(this)
+          connectCheckerRtsp.onDisconnectRtsp()
         }
       } catch (e: SocketException) { // Client has left
         Log.e(TAG, "Client disconnected", e)
         listener.onDisconnected(this)
+        connectCheckerRtsp.onConnectionFailedRtsp(e.message.toString())
         break
       } catch (e: Exception) {
         Log.e(TAG, "Unexpected error", e)
