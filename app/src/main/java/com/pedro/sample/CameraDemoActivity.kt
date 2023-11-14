@@ -12,8 +12,11 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.pedro.encoder.input.video.CameraOpenException
+import com.pedro.library.view.LightOpenGlView
+import com.pedro.rtsp.rtsp.VideoCodec
 import com.pedro.rtsp.utils.ConnectCheckerRtsp
 import com.pedro.rtspserver.RtspServerCamera1
+import com.pedro.rtspserver.RtspServerCamera2
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
@@ -23,11 +26,13 @@ import java.util.Locale
 class CameraDemoActivity : AppCompatActivity(), ConnectCheckerRtsp, View.OnClickListener,
     SurfaceHolder.Callback {
 
-  private lateinit var rtspServerCamera1: RtspServerCamera1
+
+  
+  private lateinit var rtspServerCamera1: RtspServerCamera2
   private lateinit var button: Button
   private lateinit var bRecord: Button
   private lateinit var bSwitchCamera: Button
-  private lateinit var surfaceView: SurfaceView
+  private lateinit var surfaceView: LightOpenGlView
   private lateinit var tvUrl: TextView
 
   private var currentDateAndTime = ""
@@ -47,7 +52,12 @@ class CameraDemoActivity : AppCompatActivity(), ConnectCheckerRtsp, View.OnClick
     bSwitchCamera = findViewById(R.id.switch_camera)
     bSwitchCamera.setOnClickListener(this)
     surfaceView = findViewById(R.id.surfaceView)
-    rtspServerCamera1 = RtspServerCamera1(surfaceView = surfaceView, this, 1935)
+    surfaceView.isKeepAspectRatio = true
+//    rtspServerCamera1 = RtspServerCamera1(surfaceView = surfaceView, this, 1935)
+    rtspServerCamera1 = RtspServerCamera2(surfaceView, this, 1935)
+//    rtspServerCamera1.setVideoCodec(VideoCodec.H265)
+//    rtspServerCamera1.setAuthorization("admin", "admin")
+
     surfaceView.holder.addCallback(this)
   }
 
