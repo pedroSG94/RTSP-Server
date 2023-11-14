@@ -13,13 +13,15 @@ import androidx.core.app.ActivityCompat
 
 class MainActivity : AppCompatActivity() {
 
-  private val PERMISSIONS = arrayOf(Manifest.permission.RECORD_AUDIO, Manifest.permission.CAMERA)
+  private val PERMISSIONS = arrayOf(Manifest.permission.RECORD_AUDIO, Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     setContentView(R.layout.activity_main)
     val bCameraDemo = findViewById<Button>(R.id.b_camera_demo)
+    val bFileDemo = findViewById<Button>(R.id.b_file_demo)
+
     bCameraDemo.setOnClickListener {
       if (!hasPermissions(this, *PERMISSIONS)) {
         ActivityCompat.requestPermissions(this, PERMISSIONS, 1)
@@ -27,6 +29,14 @@ class MainActivity : AppCompatActivity() {
         startActivity(Intent(this, CameraDemoActivity::class.java))
       }
     }
+    bFileDemo.setOnClickListener {
+      if (!hasPermissions(this, *PERMISSIONS)) {
+        ActivityCompat.requestPermissions(this, PERMISSIONS, 1)
+      } else {
+        startActivity(Intent(this, FileDemoActivity::class.java))
+      }
+    }
+
   }
 
   private fun hasPermissions(context: Context?, vararg permissions: String): Boolean {

@@ -66,13 +66,6 @@
             android:layout_marginEnd="5dp" />
 
         <Button
-            android:layout_weight="1"
-            android:text="@string/switch_camera_button"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/switch_camera"
-            />
-        <Button
             android:text="@string/select_file"
             android:layout_weight="1"
             android:layout_width="0dp"
