@@ -4,6 +4,7 @@ import android.content.Context
 import android.media.MediaCodec
 import android.os.Build
 import androidx.annotation.RequiresApi
+import com.pedro.common.AudioCodec
 import com.pedro.encoder.utils.CodecUtil
 import com.pedro.library.base.Camera2Base
 import com.pedro.library.view.LightOpenGlView
@@ -43,9 +44,8 @@ open class RtspServerCamera2 : Camera2Base {
     rtspServer.startServer()
   }
 
-  override fun prepareAudioRtp(isStereo: Boolean, sampleRate: Int) {
-    rtspServer.isStereo = isStereo
-    rtspServer.sampleRate = sampleRate
+  override fun prepareAudioRtp(isStereo: Boolean, sampleRate: Int, audioCodec: AudioCodec) {
+    rtspServer.setAudioInfo(sampleRate, isStereo, audioCodec)
   }
 
   override fun startStreamRtp(url: String) { //unused

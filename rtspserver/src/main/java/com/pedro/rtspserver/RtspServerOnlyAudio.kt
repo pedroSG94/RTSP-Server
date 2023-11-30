@@ -1,6 +1,7 @@
 package com.pedro.rtspserver
 
 import android.media.MediaCodec
+import com.pedro.common.AudioCodec
 import com.pedro.library.base.OnlyAudioBase
 import com.pedro.common.ConnectChecker
 import com.pedro.common.VideoCodec
@@ -31,9 +32,8 @@ open class RtspServerOnlyAudio(
     rtspServer.startServer()
   }
 
-  override fun prepareAudioRtp(isStereo: Boolean, sampleRate: Int) {
-    rtspServer.isStereo = isStereo
-    rtspServer.sampleRate = sampleRate
+  override fun prepareAudioRtp(isStereo: Boolean, sampleRate: Int, audioCodec: AudioCodec) {
+    rtspServer.setAudioInfo(sampleRate, isStereo, audioCodec)
   }
 
   override fun startStreamRtp(url: String) { //unused

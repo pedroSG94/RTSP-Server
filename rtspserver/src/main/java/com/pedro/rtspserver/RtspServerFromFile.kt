@@ -4,6 +4,7 @@ import android.content.Context
 import android.media.MediaCodec
 import android.os.Build
 import androidx.annotation.RequiresApi
+import com.pedro.common.AudioCodec
 import com.pedro.encoder.input.decoder.AudioDecoderInterface
 import com.pedro.encoder.input.decoder.VideoDecoderInterface
 import com.pedro.library.base.FromFileBase
@@ -52,9 +53,8 @@ open class RtspServerFromFile : FromFileBase {
     rtspServer.startServer()
   }
 
-  override fun prepareAudioRtp(isStereo: Boolean, sampleRate: Int) {
-    rtspServer.isStereo = isStereo
-    rtspServer.sampleRate = sampleRate
+  override fun prepareAudioRtp(isStereo: Boolean, sampleRate: Int, audioCodec: AudioCodec) {
+    rtspServer.setAudioInfo(sampleRate, isStereo, audioCodec)
   }
 
   override fun startStreamRtp(url: String) { //unused
