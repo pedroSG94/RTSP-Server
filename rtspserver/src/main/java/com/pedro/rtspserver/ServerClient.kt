@@ -70,7 +70,7 @@ open class ServerClient(
             rtspSender.setVideoInfo(commandsManager.sps!!, commandsManager.pps!!, commandsManager.vps)
           }
           if (!commandsManager.audioDisabled) {
-            rtspSender.setAudioInfo(commandsManager.sampleRate)
+            rtspSender.setAudioInfo(commandsManager.sampleRate, commandsManager.audioCodec )
           }
           rtspSender.setDataStream(socket.getOutputStream(), commandsManager.clientIp)
           if (commandsManager.protocol == Protocol.UDP) {
