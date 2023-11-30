@@ -2,6 +2,7 @@ package com.pedro.rtspserver
 
 import android.media.MediaCodec
 import android.util.Log
+import com.pedro.common.AudioCodec
 import com.pedro.common.ConnectChecker
 import com.pedro.rtsp.utils.RtpConstants
 import java.io.*
@@ -26,11 +27,12 @@ open class RtspServer(
   private val TAG = "RtspServer"
   private var server: ServerSocket? = null
   val serverIp: String get() = getIPAddress()
-  var sps: ByteBuffer? = null
-  var pps: ByteBuffer? = null
-  var vps: ByteBuffer? = null
-  var sampleRate = 32000
-  var isStereo = true
+  private var sps: ByteBuffer? = null
+  private var pps: ByteBuffer? = null
+  private var vps: ByteBuffer? = null
+  private var sampleRate = 32000
+  private var isStereo = true
+  private var audioCodec: AudioCodec = AudioCodec.AAC
   private val clients = mutableListOf<ServerClient>()
   private var videoDisabled = false
   private var audioDisabled = false
@@ -78,7 +80,7 @@ open class RtspServer(
             continue
           }
           val client = ServerClient(clientSocket, serverIp, port, connectChecker, clientAddress, sps, pps, vps,
-              sampleRate, isStereo, videoDisabled, audioDisabled, user, password, this)
+              sampleRate, isStereo, audioCodec, videoDisabled, audioDisabled, user, password, this)
           client.rtspSender.setLogs(logs)
           client.start()
           synchronized(clients) {
@@ -169,6 +171,12 @@ open class RtspServer(
     this.sps = sps
     this.pps = pps
     this.vps = vps  //H264 has no vps so if not null assume H265
+    semaphore.release()
+  }
+  fun setAudioInfo(sampleRate: Int, isStereo: Boolean, audioCodec: AudioCodec) {
+    this.sampleRate = sampleRate
+    this.isStereo = isStereo
+    this.audioCodec = audioCodec
     semaphore.release()
   }
 

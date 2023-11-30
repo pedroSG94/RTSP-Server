@@ -30,7 +30,9 @@ android {
 
 dependencies {
     implementation project(':rtspserver')
-    implementation 'com.github.pedroSG94.RootEncoder:library:2.3.0'
+//    implementation 'com.github.pedroSG94.RootEncoder:library:2.3.2'
+    implementation 'com.github.f9021003.RootEncoder:library:2.3.5'
+
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'

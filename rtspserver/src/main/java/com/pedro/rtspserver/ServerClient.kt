@@ -1,6 +1,7 @@
 package com.pedro.rtspserver
 
 import android.util.Log
+import com.pedro.common.AudioCodec
 import com.pedro.rtsp.rtsp.Protocol
 import com.pedro.rtsp.rtsp.RtspSender
 import com.pedro.rtsp.rtsp.commands.Method
@@ -20,7 +21,7 @@ import java.nio.ByteBuffer
 open class ServerClient(
   private val socket: Socket, serverIp: String, serverPort: Int,
   private val connectChecker: ConnectChecker, clientAddress: String, sps: ByteBuffer?,
-  pps: ByteBuffer?, vps: ByteBuffer?, sampleRate: Int, isStereo: Boolean,
+  pps: ByteBuffer?, vps: ByteBuffer?, sampleRate: Int, isStereo: Boolean, audioCodec: AudioCodec,
   videoDisabled: Boolean, audioDisabled: Boolean, user: String?, password: String?,
   private val listener: ClientListener
 ) : Thread() {
@@ -36,6 +37,7 @@ open class ServerClient(
     commandsManager.videoDisabled = videoDisabled
     commandsManager.audioDisabled = audioDisabled
     commandsManager.isStereo = isStereo
+    commandsManager.audioCodec = audioCodec
     commandsManager.sampleRate = sampleRate
     if (!commandsManager.videoDisabled) {
       commandsManager.setVideoInfo(sps!!, pps!!, vps)
