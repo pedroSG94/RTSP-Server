@@ -2,6 +2,7 @@ package com.pedro.rtspserver
 
 import android.util.Base64
 import android.util.Log
+import com.pedro.common.AudioCodec
 import com.pedro.rtsp.rtsp.Protocol
 import com.pedro.rtsp.rtsp.commands.Command
 import com.pedro.rtsp.rtsp.commands.CommandsManager
@@ -166,7 +167,11 @@ open class ServerCommandManager(
   private fun createBody(): String {
     var audioBody = ""
     if (!audioDisabled) {
-      audioBody = SdpBody.createAacBody(RtpConstants.trackAudio, sampleRate, isStereo)
+      audioBody = if (audioCodec == AudioCodec.G711) {
+        SdpBody.createG711Body(RtpConstants.trackAudio, sampleRate, isStereo)
+      } else {
+        SdpBody.createAacBody(RtpConstants.trackAudio, sampleRate, isStereo)
+      }
     }
     var videoBody = ""
     if (!videoDisabled) {
