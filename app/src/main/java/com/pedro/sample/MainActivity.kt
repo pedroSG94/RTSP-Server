@@ -19,14 +19,22 @@ class MainActivity : AppCompatActivity() {
     super.onCreate(savedInstanceState)
     window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     setContentView(R.layout.activity_main)
-    val bCameraDemo = findViewById<Button>(R.id.b_camera_demo)
+    val bCamera1Demo = findViewById<Button>(R.id.b_camera1_demo)
+    val bCamera2Demo = findViewById<Button>(R.id.b_camera2_demo)
     val bFileDemo = findViewById<Button>(R.id.b_file_demo)
 
-    bCameraDemo.setOnClickListener {
+    bCamera1Demo.setOnClickListener {
       if (!hasPermissions(this, *PERMISSIONS)) {
         ActivityCompat.requestPermissions(this, PERMISSIONS, 1)
       } else {
-        startActivity(Intent(this, CameraDemoActivity::class.java))
+        startActivity(Intent(this, Camera1DemoActivity::class.java))
+      }
+    }
+    bCamera2Demo.setOnClickListener {
+      if (!hasPermissions(this, *PERMISSIONS)) {
+        ActivityCompat.requestPermissions(this, PERMISSIONS, 1)
+      } else {
+        startActivity(Intent(this, Camera2DemoActivity::class.java))
       }
     }
     bFileDemo.setOnClickListener {

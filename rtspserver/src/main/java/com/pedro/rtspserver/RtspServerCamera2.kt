@@ -8,8 +8,9 @@ import com.pedro.encoder.utils.CodecUtil
 import com.pedro.library.base.Camera2Base
 import com.pedro.library.view.LightOpenGlView
 import com.pedro.library.view.OpenGlView
-import com.pedro.rtsp.rtsp.VideoCodec
-import com.pedro.rtsp.utils.ConnectCheckerRtsp
+import com.pedro.common.ConnectChecker
+import com.pedro.common.VideoCodec
+import com.pedro.library.util.streamclient.StreamBaseClient
 import java.nio.ByteBuffer
 
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -17,33 +18,25 @@ open class RtspServerCamera2 : Camera2Base {
 
   private val rtspServer: RtspServer
 
-  constructor(openGlView: OpenGlView, connectCheckerRtsp: ConnectCheckerRtsp, port: Int) : super(
+  constructor(openGlView: OpenGlView, connectChecker: ConnectChecker, port: Int) : super(
     openGlView) {
-    rtspServer = RtspServer(connectCheckerRtsp, port)
+    rtspServer = RtspServer(connectChecker, port)
   }
 
-  constructor(lightOpenGlView: LightOpenGlView, connectCheckerRtsp: ConnectCheckerRtsp,
+  constructor(lightOpenGlView: LightOpenGlView, connectCheckerRtsp: ConnectChecker,
     port: Int) : super(lightOpenGlView) {
     rtspServer = RtspServer(connectCheckerRtsp, port)
   }
 
-  constructor(context: Context, useOpengl: Boolean, connectCheckerRtsp: ConnectCheckerRtsp,
+  constructor(context: Context, useOpengl: Boolean, connectCheckerRtsp: ConnectChecker,
     port: Int) : super(context, useOpengl) {
     rtspServer = RtspServer(connectCheckerRtsp, port)
-  }
-
-  fun setVideoCodec(videoCodec: VideoCodec) {
-    videoEncoder.type =
-      if (videoCodec == VideoCodec.H265) CodecUtil.H265_MIME else CodecUtil.H264_MIME
   }
 
   fun getNumClients(): Int = rtspServer.getNumClients()
 
   fun getEndPointConnection(): String = "rtsp://${rtspServer.serverIp}:${rtspServer.port}/"
 
-  override fun setAuthorization(user: String, password: String) {
-    rtspServer.setAuth(user, password)
-  }
 
   fun startStream() {
     super.startStream("")
@@ -77,49 +70,13 @@ open class RtspServerCamera2 : Camera2Base {
     rtspServer.sendVideo(h264Buffer, info)
   }
 
-  override fun setLogs(enable: Boolean) {
-    rtspServer.setLogs(enable)
+  override fun getStreamClient(): StreamBaseClient {
+    return streamClient;
   }
 
-  override fun setCheckServerAlive(enable: Boolean) {
+  override fun setVideoCodecImp(codec: VideoCodec) {
+    videoEncoder.type =
+      if (codec == VideoCodec.H265) CodecUtil.H265_MIME else CodecUtil.H264_MIME
   }
 
-  /**
-   * Unused functions
-   */
-  @Throws(RuntimeException::class)
-  override fun resizeCache(newSize: Int) {
-  }
-
-  override fun shouldRetry(reason: String?): Boolean = false
-
-  override fun hasCongestion(): Boolean = rtspServer.hasCongestion()
-
-  override fun setReTries(reTries: Int) {
-  }
-
-  override fun reConnect(delay: Long, backupUrl: String?) {
-  }
-
-  override fun getCacheSize(): Int = 0
-
-  override fun getSentAudioFrames(): Long = 0
-
-  override fun getSentVideoFrames(): Long = 0
-
-  override fun getDroppedAudioFrames(): Long = 0
-
-  override fun getDroppedVideoFrames(): Long = 0
-
-  override fun resetSentAudioFrames() {
-  }
-
-  override fun resetSentVideoFrames() {
-  }
-
-  override fun resetDroppedAudioFrames() {
-  }
-
-  override fun resetDroppedVideoFrames() {
-  }
 }

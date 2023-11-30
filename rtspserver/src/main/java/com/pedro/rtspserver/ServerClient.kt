@@ -4,7 +4,7 @@ import android.util.Log
 import com.pedro.rtsp.rtsp.Protocol
 import com.pedro.rtsp.rtsp.RtspSender
 import com.pedro.rtsp.rtsp.commands.Method
-import com.pedro.rtsp.utils.ConnectCheckerRtsp
+import com.pedro.common.ConnectChecker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -19,7 +19,7 @@ import java.nio.ByteBuffer
 
 open class ServerClient(
   private val socket: Socket, serverIp: String, serverPort: Int,
-  private val connectCheckerRtsp: ConnectCheckerRtsp, clientAddress: String, sps: ByteBuffer?,
+  private val connectChecker: ConnectChecker, clientAddress: String, sps: ByteBuffer?,
   pps: ByteBuffer?, vps: ByteBuffer?, sampleRate: Int, isStereo: Boolean,
   videoDisabled: Boolean, audioDisabled: Boolean, user: String?, password: String?,
   private val listener: ClientListener
@@ -28,7 +28,7 @@ open class ServerClient(
   private val TAG = "Client"
   private val output = BufferedWriter(OutputStreamWriter(socket.getOutputStream()))
   private val input = BufferedReader(InputStreamReader(socket.getInputStream()))
-  val rtspSender = RtspSender(connectCheckerRtsp)
+  val rtspSender = RtspSender(connectChecker)
   val commandsManager = ServerCommandManager(serverIp, serverPort, clientAddress)
   var canSend = false
 
@@ -80,17 +80,17 @@ open class ServerClient(
             }
           }
           rtspSender.start()
-          connectCheckerRtsp.onConnectionSuccessRtsp()
+          connectChecker.onConnectionSuccess()
           canSend = true
         } else if (request.method == Method.TEARDOWN) {
           Log.i(TAG, "Client disconnected")
           listener.onDisconnected(this)
-          connectCheckerRtsp.onDisconnectRtsp()
+          connectChecker.onDisconnect()
         }
       } catch (e: SocketException) { // Client has left
         Log.e(TAG, "Client disconnected", e)
         listener.onDisconnected(this)
-        connectCheckerRtsp.onConnectionFailedRtsp(e.message.toString())
+        connectChecker.onConnectionFailed(e.message.toString())
         break
       } catch (e: Exception) {
         Log.e(TAG, "Unexpected error", e)

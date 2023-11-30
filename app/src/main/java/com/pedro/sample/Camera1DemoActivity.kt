@@ -4,18 +4,18 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.view.SurfaceHolder
-import android.view.SurfaceView
 import android.view.View
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.pedro.common.ConnectChecker
 import com.pedro.encoder.input.video.CameraOpenException
+import com.pedro.encoder.utils.gl.AspectRatioMode
 import com.pedro.library.view.LightOpenGlView
-import com.pedro.rtsp.rtsp.VideoCodec
-import com.pedro.rtsp.utils.ConnectCheckerRtsp
 import com.pedro.rtspserver.RtspServerCamera1
+
 import com.pedro.rtspserver.RtspServerCamera2
 import java.io.File
 import java.io.IOException
@@ -23,12 +23,12 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class CameraDemoActivity : AppCompatActivity(), ConnectCheckerRtsp, View.OnClickListener,
+class Camera1DemoActivity : AppCompatActivity(), ConnectChecker, View.OnClickListener,
     SurfaceHolder.Callback {
 
 
   
-  private lateinit var rtspServerCamera1: RtspServerCamera2
+  private lateinit var rtspServerCamera1: RtspServerCamera1
   private lateinit var button: Button
   private lateinit var bRecord: Button
   private lateinit var bSwitchCamera: Button
@@ -52,55 +52,56 @@ class CameraDemoActivity : AppCompatActivity(), ConnectCheckerRtsp, View.OnClick
     bSwitchCamera = findViewById(R.id.switch_camera)
     bSwitchCamera.setOnClickListener(this)
     surfaceView = findViewById(R.id.surfaceView)
-    surfaceView.isKeepAspectRatio = true
+    surfaceView.setAspectRatioMode(AspectRatioMode.Adjust)
+
 //    rtspServerCamera1 = RtspServerCamera1(surfaceView = surfaceView, this, 1935)
-    rtspServerCamera1 = RtspServerCamera2(surfaceView, this, 1935)
+    rtspServerCamera1 = RtspServerCamera1(surfaceView, this, 1935)
 //    rtspServerCamera1.setVideoCodec(VideoCodec.H265)
 //    rtspServerCamera1.setAuthorization("admin", "admin")
 
     surfaceView.holder.addCallback(this)
   }
 
-  override fun onNewBitrateRtsp(bitrate: Long) {
+  override fun onNewBitrate(bitrate: Long) {
 
   }
 
-  override fun onConnectionSuccessRtsp() {
+  override fun onConnectionSuccess() {
     runOnUiThread {
-      Toast.makeText(this@CameraDemoActivity, "Connection success", Toast.LENGTH_SHORT).show()
+      Toast.makeText(this@Camera1DemoActivity, "Connection success", Toast.LENGTH_SHORT).show()
     }
   }
 
-  override fun onConnectionFailedRtsp(reason: String) {
+  override fun onConnectionFailed(reason: String) {
     runOnUiThread {
-      Toast.makeText(this@CameraDemoActivity, "Connection failed. $reason", Toast.LENGTH_SHORT)
+      Toast.makeText(this@Camera1DemoActivity, "Connection failed. $reason", Toast.LENGTH_SHORT)
           .show()
       rtspServerCamera1.stopStream()
       button.setText(R.string.start_button)
     }
   }
 
-  override fun onConnectionStartedRtsp(rtspUrl: String) {
+  override fun onConnectionStarted(rtspUrl: String) {
   }
 
-  override fun onDisconnectRtsp() {
+  override fun onDisconnect() {
     runOnUiThread {
-      Toast.makeText(this@CameraDemoActivity, "Disconnected", Toast.LENGTH_SHORT).show()
+      Toast.makeText(this@Camera1DemoActivity, "Disconnected", Toast.LENGTH_SHORT).show()
     }
   }
 
-  override fun onAuthErrorRtsp() {
+  override fun onAuthError() {
     runOnUiThread {
-      Toast.makeText(this@CameraDemoActivity, "Auth error", Toast.LENGTH_SHORT).show()
+      Toast.makeText(this@Camera1DemoActivity, "Auth error", Toast.LENGTH_SHORT).show()
       rtspServerCamera1.stopStream()
       button.setText(R.string.start_button)
       tvUrl.text = ""
     }
   }
 
-  override fun onAuthSuccessRtsp() {
+  override fun onAuthSuccess() {
     runOnUiThread {
-      Toast.makeText(this@CameraDemoActivity, "Auth success", Toast.LENGTH_SHORT).show()
+      Toast.makeText(this@Camera1DemoActivity, "Auth success", Toast.LENGTH_SHORT).show()
     }
   }
 

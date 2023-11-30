@@ -2,12 +2,11 @@ package com.pedro.rtspserver
 
 import android.media.MediaCodec
 import android.util.Log
-import com.pedro.rtsp.utils.ConnectCheckerRtsp
+import com.pedro.common.ConnectChecker
 import com.pedro.rtsp.utils.RtpConstants
 import java.io.*
 import java.net.*
 import java.nio.ByteBuffer
-import java.util.*
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 
@@ -20,7 +19,7 @@ import java.util.concurrent.TimeUnit
  */
 
 open class RtspServer(
-  private val connectCheckerRtsp: ConnectCheckerRtsp,
+  private val connectChecker: ConnectChecker,
   val port: Int
 ): ClientListener {
 
@@ -58,13 +57,13 @@ open class RtspServer(
             semaphore.tryAcquire(5000, TimeUnit.MILLISECONDS)
           }
           if (sps == null || pps == null) {
-            connectCheckerRtsp.onConnectionFailedRtsp("sps or pps is null")
+            connectChecker.onConnectionFailed("sps or pps is null")
             return@Thread
           }
         }
         server = ServerSocket(port)
       } catch (e: IOException) {
-        connectCheckerRtsp.onConnectionFailedRtsp("Server creation failed")
+        connectChecker.onConnectionFailed("Server creation failed")
         Log.e(TAG, "Error", e)
         return@Thread
       }
@@ -78,7 +77,7 @@ open class RtspServer(
             if (!clientSocket.isClosed) clientSocket.close()
             continue
           }
-          val client = ServerClient(clientSocket, serverIp, port, connectCheckerRtsp, clientAddress, sps, pps, vps,
+          val client = ServerClient(clientSocket, serverIp, port, connectChecker, clientAddress, sps, pps, vps,
               sampleRate, isStereo, videoDisabled, audioDisabled, user, password, this)
           client.rtspSender.setLogs(logs)
           client.start()

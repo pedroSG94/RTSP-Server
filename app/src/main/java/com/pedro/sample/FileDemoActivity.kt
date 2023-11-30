@@ -3,6 +3,7 @@ package com.pedro.sample
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.util.Log
 import android.view.SurfaceHolder
 import android.view.View
 import android.view.WindowManager
@@ -10,11 +11,12 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.pedro.common.ConnectChecker
+import com.pedro.common.VideoCodec
 import com.pedro.encoder.input.decoder.AudioDecoderInterface
 import com.pedro.encoder.input.decoder.VideoDecoderInterface
+import com.pedro.encoder.utils.gl.AspectRatioMode
 import com.pedro.library.view.LightOpenGlView
-import com.pedro.rtsp.rtsp.VideoCodec
-import com.pedro.rtsp.utils.ConnectCheckerRtsp
 import com.pedro.rtspserver.RtspServerFromFile
 import com.pedro.sample.utils.PathUtils
 import java.io.File
@@ -23,7 +25,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class FileDemoActivity : AppCompatActivity(), ConnectCheckerRtsp, View.OnClickListener,
+class FileDemoActivity : AppCompatActivity(), ConnectChecker, View.OnClickListener,
   VideoDecoderInterface,
   AudioDecoderInterface,
     SurfaceHolder.Callback {
@@ -51,26 +53,28 @@ class FileDemoActivity : AppCompatActivity(), ConnectCheckerRtsp, View.OnClickLi
     bRecord.setOnClickListener(this)
 
     surfaceView = findViewById(R.id.surfaceView)
-    surfaceView.isKeepAspectRatio = true
-//    rtspServerCamera1 = RtspServerCamera1(surfaceView = surfaceView, this, 1935)
+    surfaceView.setAspectRatioMode(AspectRatioMode.Adjust)
     rtspServerFromFile = RtspServerFromFile(surfaceView, this, 1935, this, this)
-    rtspServerFromFile.setVideoCodec(VideoCodec.H265)
+    rtspServerFromFile.setVideoCodec(VideoCodec.H264)
+    rtspServerFromFile.setFpsListener {
+      Log.d("FpsListener", "FPS = $it" )
+    }
 //    rtspServerCamera1.setAuthorization("admin", "admin")
 
     surfaceView.holder.addCallback(this)
   }
 
-  override fun onNewBitrateRtsp(bitrate: Long) {
+  override fun onNewBitrate(bitrate: Long) {
 
   }
 
-  override fun onConnectionSuccessRtsp() {
+  override fun onConnectionSuccess() {
     runOnUiThread {
       Toast.makeText(this@FileDemoActivity, "Connection success", Toast.LENGTH_SHORT).show()
     }
   }
 
-  override fun onConnectionFailedRtsp(reason: String) {
+  override fun onConnectionFailed(reason: String) {
     runOnUiThread {
       Toast.makeText(this@FileDemoActivity, "Connection failed. $reason", Toast.LENGTH_SHORT)
           .show()
@@ -79,16 +83,16 @@ class FileDemoActivity : AppCompatActivity(), ConnectCheckerRtsp, View.OnClickLi
     }
   }
 
-  override fun onConnectionStartedRtsp(rtspUrl: String) {
+  override fun onConnectionStarted(rtspUrl: String) {
   }
 
-  override fun onDisconnectRtsp() {
+  override fun onDisconnect() {
     runOnUiThread {
       Toast.makeText(this@FileDemoActivity, "Disconnected", Toast.LENGTH_SHORT).show()
     }
   }
 
-  override fun onAuthErrorRtsp() {
+  override fun onAuthError() {
     runOnUiThread {
       Toast.makeText(this@FileDemoActivity, "Auth error", Toast.LENGTH_SHORT).show()
       rtspServerFromFile.stopStream()
@@ -97,15 +101,15 @@ class FileDemoActivity : AppCompatActivity(), ConnectCheckerRtsp, View.OnClickLi
     }
   }
 
-  override fun onAuthSuccessRtsp() {
+  override fun onAuthSuccess() {
     runOnUiThread {
       Toast.makeText(this@FileDemoActivity, "Auth success", Toast.LENGTH_SHORT).show()
     }
   }
   @Throws(IOException::class)
   private fun prepare(): Boolean {
-    var result: Boolean = rtspServerFromFile.prepareVideo("/sdcard/temp/Big_Buck_Bunny_1080_10s_5MB.mp4")
-    result = result or rtspServerFromFile.prepareAudio("/sdcard/temp/Big_Buck_Bunny_1080_10s_5MB.mp4")
+    var result: Boolean = rtspServerFromFile.prepareVideo("/sdcard/temp/722343607.320626.mp4")
+    result = result or rtspServerFromFile.prepareAudio("/sdcard/temp/722343607.320626.mp4")
     return result
   }
 
@@ -119,6 +123,7 @@ class FileDemoActivity : AppCompatActivity(), ConnectCheckerRtsp, View.OnClickLi
               if (prepare()) {
                 button.setText(R.string.stop_button)
                 rtspServerFromFile.startStream()
+                rtspServerFromFile.setLoopMode(true)
                 tvUrl.text = rtspServerFromFile.getEndPointConnection()
 
                /* seekBar.setMax(
@@ -299,6 +304,6 @@ class FileDemoActivity : AppCompatActivity(), ConnectCheckerRtsp, View.OnClickLi
   }
 
   override fun onAudioDecoderFinished() {
-    TODO("Not yet implemented")
+    //TODO("Not yet implemented")
   }
 }

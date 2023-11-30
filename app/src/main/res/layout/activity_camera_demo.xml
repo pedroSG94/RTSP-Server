@@ -72,12 +72,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/switch_camera"
             />
-        <Button
-            android:text="@string/select_file"
-            android:layout_weight="1"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/b_select_file" />
+
 
 
     </LinearLayout>

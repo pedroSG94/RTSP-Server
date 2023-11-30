@@ -6,31 +6,25 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import com.pedro.encoder.utils.CodecUtil
 import com.pedro.library.base.DisplayBase
-import com.pedro.rtsp.rtsp.VideoCodec
-import com.pedro.rtsp.utils.ConnectCheckerRtsp
+import com.pedro.common.VideoCodec
+import com.pedro.common.ConnectChecker
+import com.pedro.library.util.streamclient.StreamBaseClient
 import java.nio.ByteBuffer
 
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 open class RtspServerDisplay(
   context: Context, useOpengl: Boolean,
-  connectCheckerRtsp: ConnectCheckerRtsp, port: Int
+  connectChecker: ConnectChecker, port: Int
 ) : DisplayBase(context, useOpengl) {
 
   private val rtspServer: RtspServer =
-      RtspServer(connectCheckerRtsp, port)
+      RtspServer(connectChecker, port)
 
-  fun setVideoCodec(videoCodec: VideoCodec) {
-    videoEncoder.type =
-      if (videoCodec == VideoCodec.H265) CodecUtil.H265_MIME else CodecUtil.H264_MIME
-  }
+
 
   fun getNumClients(): Int = rtspServer.getNumClients()
 
   fun getEndPointConnection(): String = "rtsp://${rtspServer.serverIp}:${rtspServer.port}/"
-
-  override fun setAuthorization(user: String, password: String) {
-    rtspServer.setAuth(user, password)
-  }
 
   fun startStream() {
     super.startStream("")
@@ -64,49 +58,13 @@ open class RtspServerDisplay(
     rtspServer.sendVideo(h264Buffer, info)
   }
 
-  override fun setLogs(enable: Boolean) {
-    rtspServer.setLogs(enable)
+  override fun getStreamClient(): StreamBaseClient {
+    return streamClient;
   }
 
-  override fun setCheckServerAlive(enable: Boolean) {
+  override fun setVideoCodecImp(codec: VideoCodec) {
+    videoEncoder.type =
+      if (codec == VideoCodec.H265) CodecUtil.H265_MIME else CodecUtil.H264_MIME
   }
 
-  /**
-   * Unused functions
-   */
-  @Throws(RuntimeException::class)
-  override fun resizeCache(newSize: Int) {
-  }
-
-  override fun shouldRetry(reason: String?): Boolean = false
-
-  override fun hasCongestion(): Boolean = rtspServer.hasCongestion()
-
-  override fun setReTries(reTries: Int) {
-  }
-
-  override fun reConnect(delay: Long, backupUrl: String?) {
-  }
-
-  override fun getCacheSize(): Int = 0
-
-  override fun getSentAudioFrames(): Long = 0
-
-  override fun getSentVideoFrames(): Long = 0
-
-  override fun getDroppedAudioFrames(): Long = 0
-
-  override fun getDroppedVideoFrames(): Long = 0
-
-  override fun resetSentAudioFrames() {
-  }
-
-  override fun resetSentVideoFrames() {
-  }
-
-  override fun resetDroppedAudioFrames() {
-  }
-
-  override fun resetDroppedVideoFrames() {
-  }
 }
