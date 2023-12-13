@@ -6,13 +6,14 @@ import android.os.Build
 import android.view.SurfaceView
 import android.view.TextureView
 import androidx.annotation.RequiresApi
-import com.pedro.encoder.utils.CodecUtil
-import com.pedro.library.base.Camera1Base
-import com.pedro.library.view.LightOpenGlView
-import com.pedro.library.view.OpenGlView
+import com.pedro.common.AudioCodec
 import com.pedro.common.ConnectChecker
 import com.pedro.common.VideoCodec
+import com.pedro.encoder.utils.CodecUtil
+import com.pedro.library.base.Camera1Base
 import com.pedro.library.util.streamclient.StreamBaseClient
+import com.pedro.library.view.LightOpenGlView
+import com.pedro.library.view.OpenGlView
 import java.nio.ByteBuffer
 
 /**
@@ -98,8 +99,11 @@ open class RtspServerCamera1 : Camera1Base {
   }
 
   override fun setVideoCodecImp(codec: VideoCodec) {
-    videoEncoder.type =
-      if (codec == VideoCodec.H265) CodecUtil.H265_MIME else CodecUtil.H264_MIME
+    rtspServer.setVideoCodec(codec)
+  }
+
+  override fun setAudioCodecImp(codec: AudioCodec) {
+    rtspServer.setAudioCodec(codec);
   }
 
 

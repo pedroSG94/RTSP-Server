@@ -2,9 +2,12 @@ package com.pedro.rtspserver
 
 import android.media.MediaCodec
 import android.util.Log
+import com.pedro.common.AudioCodec
 import com.pedro.common.ConnectChecker
+import com.pedro.common.VideoCodec
 import com.pedro.rtsp.utils.RtpConstants
 import java.io.*
+import java.lang.RuntimeException
 import java.net.*
 import java.nio.ByteBuffer
 import java.util.concurrent.Semaphore
@@ -40,7 +43,8 @@ open class RtspServer(
   private var logs = true
   private var running = false
   private val semaphore = Semaphore(0)
-
+  private var videoCodec: VideoCodec = VideoCodec.H264
+  private var audioCodec: AudioCodec = AudioCodec.AAC
   fun setAuth(user: String?, password: String?) {
     this.user = user
     this.password = password
@@ -77,8 +81,10 @@ open class RtspServer(
             if (!clientSocket.isClosed) clientSocket.close()
             continue
           }
-          val client = ServerClient(clientSocket, serverIp, port, connectChecker, clientAddress, sps, pps, vps,
-              sampleRate, isStereo, videoDisabled, audioDisabled, user, password, this)
+          val client = ServerClient(clientSocket, serverIp, port, connectChecker, clientAddress,
+            sps, pps, vps, videoCodec,
+            sampleRate, isStereo, audioCodec,
+            videoDisabled, audioDisabled, user, password, this)
           client.rtspSender.setLogs(logs)
           client.start()
           synchronized(clients) {
@@ -171,7 +177,23 @@ open class RtspServer(
     this.vps = vps  //H264 has no vps so if not null assume H265
     semaphore.release()
   }
+  fun setVideoCodec(videoCodec: VideoCodec) {
+    if (!isRunning()) {
+      this.videoCodec = videoCodec
+    } else {
+      throw RuntimeException("Please set VideoCodec before startServer.")
+    }
+  }
 
+
+  fun setAudioCodec(audioCodec: AudioCodec) {
+    if (!isRunning()) {
+      this.audioCodec = audioCodec
+    } else {
+      throw RuntimeException("Please set VideoCodec before startServer.")
+    }
+
+  }
   fun hasCongestion(): Boolean {
     synchronized(clients) {
       var congestion = false

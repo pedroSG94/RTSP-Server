@@ -4,6 +4,7 @@ import android.content.Context
 import android.media.MediaCodec
 import android.os.Build
 import androidx.annotation.RequiresApi
+import com.pedro.common.AudioCodec
 import com.pedro.encoder.utils.CodecUtil
 import com.pedro.library.base.Camera2Base
 import com.pedro.library.view.LightOpenGlView
@@ -75,8 +76,12 @@ open class RtspServerCamera2 : Camera2Base {
   }
 
   override fun setVideoCodecImp(codec: VideoCodec) {
-    videoEncoder.type =
-      if (codec == VideoCodec.H265) CodecUtil.H265_MIME else CodecUtil.H264_MIME
+    rtspServer.setVideoCodec(codec)
   }
+
+  override fun setAudioCodecImp(codec: AudioCodec) {
+    rtspServer.setAudioCodec(codec);
+  }
+
 
 }

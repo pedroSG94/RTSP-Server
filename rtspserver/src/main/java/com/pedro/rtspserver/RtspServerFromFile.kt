@@ -4,6 +4,7 @@ import android.content.Context
 import android.media.MediaCodec
 import android.os.Build
 import androidx.annotation.RequiresApi
+import com.pedro.common.AudioCodec
 import com.pedro.encoder.input.decoder.AudioDecoderInterface
 import com.pedro.encoder.input.decoder.VideoDecoderInterface
 import com.pedro.library.base.FromFileBase
@@ -83,7 +84,10 @@ open class RtspServerFromFile : FromFileBase {
   }
 
   override fun setVideoCodecImp(codec: VideoCodec) {
-    videoEncoder.type =
-      if (codec == VideoCodec.H265) CodecUtil.H265_MIME else CodecUtil.H264_MIME
+    rtspServer.setVideoCodec(codec)
+  }
+
+  override fun setAudioCodecImp(codec: AudioCodec) {
+    rtspServer.setAudioCodec(codec);
   }
 }

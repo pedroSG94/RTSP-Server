@@ -1,6 +1,7 @@
 package com.pedro.rtspserver
 
 import android.media.MediaCodec
+import com.pedro.common.AudioCodec
 import com.pedro.library.base.OnlyAudioBase
 import com.pedro.common.ConnectChecker
 import com.pedro.common.VideoCodec
@@ -49,5 +50,7 @@ open class RtspServerOnlyAudio(
   override fun getStreamClient(): StreamBaseClient {
     return streamClient;
   }
-
+  override fun setAudioCodecImp(codec: AudioCodec) {
+    rtspServer.setAudioCodec(codec);
+  }
 }

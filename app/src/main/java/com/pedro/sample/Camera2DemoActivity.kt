@@ -10,6 +10,7 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.pedro.common.AudioCodec
 import com.pedro.common.ConnectChecker
 import com.pedro.encoder.input.video.CameraOpenException
 import com.pedro.encoder.utils.gl.AspectRatioMode
@@ -55,6 +56,7 @@ class Camera2DemoActivity : AppCompatActivity(), ConnectChecker, View.OnClickLis
 
 
     rtspServerCamera2 = RtspServerCamera2(surfaceView, this, 1935)
+    //rtspServerCamera2.setAudioCodec(AudioCodec.G711)
 //    rtspServerCamera2.setVideoCodec(VideoCodec.H265)
 //    rtspServerCamera2.setAuthorization("admin", "admin")
 
@@ -107,7 +109,7 @@ class Camera2DemoActivity : AppCompatActivity(), ConnectChecker, View.OnClickLis
   override fun onClick(view: View) {
     when (view.id) {
       R.id.b_start_stop -> if (!rtspServerCamera2.isStreaming) {
-        if (rtspServerCamera2.isRecording || rtspServerCamera2.prepareAudio() && rtspServerCamera2.prepareVideo()) {
+        if (rtspServerCamera2.isRecording || rtspServerCamera2.prepareAudio(16 * 1024, 8000, false, false, false) && rtspServerCamera2.prepareVideo()) {
           button.setText(R.string.stop_button)
           rtspServerCamera2.startStream()
           tvUrl.text = rtspServerCamera2.getEndPointConnection()

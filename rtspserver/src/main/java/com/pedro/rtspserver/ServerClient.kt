@@ -1,10 +1,12 @@
 package com.pedro.rtspserver
 
 import android.util.Log
+import com.pedro.common.AudioCodec
 import com.pedro.rtsp.rtsp.Protocol
 import com.pedro.rtsp.rtsp.RtspSender
 import com.pedro.rtsp.rtsp.commands.Method
 import com.pedro.common.ConnectChecker
+import com.pedro.common.VideoCodec
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -20,7 +22,8 @@ import java.nio.ByteBuffer
 open class ServerClient(
   private val socket: Socket, serverIp: String, serverPort: Int,
   private val connectChecker: ConnectChecker, clientAddress: String, sps: ByteBuffer?,
-  pps: ByteBuffer?, vps: ByteBuffer?, sampleRate: Int, isStereo: Boolean,
+  pps: ByteBuffer?, vps: ByteBuffer?, videoCodec: VideoCodec,
+  sampleRate: Int, isStereo: Boolean, audioCodec: AudioCodec,
   videoDisabled: Boolean, audioDisabled: Boolean, user: String?, password: String?,
   private val listener: ClientListener
 ) : Thread() {
@@ -37,8 +40,10 @@ open class ServerClient(
     commandsManager.audioDisabled = audioDisabled
     commandsManager.isStereo = isStereo
     commandsManager.sampleRate = sampleRate
+    commandsManager.audioCodec = audioCodec
     if (!commandsManager.videoDisabled) {
       commandsManager.setVideoInfo(sps!!, pps!!, vps)
+      commandsManager.setVideoCodec(videoCodec)
     }
     commandsManager.setAuth(user, password)
   }
@@ -68,7 +73,7 @@ open class ServerClient(
             rtspSender.setVideoInfo(commandsManager.sps!!, commandsManager.pps!!, commandsManager.vps)
           }
           if (!commandsManager.audioDisabled) {
-            rtspSender.setAudioInfo(commandsManager.sampleRate)
+            rtspSender.setAudioInfo(commandsManager.sampleRate, commandsManager.audioCodec)
           }
           rtspSender.setDataStream(socket.getOutputStream(), commandsManager.clientIp)
           if (commandsManager.protocol == Protocol.UDP) {

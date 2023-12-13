@@ -11,6 +11,7 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.pedro.common.AudioCodec
 import com.pedro.common.ConnectChecker
 import com.pedro.common.VideoCodec
 import com.pedro.encoder.input.decoder.AudioDecoderInterface
@@ -56,6 +57,7 @@ class FileDemoActivity : AppCompatActivity(), ConnectChecker, View.OnClickListen
     surfaceView.setAspectRatioMode(AspectRatioMode.Adjust)
     rtspServerFromFile = RtspServerFromFile(surfaceView, this, 1935, this, this)
     rtspServerFromFile.setVideoCodec(VideoCodec.H264)
+    rtspServerFromFile.setAudioCodec(AudioCodec.G711)
     rtspServerFromFile.setFpsListener {
       Log.d("FpsListener", "FPS = $it" )
     }

@@ -56,6 +56,7 @@ class Camera1DemoActivity : AppCompatActivity(), ConnectChecker, View.OnClickLis
 
 //    rtspServerCamera1 = RtspServerCamera1(surfaceView = surfaceView, this, 1935)
     rtspServerCamera1 = RtspServerCamera1(surfaceView, this, 1935)
+    //rtspServerCamera2.setAudioCodec(AudioCodec.G711)
 //    rtspServerCamera1.setVideoCodec(VideoCodec.H265)
 //    rtspServerCamera1.setAuthorization("admin", "admin")
 
