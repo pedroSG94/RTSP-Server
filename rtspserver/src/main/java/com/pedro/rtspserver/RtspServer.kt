@@ -205,13 +205,11 @@ open class RtspServer(
     .flatten()
     .filter { address -> !address.isLoopbackAddress }
     .map { it.hostAddress }
-    //use IPv6 address by default
-    //.filter { address -> address?.contains(":") == false }
     .filter { address ->
-      address?.contains(":") == true && // Check if the address is IPv6
-              !address.startsWith("fe80") && // Exclude link-local addresses
-              !address.startsWith("fc00") && // Exclude unique local addresses
-              !address.startsWith("fd00") // Exclude unique local addresses
+      //exclude invalid IPv6 addresses
+      address?.startsWith("fe80") != true && // Exclude link-local addresses
+      address?.startsWith("fc00") != true && // Exclude unique local addresses
+      address?.startsWith("fd00") != true // Exclude unique local addresses
     }
     .toList()
 
