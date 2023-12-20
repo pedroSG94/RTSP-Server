@@ -298,7 +298,12 @@ open class RtspServer(
     .flatten()
     .filter { address -> !address.isLoopbackAddress }
     .map { it.hostAddress }
-    .filter { address -> address?.contains(":") == false }
+    .filter { address ->
+      //exclude invalid IPv6 addresses
+      address?.startsWith("fe80") != true && // Exclude link-local addresses
+      address?.startsWith("fc00") != true && // Exclude unique local addresses
+      address?.startsWith("fd00") != true // Exclude unique local addresses
+    }
     .toList()
 
   companion object {

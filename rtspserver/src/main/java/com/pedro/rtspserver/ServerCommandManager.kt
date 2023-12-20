@@ -193,7 +193,8 @@ open class ServerCommandManager: CommandsManager() {
         }
       }
     }
-    return "v=0\r\no=- 0 0 IN IP4 $serverIp\r\ns=Unnamed\r\ni=N/A\r\nc=IN IP4 $clientIp\r\nt=0 0\r\na=recvonly\r\n$videoBody$audioBody\r\n"
+    val ipVersion = if (serverIp.contains(":")) "IP6" else "IP4"
+    return "v=0\r\no=- 0 0 IN $ipVersion $serverIp\r\ns=Unnamed\r\ni=N/A\r\nc=IN $ipVersion $clientIp\r\nt=0 0\r\na=recvonly\r\n$videoBody$audioBody\r\n"
   }
 
   private fun createSetup(cSeq: Int, track: Int, clientIp: String): String {
