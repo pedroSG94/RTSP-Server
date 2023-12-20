@@ -1,12 +1,12 @@
 package com.pedro.rtspserver
 
+import android.media.MediaCodec
 import android.util.Log
-import com.pedro.common.AudioCodec
+import com.pedro.common.ConnectChecker
+import com.pedro.common.trySend
 import com.pedro.rtsp.rtsp.Protocol
 import com.pedro.rtsp.rtsp.RtspSender
 import com.pedro.rtsp.rtsp.commands.Method
-import com.pedro.common.ConnectChecker
-import com.pedro.common.VideoCodec
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -21,19 +21,18 @@ import java.nio.ByteBuffer
 
 open class ServerClient(
   private val socket: Socket, serverIp: String, serverPort: Int,
-  private val connectChecker: ConnectChecker, clientAddress: String, sps: ByteBuffer?,
-  pps: ByteBuffer?, vps: ByteBuffer?, videoCodec: VideoCodec,
-  sampleRate: Int, isStereo: Boolean, audioCodec: AudioCodec,
-  videoDisabled: Boolean, audioDisabled: Boolean, user: String?, password: String?,
-  private val listener: ClientListener
-) : Thread() {
+  private val connectChecker: ConnectChecker,
+  val clientAddress: String,
+  private val serverCommandManager: ServerCommandManager,
+  private val listener: ServerListener
+): Thread() {
 
   private val TAG = "Client"
   private val output = BufferedWriter(OutputStreamWriter(socket.getOutputStream()))
   private val input = BufferedReader(InputStreamReader(socket.getInputStream()))
-  val rtspSender = RtspSender(connectChecker)
-  val commandsManager = ServerCommandManager(serverIp, serverPort, clientAddress)
+  private val rtspSender = RtspSender(connectChecker)
   var canSend = false
+    private set
 
   val droppedAudioFrames: Long
     get() = rtspSender.droppedAudioFrames
@@ -48,52 +47,43 @@ open class ServerClient(
     get() = rtspSender.getSentVideoFrames()
 
   init {
-    commandsManager.videoDisabled = videoDisabled
-    commandsManager.audioDisabled = audioDisabled
-    commandsManager.isStereo = isStereo
-    commandsManager.sampleRate = sampleRate
-    commandsManager.audioCodec = audioCodec
-    if (!commandsManager.videoDisabled) {
-      commandsManager.setVideoInfo(sps!!, pps!!, vps)
-      commandsManager.setVideoCodec(videoCodec)
-    }
-    commandsManager.setAuth(user, password)
+    serverCommandManager.setServerInfo(serverIp, serverPort)
   }
 
   override fun run() {
     super.run()
-    Log.i(TAG, "New client ${commandsManager.clientIp}")
+    Log.i(TAG, "New client $clientAddress")
     while (!interrupted()) {
       try {
-        val request = commandsManager.getRequest(input)
+        val request = serverCommandManager.getRequest(input)
         val cSeq = request.cSeq //update cSeq
         if (cSeq == -1) { //If cSeq parsed fail send error to client
-          output.write(commandsManager.createError(500, cSeq))
+          output.write(serverCommandManager.createError(500, cSeq))
           output.flush()
           continue
         }
-        val response = commandsManager.createResponse(request.method, request.text, cSeq)
+        val response = serverCommandManager.createResponse(request.method, request.text, cSeq, clientAddress)
         Log.i(TAG, response)
         output.write(response)
         output.flush()
 
         if (request.method == Method.PLAY) {
-          Log.i(TAG, "Protocol ${commandsManager.protocol}")
-          rtspSender.setSocketsInfo(commandsManager.protocol, commandsManager.videoServerPorts,
-              commandsManager.audioServerPorts)
-          if (!commandsManager.videoDisabled) {
-            rtspSender.setVideoInfo(commandsManager.sps!!, commandsManager.pps!!, commandsManager.vps)
+          Log.i(TAG, "Protocol ${serverCommandManager.protocol}")
+          rtspSender.setSocketsInfo(serverCommandManager.protocol, serverCommandManager.videoServerPorts,
+              serverCommandManager.audioServerPorts)
+          if (!serverCommandManager.videoDisabled) {
+            rtspSender.setVideoInfo(serverCommandManager.sps!!, serverCommandManager.pps, serverCommandManager.vps)
           }
-          if (!commandsManager.audioDisabled) {
-            rtspSender.setAudioInfo(commandsManager.sampleRate, commandsManager.audioCodec)
+          if (!serverCommandManager.audioDisabled) {
+            rtspSender.setAudioInfo(serverCommandManager.sampleRate, serverCommandManager.audioCodec)
           }
-          rtspSender.setDataStream(socket.getOutputStream(), commandsManager.clientIp)
-          if (commandsManager.protocol == Protocol.UDP) {
-            if (!commandsManager.videoDisabled) {
-              rtspSender.setVideoPorts(commandsManager.videoPorts[0], commandsManager.videoPorts[1])
+          rtspSender.setDataStream(socket.getOutputStream(), clientAddress)
+          if (serverCommandManager.protocol == Protocol.UDP) {
+            if (!serverCommandManager.videoDisabled) {
+              rtspSender.setVideoPorts(serverCommandManager.videoPorts[0], serverCommandManager.videoPorts[1])
             }
-            if (!commandsManager.audioDisabled) {
-              rtspSender.setAudioPorts(commandsManager.audioPorts[0], commandsManager.audioPorts[1])
+            if (!serverCommandManager.audioDisabled) {
+              rtspSender.setAudioPorts(serverCommandManager.audioPorts[0], serverCommandManager.audioPorts[1])
             }
           }
           rtspSender.start()
@@ -101,13 +91,12 @@ open class ServerClient(
           canSend = true
         } else if (request.method == Method.TEARDOWN) {
           Log.i(TAG, "Client disconnected")
-          listener.onDisconnected(this)
+          listener.onClientDisconnected(this)
           connectChecker.onDisconnect()
         }
       } catch (e: SocketException) { // Client has left
         Log.e(TAG, "Client disconnected", e)
-        listener.onDisconnected(this)
-        connectChecker.onConnectionFailed(e.message.toString())
+        listener.onClientDisconnected(this)
         break
       } catch (e: Exception) {
         Log.e(TAG, "Unexpected error", e)
@@ -164,4 +153,12 @@ open class ServerClient(
   }
 
   fun getItemsInCache(): Int = rtspSender.getItemsInCache()
+
+  fun sendVideoFrame(h264Buffer: ByteBuffer, info: MediaCodec.BufferInfo) {
+    rtspSender.sendVideoFrame(h264Buffer, info)
+  }
+
+  fun sendAudioFrame(aacBuffer: ByteBuffer, info: MediaCodec.BufferInfo) {
+    rtspSender.sendAudioFrame(aacBuffer, info)
+  }
 }

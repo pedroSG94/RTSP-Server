@@ -2,11 +2,8 @@ package com.pedro.rtspserver
 
 import android.media.MediaCodec
 import com.pedro.common.AudioCodec
-import com.pedro.library.base.OnlyAudioBase
 import com.pedro.common.ConnectChecker
-import com.pedro.common.VideoCodec
-import com.pedro.encoder.utils.CodecUtil
-import com.pedro.library.util.streamclient.StreamBaseClient
+import com.pedro.library.base.OnlyAudioBase
 import com.pedro.rtspserver.util.RtspServerStreamClient
 import java.nio.ByteBuffer
 
@@ -15,12 +12,10 @@ import java.nio.ByteBuffer
  */
 open class RtspServerOnlyAudio(
   connectChecker: ConnectChecker, port: Int
-) : OnlyAudioBase() {
+): OnlyAudioBase() {
 
-  private val rtspServer = RtspServer(connectChecker, port)
-
-  init {
-    rtspServer.setOnlyAudio(true)
+  private val rtspServer = RtspServer(connectChecker, port).apply {
+    setOnlyAudio(true)
   }
 
   fun startStream() {
@@ -29,8 +24,7 @@ open class RtspServerOnlyAudio(
   }
 
   override fun prepareAudioRtp(isStereo: Boolean, sampleRate: Int) {
-    rtspServer.isStereo = isStereo
-    rtspServer.sampleRate = sampleRate
+    rtspServer.setAudioInfo(sampleRate, isStereo)
   }
 
   override fun startStreamRtp(url: String) { //unused

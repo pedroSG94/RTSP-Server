@@ -5,12 +5,9 @@ import android.media.MediaCodec
 import android.os.Build
 import androidx.annotation.RequiresApi
 import com.pedro.common.AudioCodec
-import com.pedro.encoder.utils.CodecUtil
-import com.pedro.library.base.DisplayBase
-import com.pedro.common.VideoCodec
 import com.pedro.common.ConnectChecker
-import com.pedro.library.util.streamclient.StreamBaseClient
-import com.pedro.library.util.streamclient.StreamClientListener
+import com.pedro.common.VideoCodec
+import com.pedro.library.base.DisplayBase
 import com.pedro.rtspserver.util.RtspServerStreamClient
 import java.nio.ByteBuffer
 
@@ -18,7 +15,7 @@ import java.nio.ByteBuffer
 open class RtspServerDisplay(
   context: Context, useOpengl: Boolean,
   connectChecker: ConnectChecker, port: Int
-) : DisplayBase(context, useOpengl) {
+): DisplayBase(context, useOpengl) {
 
   private val rtspServer: RtspServer = RtspServer(connectChecker, port)
 
@@ -28,8 +25,7 @@ open class RtspServerDisplay(
   }
 
   override fun prepareAudioRtp(isStereo: Boolean, sampleRate: Int) {
-    rtspServer.isStereo = isStereo
-    rtspServer.sampleRate = sampleRate
+    rtspServer.setAudioInfo(sampleRate, isStereo)
   }
 
   override fun startStreamRtp(url: String) { //unused

@@ -5,34 +5,28 @@ import android.media.MediaCodec
 import android.os.Build
 import androidx.annotation.RequiresApi
 import com.pedro.common.AudioCodec
-import com.pedro.encoder.utils.CodecUtil
+import com.pedro.common.ConnectChecker
+import com.pedro.common.VideoCodec
 import com.pedro.library.base.Camera2Base
 import com.pedro.library.view.LightOpenGlView
 import com.pedro.library.view.OpenGlView
-import com.pedro.common.ConnectChecker
-import com.pedro.common.VideoCodec
-import com.pedro.library.util.streamclient.StreamBaseClient
-import com.pedro.library.util.streamclient.StreamClientListener
 import com.pedro.rtspserver.util.RtspServerStreamClient
 import java.nio.ByteBuffer
 
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-open class RtspServerCamera2 : Camera2Base {
+open class RtspServerCamera2: Camera2Base {
 
   private val rtspServer: RtspServer
 
-  constructor(openGlView: OpenGlView, connectChecker: ConnectChecker, port: Int) : super(
-    openGlView) {
+  constructor(openGlView: OpenGlView, connectChecker: ConnectChecker, port: Int): super(openGlView) {
     rtspServer = RtspServer(connectChecker, port)
   }
 
-  constructor(lightOpenGlView: LightOpenGlView, connectCheckerRtsp: ConnectChecker,
-    port: Int) : super(lightOpenGlView) {
+  constructor(lightOpenGlView: LightOpenGlView, connectCheckerRtsp: ConnectChecker, port: Int): super(lightOpenGlView) {
     rtspServer = RtspServer(connectCheckerRtsp, port)
   }
 
-  constructor(context: Context, useOpengl: Boolean, connectCheckerRtsp: ConnectChecker,
-    port: Int) : super(context, useOpengl) {
+  constructor(context: Context, useOpengl: Boolean, connectCheckerRtsp: ConnectChecker, port: Int): super(context, useOpengl) {
     rtspServer = RtspServer(connectCheckerRtsp, port)
   }
 
@@ -42,8 +36,7 @@ open class RtspServerCamera2 : Camera2Base {
   }
 
   override fun prepareAudioRtp(isStereo: Boolean, sampleRate: Int) {
-    rtspServer.isStereo = isStereo
-    rtspServer.sampleRate = sampleRate
+    rtspServer.setAudioInfo(sampleRate, isStereo)
   }
 
   override fun startStreamRtp(url: String) { //unused

@@ -24,27 +24,17 @@ import java.util.concurrent.TimeUnit
 open class RtspServer(
   private val connectChecker: ConnectChecker,
   val port: Int
-): ClientListener {
+): ServerListener {
 
   private val TAG = "RtspServer"
   private var server: ServerSocket? = null
   val serverIp: String get() = getIPAddress()
-  var sps: ByteBuffer? = null
-  var pps: ByteBuffer? = null
-  var vps: ByteBuffer? = null
-  var sampleRate = 32000
-  var isStereo = true
   private val clients = mutableListOf<ServerClient>()
-  private var videoDisabled = false
-  private var audioDisabled = false
   private var thread: Thread? = null
-  private var user: String? = null
-  private var password: String? = null
-  private var logs = true
   private var running = false
   private val semaphore = Semaphore(0)
-  private var videoCodec: VideoCodec = VideoCodec.H264
-  private var audioCodec: AudioCodec = AudioCodec.AAC
+  private val serverCommandManager = ServerCommandManager()
+  private var clientListener: ClientListener? = null
 
   val droppedAudioFrames: Long
     get() = synchronized(clients) {
@@ -79,23 +69,26 @@ open class RtspServer(
       return items
     }
 
+  fun setClientListener(clientListener: ClientListener?) {
+    this.clientListener = clientListener
+  }
+
   fun setAuth(user: String?, password: String?) {
-    this.user = user
-    this.password = password
+    serverCommandManager.setAuth(user, password)
   }
 
   fun startServer() {
     stopServer()
     thread = Thread {
       try {
-        if (!videoDisabled) {
-          if (sps == null || pps == null) {
+        if (!serverCommandManager.videoDisabled) {
+          if (!serverCommandManager.videoInfoReady()) {
             semaphore.drainPermits()
-            Log.i(TAG, "waiting for sps and pps")
+            Log.i(TAG, "waiting for video info")
             semaphore.tryAcquire(5000, TimeUnit.MILLISECONDS)
           }
-          if (sps == null || pps == null) {
-            connectChecker.onConnectionFailed("sps or pps is null")
+          if (!serverCommandManager.videoInfoReady()) {
+            connectChecker.onConnectionFailed("video info is null")
             return@Thread
           }
         }
@@ -116,14 +109,12 @@ open class RtspServer(
             continue
           }
           val client = ServerClient(clientSocket, serverIp, port, connectChecker, clientAddress,
-            sps, pps, vps, videoCodec,
-            sampleRate, isStereo, audioCodec,
-            videoDisabled, audioDisabled, user, password, this)
-          client.rtspSender.setLogs(logs)
+            serverCommandManager, this)
           client.start()
           synchronized(clients) {
             clients.add(client)
           }
+          clientListener?.onClientConnected(client)
         } catch (e: SocketException) {
           // server.close called
           break
@@ -167,29 +158,28 @@ open class RtspServer(
       RtpConstants.trackVideo = 0
       RtpConstants.trackAudio = 1
     }
-    audioDisabled = false
-    videoDisabled = onlyAudio
+    serverCommandManager.audioDisabled = false
+    serverCommandManager.videoDisabled = onlyAudio
   }
 
   fun setOnlyVideo(onlyVideo: Boolean) {
     RtpConstants.trackVideo = 0
     RtpConstants.trackAudio = 1
-    videoDisabled = false
-    audioDisabled = onlyVideo
+    serverCommandManager.videoDisabled = false
+    serverCommandManager.audioDisabled = onlyVideo
   }
 
   fun setLogs(enable: Boolean) {
-    logs = enable
     synchronized(clients) {
-      clients.forEach { it.rtspSender.setLogs(enable) }
+      clients.forEach { it.setLogs(enable) }
     }
   }
 
   fun sendVideo(h264Buffer: ByteBuffer, info: MediaCodec.BufferInfo) {
     synchronized(clients) {
       clients.forEach {
-        if (it.isAlive && it.canSend && !it.commandsManager.videoDisabled) {
-          it.rtspSender.sendVideoFrame(h264Buffer.duplicate(), info)
+        if (it.isAlive && it.canSend && !serverCommandManager.videoDisabled) {
+          it.sendVideoFrame(h264Buffer.duplicate(), info)
         }
       }
     }
@@ -198,23 +188,25 @@ open class RtspServer(
   fun sendAudio(aacBuffer: ByteBuffer, info: MediaCodec.BufferInfo) {
     synchronized(clients) {
       clients.forEach {
-        if (it.isAlive && it.canSend && !it.commandsManager.audioDisabled) {
-          it.rtspSender.sendAudioFrame(aacBuffer.duplicate(), info)
+        if (it.isAlive && it.canSend && !serverCommandManager.audioDisabled) {
+          it.sendAudioFrame(aacBuffer.duplicate(), info)
         }
       }
     }
   }
 
   fun setVideoInfo(sps: ByteBuffer, pps: ByteBuffer?, vps: ByteBuffer?) {
-    this.sps = sps
-    this.pps = pps
-    this.vps = vps  //H264 has no vps so if not null assume H265
+    serverCommandManager.setVideoInfo(sps, pps, vps)
     semaphore.release()
+  }
+
+  fun setAudioInfo(sampleRate: Int, isStereo: Boolean) {
+    serverCommandManager.setAudioInfo(sampleRate, isStereo)
   }
 
   fun setVideoCodec(videoCodec: VideoCodec) {
     if (!isRunning()) {
-      this.videoCodec = videoCodec
+      serverCommandManager.setVideoCodec(videoCodec)
     } else {
       throw RuntimeException("Please set VideoCodec before startServer.")
     }
@@ -222,9 +214,9 @@ open class RtspServer(
 
   fun setAudioCodec(audioCodec: AudioCodec) {
     if (!isRunning()) {
-      this.audioCodec = audioCodec
+      serverCommandManager.audioCodec = audioCodec
     } else {
-      throw RuntimeException("Please set VideoCodec before startServer.")
+      throw RuntimeException("Please set AudioCodec before startServer.")
     }
   }
 
@@ -281,10 +273,11 @@ open class RtspServer(
     }
   }
 
-  override fun onDisconnected(client: ServerClient) {
+  override fun onClientDisconnected(client: ServerClient) {
     synchronized(clients) {
       client.stopClient()
       clients.remove(client)
+      clientListener?.onClientDisconnected(client)
     }
   }
 

@@ -5,42 +5,38 @@ import android.media.MediaCodec
 import android.os.Build
 import androidx.annotation.RequiresApi
 import com.pedro.common.AudioCodec
+import com.pedro.common.ConnectChecker
+import com.pedro.common.VideoCodec
 import com.pedro.encoder.input.decoder.AudioDecoderInterface
 import com.pedro.encoder.input.decoder.VideoDecoderInterface
 import com.pedro.library.base.FromFileBase
 import com.pedro.library.view.LightOpenGlView
 import com.pedro.library.view.OpenGlView
-import com.pedro.common.ConnectChecker
-import com.pedro.common.VideoCodec
-import com.pedro.encoder.utils.CodecUtil
-import com.pedro.library.util.streamclient.RtspStreamClient
-import com.pedro.library.util.streamclient.StreamBaseClient
-import com.pedro.library.util.streamclient.StreamClientListener
 import com.pedro.rtspserver.util.RtspServerStreamClient
 import java.nio.ByteBuffer
 
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-open class RtspServerFromFile : FromFileBase {
+open class RtspServerFromFile: FromFileBase {
 
   private val rtspServer: RtspServer
 
   constructor(openGlView: OpenGlView, connectCheckerRtsp: ConnectChecker, port: Int,
     videoDecoderInterface: VideoDecoderInterface,
-    audioDecoderInterface: AudioDecoderInterface) : super(openGlView, videoDecoderInterface,
+    audioDecoderInterface: AudioDecoderInterface): super(openGlView, videoDecoderInterface,
     audioDecoderInterface) {
     rtspServer = RtspServer(connectCheckerRtsp, port)
   }
 
   constructor(lightOpenGlView: LightOpenGlView, connectCheckerRtsp: ConnectChecker, port: Int,
     videoDecoderInterface: VideoDecoderInterface,
-    audioDecoderInterface: AudioDecoderInterface) : super(lightOpenGlView, videoDecoderInterface,
+    audioDecoderInterface: AudioDecoderInterface): super(lightOpenGlView, videoDecoderInterface,
     audioDecoderInterface) {
     rtspServer = RtspServer(connectCheckerRtsp, port)
   }
 
   constructor(context: Context, connectCheckerRtsp: ConnectChecker, port: Int,
     videoDecoderInterface: VideoDecoderInterface,
-    audioDecoderInterface: AudioDecoderInterface) : super(context, videoDecoderInterface,
+    audioDecoderInterface: AudioDecoderInterface): super(context, videoDecoderInterface,
     audioDecoderInterface) {
     rtspServer = RtspServer(connectCheckerRtsp, port)
   }
@@ -51,8 +47,7 @@ open class RtspServerFromFile : FromFileBase {
   }
 
   override fun prepareAudioRtp(isStereo: Boolean, sampleRate: Int) {
-    rtspServer.isStereo = isStereo
-    rtspServer.sampleRate = sampleRate
+    rtspServer.setAudioInfo(sampleRate, isStereo)
   }
 
   override fun startStreamRtp(url: String) { //unused

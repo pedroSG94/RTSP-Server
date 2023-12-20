@@ -19,15 +19,21 @@ import java.util.regex.Pattern
  * Created by pedro on 23/10/19.
  *
  */
-open class ServerCommandManager(
-  private val serverIp: String, private val serverPort: Int, val clientIp: String
-) : CommandsManager() {
+open class ServerCommandManager: CommandsManager() {
+
+  private var serverIp: String = ""
+  private var serverPort: Int = 0
 
   private val TAG = "ServerCommandManager"
   var audioPorts = ArrayList<Int>()
   var videoPorts = ArrayList<Int>()
 
-  fun createResponse(method: Method, request: String, cSeq: Int): String {
+  fun setServerInfo(serverIp: String, serverPort: Int) {
+    this.serverIp = serverIp
+    this.serverPort = serverPort
+  }
+
+  fun createResponse(method: Method, request: String, cSeq: Int, clientIp: String): String {
     return when (method){
       Method.OPTIONS -> createOptions(cSeq)
       Method.DESCRIBE -> {
@@ -37,13 +43,13 @@ open class ServerCommandManager(
           val base64Data = Base64.encodeToString(data.toByteArray(), Base64.DEFAULT)
           if (base64Data.trim() == auth.trim()) {
             Log.i(TAG, "basic auth success")
-            createDescribe(cSeq) // auth accepted
+            createDescribe(cSeq, clientIp) // auth accepted
           } else {
             Log.e(TAG, "basic auth error")
             createError(401, cSeq)
           }
         } else {
-          createDescribe(cSeq)
+          createDescribe(cSeq, clientIp)
         }
       }
       Method.SETUP -> {
@@ -52,10 +58,10 @@ open class ServerCommandManager(
           protocol = getProtocol(request, track)
           return when (protocol) {
             Protocol.TCP -> {
-              createSetup(cSeq, track)
+              createSetup(cSeq, track, clientIp)
             }
             Protocol.UDP -> {
-              if (loadPorts(request, track)) createSetup(cSeq, track) else createError(500, cSeq)
+              if (loadPorts(request, track)) createSetup(cSeq, track, clientIp) else createError(500, cSeq)
             }
             else -> {
               createError(500, cSeq)
@@ -159,12 +165,12 @@ open class ServerCommandManager(
     return "${createHeader(cSeq)}Public: DESCRIBE,SETUP,TEARDOWN,PLAY,PAUSE\r\n\r\n"
   }
 
-  private fun createDescribe(cSeq: Int): String {
-    val body = createBody()
+  private fun createDescribe(cSeq: Int, clientIp: String): String {
+    val body = createBody(clientIp)
     return "${createHeader(cSeq)}Content-Length: ${body.length}\r\nContent-Base: $serverIp:$serverPort/\r\nContent-Type: application/sdp\r\n\r\n$body"
   }
 
-  private fun createBody(): String {
+  private fun createBody(clientIp: String): String {
     var audioBody = ""
     if (!audioDisabled) {
       audioBody = if (audioCodec == AudioCodec.G711) {
@@ -190,7 +196,7 @@ open class ServerCommandManager(
     return "v=0\r\no=- 0 0 IN IP4 $serverIp\r\ns=Unnamed\r\ni=N/A\r\nc=IN IP4 $clientIp\r\nt=0 0\r\na=recvonly\r\n$videoBody$audioBody\r\n"
   }
 
-  private fun createSetup(cSeq: Int, track: Int): String {
+  private fun createSetup(cSeq: Int, track: Int, clientIp: String): String {
     val protocolSetup = if (protocol == Protocol.UDP) {
       val clientPorts = if (track == RtpConstants.trackAudio) audioPorts else videoPorts
       val serverPorts = if (track == RtpConstants.trackAudio) audioServerPorts else videoServerPorts
