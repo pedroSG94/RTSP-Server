@@ -4,33 +4,20 @@ import android.content.Context
 import android.media.MediaCodec
 import android.os.Build
 import androidx.annotation.RequiresApi
-import com.pedro.encoder.utils.CodecUtil
+import com.pedro.common.AudioCodec
+import com.pedro.common.ConnectChecker
+import com.pedro.common.VideoCodec
 import com.pedro.library.base.DisplayBase
-import com.pedro.rtsp.rtsp.VideoCodec
-import com.pedro.rtsp.utils.ConnectCheckerRtsp
+import com.pedro.rtspserver.util.RtspServerStreamClient
 import java.nio.ByteBuffer
 
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 open class RtspServerDisplay(
   context: Context, useOpengl: Boolean,
-  connectCheckerRtsp: ConnectCheckerRtsp, port: Int
-) : DisplayBase(context, useOpengl) {
+  connectChecker: ConnectChecker, port: Int
+): DisplayBase(context, useOpengl) {
 
-  private val rtspServer: RtspServer =
-      RtspServer(connectCheckerRtsp, port)
-
-  fun setVideoCodec(videoCodec: VideoCodec) {
-    videoEncoder.type =
-      if (videoCodec == VideoCodec.H265) CodecUtil.H265_MIME else CodecUtil.H264_MIME
-  }
-
-  fun getNumClients(): Int = rtspServer.getNumClients()
-
-  fun getEndPointConnection(): String = "rtsp://${rtspServer.serverIp}:${rtspServer.port}/"
-
-  override fun setAuthorization(user: String, password: String) {
-    rtspServer.setAuth(user, password)
-  }
+  private val rtspServer: RtspServer = RtspServer(connectChecker, port)
 
   fun startStream() {
     super.startStream("")
@@ -38,8 +25,7 @@ open class RtspServerDisplay(
   }
 
   override fun prepareAudioRtp(isStereo: Boolean, sampleRate: Int) {
-    rtspServer.isStereo = isStereo
-    rtspServer.sampleRate = sampleRate
+    rtspServer.setAudioInfo(sampleRate, isStereo)
   }
 
   override fun startStreamRtp(url: String) { //unused
@@ -53,9 +39,9 @@ open class RtspServerDisplay(
     rtspServer.sendAudio(aacBuffer, info)
   }
 
-  override fun onSpsPpsVpsRtp(sps: ByteBuffer, pps: ByteBuffer, vps: ByteBuffer?) {
+  override fun onSpsPpsVpsRtp(sps: ByteBuffer, pps: ByteBuffer?, vps: ByteBuffer?) {
     val newSps = sps.duplicate()
-    val newPps = pps.duplicate()
+    val newPps = pps?.duplicate()
     val newVps = vps?.duplicate()
     rtspServer.setVideoInfo(newSps, newPps, newVps)
   }
@@ -64,49 +50,13 @@ open class RtspServerDisplay(
     rtspServer.sendVideo(h264Buffer, info)
   }
 
-  override fun setLogs(enable: Boolean) {
-    rtspServer.setLogs(enable)
+  override fun getStreamClient(): RtspServerStreamClient = RtspServerStreamClient(rtspServer)
+
+  override fun setVideoCodecImp(codec: VideoCodec) {
+    rtspServer.setVideoCodec(codec)
   }
 
-  override fun setCheckServerAlive(enable: Boolean) {
-  }
-
-  /**
-   * Unused functions
-   */
-  @Throws(RuntimeException::class)
-  override fun resizeCache(newSize: Int) {
-  }
-
-  override fun shouldRetry(reason: String?): Boolean = false
-
-  override fun hasCongestion(): Boolean = rtspServer.hasCongestion()
-
-  override fun setReTries(reTries: Int) {
-  }
-
-  override fun reConnect(delay: Long, backupUrl: String?) {
-  }
-
-  override fun getCacheSize(): Int = 0
-
-  override fun getSentAudioFrames(): Long = 0
-
-  override fun getSentVideoFrames(): Long = 0
-
-  override fun getDroppedAudioFrames(): Long = 0
-
-  override fun getDroppedVideoFrames(): Long = 0
-
-  override fun resetSentAudioFrames() {
-  }
-
-  override fun resetSentVideoFrames() {
-  }
-
-  override fun resetDroppedAudioFrames() {
-  }
-
-  override fun resetDroppedVideoFrames() {
+  override fun setAudioCodecImp(codec: AudioCodec) {
+    rtspServer.setAudioCodec(codec);
   }
 }

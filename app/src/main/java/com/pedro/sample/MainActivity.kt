@@ -20,6 +20,7 @@ class MainActivity : AppCompatActivity() {
     window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     setContentView(R.layout.activity_main)
     val bCameraDemo = findViewById<Button>(R.id.b_camera_demo)
+
     bCameraDemo.setOnClickListener {
       if (!hasPermissions(this, *PERMISSIONS)) {
         ActivityCompat.requestPermissions(this, PERMISSIONS, 1)

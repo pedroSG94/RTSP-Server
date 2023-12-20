@@ -2,12 +2,14 @@ package com.pedro.rtspserver
 
 import android.media.MediaCodec
 import android.util.Log
-import com.pedro.rtsp.utils.ConnectCheckerRtsp
+import com.pedro.common.AudioCodec
+import com.pedro.common.ConnectChecker
+import com.pedro.common.VideoCodec
 import com.pedro.rtsp.utils.RtpConstants
 import java.io.*
+import java.lang.RuntimeException
 import java.net.*
 import java.nio.ByteBuffer
-import java.util.*
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 
@@ -20,51 +22,79 @@ import java.util.concurrent.TimeUnit
  */
 
 open class RtspServer(
-  private val connectCheckerRtsp: ConnectCheckerRtsp,
+  private val connectChecker: ConnectChecker,
   val port: Int
-): ClientListener {
+): ServerListener {
 
   private val TAG = "RtspServer"
   private var server: ServerSocket? = null
   val serverIp: String get() = getIPAddress()
-  var sps: ByteBuffer? = null
-  var pps: ByteBuffer? = null
-  var vps: ByteBuffer? = null
-  var sampleRate = 32000
-  var isStereo = true
   private val clients = mutableListOf<ServerClient>()
-  private var videoDisabled = false
-  private var audioDisabled = false
   private var thread: Thread? = null
-  private var user: String? = null
-  private var password: String? = null
-  private var logs = true
   private var running = false
   private val semaphore = Semaphore(0)
+  private val serverCommandManager = ServerCommandManager()
+  private var clientListener: ClientListener? = null
+
+  val droppedAudioFrames: Long
+    get() = synchronized(clients) {
+      var items = 0L
+      clients.forEach { items += it.droppedAudioFrames }
+      return items
+    }
+
+  val droppedVideoFrames: Long
+    get() = synchronized(clients) {
+      var items = 0L
+      clients.forEach { items += it.droppedVideoFrames }
+      return items
+    }
+
+  val cacheSize: Int
+    get() = synchronized(clients) {
+      var items = 0
+      clients.forEach { items += it.cacheSize }
+      return items / getNumClients()
+    }
+  val sentAudioFrames: Long
+    get() = synchronized(clients) {
+      var items = 0L
+      clients.forEach { items += it.sentAudioFrames }
+      return items
+    }
+  val sentVideoFrames: Long
+    get() = synchronized(clients) {
+      var items = 0L
+      clients.forEach { items += it.sentVideoFrames }
+      return items
+    }
+
+  fun setClientListener(clientListener: ClientListener?) {
+    this.clientListener = clientListener
+  }
 
   fun setAuth(user: String?, password: String?) {
-    this.user = user
-    this.password = password
+    serverCommandManager.setAuth(user, password)
   }
 
   fun startServer() {
     stopServer()
     thread = Thread {
       try {
-        if (!videoDisabled) {
-          if (sps == null || pps == null) {
+        if (!serverCommandManager.videoDisabled) {
+          if (!serverCommandManager.videoInfoReady()) {
             semaphore.drainPermits()
-            Log.i(TAG, "waiting for sps and pps")
+            Log.i(TAG, "waiting for video info")
             semaphore.tryAcquire(5000, TimeUnit.MILLISECONDS)
           }
-          if (sps == null || pps == null) {
-            connectCheckerRtsp.onConnectionFailedRtsp("sps or pps is null")
+          if (!serverCommandManager.videoInfoReady()) {
+            connectChecker.onConnectionFailed("video info is null")
             return@Thread
           }
         }
         server = ServerSocket(port)
       } catch (e: IOException) {
-        connectCheckerRtsp.onConnectionFailedRtsp("Server creation failed")
+        connectChecker.onConnectionFailed("Server creation failed")
         Log.e(TAG, "Error", e)
         return@Thread
       }
@@ -78,13 +108,13 @@ open class RtspServer(
             if (!clientSocket.isClosed) clientSocket.close()
             continue
           }
-          val client = ServerClient(clientSocket, serverIp, port, connectCheckerRtsp, clientAddress, sps, pps, vps,
-              sampleRate, isStereo, videoDisabled, audioDisabled, user, password, this)
-          client.rtspSender.setLogs(logs)
+          val client = ServerClient(clientSocket, serverIp, port, connectChecker, clientAddress,
+            serverCommandManager, this)
           client.start()
           synchronized(clients) {
             clients.add(client)
           }
+          clientListener?.onClientConnected(client)
         } catch (e: SocketException) {
           // server.close called
           break
@@ -128,29 +158,28 @@ open class RtspServer(
       RtpConstants.trackVideo = 0
       RtpConstants.trackAudio = 1
     }
-    audioDisabled = false
-    videoDisabled = onlyAudio
+    serverCommandManager.audioDisabled = false
+    serverCommandManager.videoDisabled = onlyAudio
   }
 
   fun setOnlyVideo(onlyVideo: Boolean) {
     RtpConstants.trackVideo = 0
     RtpConstants.trackAudio = 1
-    videoDisabled = false
-    audioDisabled = onlyVideo
+    serverCommandManager.videoDisabled = false
+    serverCommandManager.audioDisabled = onlyVideo
   }
 
   fun setLogs(enable: Boolean) {
-    logs = enable
     synchronized(clients) {
-      clients.forEach { it.rtspSender.setLogs(enable) }
+      clients.forEach { it.setLogs(enable) }
     }
   }
 
   fun sendVideo(h264Buffer: ByteBuffer, info: MediaCodec.BufferInfo) {
     synchronized(clients) {
       clients.forEach {
-        if (it.isAlive && it.canSend && !it.commandsManager.videoDisabled) {
-          it.rtspSender.sendVideoFrame(h264Buffer.duplicate(), info)
+        if (it.isAlive && it.canSend && !serverCommandManager.videoDisabled) {
+          it.sendVideoFrame(h264Buffer.duplicate(), info)
         }
       }
     }
@@ -159,32 +188,96 @@ open class RtspServer(
   fun sendAudio(aacBuffer: ByteBuffer, info: MediaCodec.BufferInfo) {
     synchronized(clients) {
       clients.forEach {
-        if (it.isAlive && it.canSend && !it.commandsManager.audioDisabled) {
-          it.rtspSender.sendAudioFrame(aacBuffer.duplicate(), info)
+        if (it.isAlive && it.canSend && !serverCommandManager.audioDisabled) {
+          it.sendAudioFrame(aacBuffer.duplicate(), info)
         }
       }
     }
   }
 
-  fun setVideoInfo(sps: ByteBuffer, pps: ByteBuffer, vps: ByteBuffer?) {
-    this.sps = sps
-    this.pps = pps
-    this.vps = vps  //H264 has no vps so if not null assume H265
+  fun setVideoInfo(sps: ByteBuffer, pps: ByteBuffer?, vps: ByteBuffer?) {
+    serverCommandManager.setVideoInfo(sps, pps, vps)
     semaphore.release()
   }
 
-  fun hasCongestion(): Boolean {
+  fun setAudioInfo(sampleRate: Int, isStereo: Boolean) {
+    serverCommandManager.setAudioInfo(sampleRate, isStereo)
+  }
+
+  fun setVideoCodec(videoCodec: VideoCodec) {
+    if (!isRunning()) {
+      serverCommandManager.setVideoCodec(videoCodec)
+    } else {
+      throw RuntimeException("Please set VideoCodec before startServer.")
+    }
+  }
+
+  fun setAudioCodec(audioCodec: AudioCodec) {
+    if (!isRunning()) {
+      serverCommandManager.audioCodec = audioCodec
+    } else {
+      throw RuntimeException("Please set AudioCodec before startServer.")
+    }
+  }
+
+  fun hasCongestion(percentUsed: Float): Boolean {
     synchronized(clients) {
       var congestion = false
-      clients.forEach { if (it.hasCongestion()) congestion = true }
+      clients.forEach { if (it.hasCongestion(percentUsed)) congestion = true }
       return congestion
     }
   }
 
-  override fun onDisconnected(client: ServerClient) {
+  fun resetSentAudioFrames() {
+    synchronized(clients) {
+      clients.forEach { it.resetSentAudioFrames() }
+    }
+  }
+
+  fun resetSentVideoFrames() {
+    synchronized(clients) {
+      clients.forEach { it.resetSentVideoFrames() }
+    }
+  }
+
+  fun resetDroppedAudioFrames() {
+    synchronized(clients) {
+      clients.forEach { it.resetDroppedAudioFrames() }
+    }
+  }
+
+  fun resetDroppedVideoFrames() {
+    synchronized(clients) {
+      clients.forEach { it.resetDroppedVideoFrames() }
+    }
+  }
+
+  @Throws(RuntimeException::class)
+  fun resizeCache(newSize: Int) {
+    synchronized(clients) {
+      clients.forEach { it.resizeCache(newSize) }
+    }
+  }
+
+  fun clearCache() {
+    synchronized(clients) {
+      clients.forEach { it.clearCache() }
+    }
+  }
+
+  fun getItemsInCache(): Int {
+    synchronized(clients) {
+      var items = 0
+      clients.forEach { items += it.getItemsInCache() }
+      return items
+    }
+  }
+
+  override fun onClientDisconnected(client: ServerClient) {
     synchronized(clients) {
       client.stopClient()
       clients.remove(client)
+      clientListener?.onClientDisconnected(client)
     }
   }
 
@@ -207,7 +300,6 @@ open class RtspServer(
     .map { it.hostAddress }
     .filter { address -> address?.contains(":") == false }
     .toList()
-
 
   companion object {
     private const val VPN_INTERFACE = "tun"

@@ -11,17 +11,21 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.pedro.common.ConnectChecker
+import com.pedro.common.VideoCodec
 import com.pedro.encoder.input.video.CameraOpenException
-import com.pedro.rtsp.utils.ConnectCheckerRtsp
+import com.pedro.rtspserver.ClientListener
 import com.pedro.rtspserver.RtspServerCamera1
+import com.pedro.rtspserver.ServerClient
+
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class CameraDemoActivity : AppCompatActivity(), ConnectCheckerRtsp, View.OnClickListener,
-    SurfaceHolder.Callback {
+class CameraDemoActivity : AppCompatActivity(), ConnectChecker, View.OnClickListener,
+    SurfaceHolder.Callback, ClientListener {
 
   private lateinit var rtspServerCamera1: RtspServerCamera1
   private lateinit var button: Button
@@ -47,39 +51,39 @@ class CameraDemoActivity : AppCompatActivity(), ConnectCheckerRtsp, View.OnClick
     bSwitchCamera = findViewById(R.id.switch_camera)
     bSwitchCamera.setOnClickListener(this)
     surfaceView = findViewById(R.id.surfaceView)
-    rtspServerCamera1 = RtspServerCamera1(surfaceView = surfaceView, this, 1935)
+    rtspServerCamera1 = RtspServerCamera1(surfaceView, this, 1935)
+    rtspServerCamera1.streamClient.setClientListener(this)
     surfaceView.holder.addCallback(this)
   }
 
-  override fun onNewBitrateRtsp(bitrate: Long) {
+  override fun onNewBitrate(bitrate: Long) {
 
   }
 
-  override fun onConnectionSuccessRtsp() {
+  override fun onConnectionSuccess() {
     runOnUiThread {
       Toast.makeText(this@CameraDemoActivity, "Connection success", Toast.LENGTH_SHORT).show()
     }
   }
 
-  override fun onConnectionFailedRtsp(reason: String) {
+  override fun onConnectionFailed(reason: String) {
     runOnUiThread {
-      Toast.makeText(this@CameraDemoActivity, "Connection failed. $reason", Toast.LENGTH_SHORT)
-          .show()
+      Toast.makeText(this@CameraDemoActivity, "Connection failed. $reason", Toast.LENGTH_SHORT).show()
       rtspServerCamera1.stopStream()
       button.setText(R.string.start_button)
     }
   }
 
-  override fun onConnectionStartedRtsp(rtspUrl: String) {
+  override fun onConnectionStarted(url: String) {
   }
 
-  override fun onDisconnectRtsp() {
+  override fun onDisconnect() {
     runOnUiThread {
       Toast.makeText(this@CameraDemoActivity, "Disconnected", Toast.LENGTH_SHORT).show()
     }
   }
 
-  override fun onAuthErrorRtsp() {
+  override fun onAuthError() {
     runOnUiThread {
       Toast.makeText(this@CameraDemoActivity, "Auth error", Toast.LENGTH_SHORT).show()
       rtspServerCamera1.stopStream()
@@ -88,7 +92,7 @@ class CameraDemoActivity : AppCompatActivity(), ConnectCheckerRtsp, View.OnClick
     }
   }
 
-  override fun onAuthSuccessRtsp() {
+  override fun onAuthSuccess() {
     runOnUiThread {
       Toast.makeText(this@CameraDemoActivity, "Auth success", Toast.LENGTH_SHORT).show()
     }
@@ -100,7 +104,7 @@ class CameraDemoActivity : AppCompatActivity(), ConnectCheckerRtsp, View.OnClick
         if (rtspServerCamera1.isRecording || rtspServerCamera1.prepareAudio() && rtspServerCamera1.prepareVideo()) {
           button.setText(R.string.stop_button)
           rtspServerCamera1.startStream()
-          tvUrl.text = rtspServerCamera1.getEndPointConnection()
+          tvUrl.text = rtspServerCamera1.streamClient.getEndPointConnection()
         } else {
           Toast.makeText(this, "Error preparing stream, This device cant do it", Toast.LENGTH_SHORT)
               .show()
@@ -185,5 +189,17 @@ class CameraDemoActivity : AppCompatActivity(), ConnectCheckerRtsp, View.OnClick
       tvUrl.text = ""
     }
     rtspServerCamera1.stopPreview()
+  }
+
+  override fun onClientConnected(client: ServerClient) {
+    runOnUiThread {
+      Toast.makeText(this@CameraDemoActivity, "Client connected: ${client.clientAddress}", Toast.LENGTH_SHORT).show()
+    }
+  }
+
+  override fun onClientDisconnected(client: ServerClient) {
+    runOnUiThread {
+      Toast.makeText(this@CameraDemoActivity, "Client disconnected: ${client.clientAddress}", Toast.LENGTH_SHORT).show()
+    }
   }
 }
