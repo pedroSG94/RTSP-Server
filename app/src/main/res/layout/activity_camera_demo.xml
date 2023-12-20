@@ -5,20 +5,11 @@
     android:layout_height="match_parent"
     >
 
-<!--    Used to support api 16 but OpenGlView is recommended-->
-    <com.pedro.library.view.LightOpenGlView
+    <com.pedro.library.view.OpenGlView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/surfaceView"
         />
-
-
-
-<!--    <com.pedro.rtplibrary.view.OpenGlView-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="match_parent"-->
-<!--        android:id="@+id/surfaceView"-->
-<!--        />-->
 
     <TextView
         android:textSize="24sp"
@@ -72,9 +63,6 @@
             android:layout_height="wrap_content"
             android:id="@+id/switch_camera"
             />
-
-
-
     </LinearLayout>
 
 </RelativeLayout>

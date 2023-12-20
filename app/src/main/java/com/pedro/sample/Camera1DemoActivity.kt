@@ -14,6 +14,7 @@ import com.pedro.common.ConnectChecker
 import com.pedro.encoder.input.video.CameraOpenException
 import com.pedro.encoder.utils.gl.AspectRatioMode
 import com.pedro.library.view.LightOpenGlView
+import com.pedro.library.view.OpenGlView
 import com.pedro.rtspserver.RtspServerCamera1
 
 import com.pedro.rtspserver.RtspServerCamera2
@@ -32,7 +33,7 @@ class Camera1DemoActivity : AppCompatActivity(), ConnectChecker, View.OnClickLis
   private lateinit var button: Button
   private lateinit var bRecord: Button
   private lateinit var bSwitchCamera: Button
-  private lateinit var surfaceView: LightOpenGlView
+  private lateinit var surfaceView: OpenGlView
   private lateinit var tvUrl: TextView
 
   private var currentDateAndTime = ""
@@ -52,14 +53,7 @@ class Camera1DemoActivity : AppCompatActivity(), ConnectChecker, View.OnClickLis
     bSwitchCamera = findViewById(R.id.switch_camera)
     bSwitchCamera.setOnClickListener(this)
     surfaceView = findViewById(R.id.surfaceView)
-    surfaceView.setAspectRatioMode(AspectRatioMode.Adjust)
-
-//    rtspServerCamera1 = RtspServerCamera1(surfaceView = surfaceView, this, 1935)
     rtspServerCamera1 = RtspServerCamera1(surfaceView, this, 1935)
-    //rtspServerCamera2.setAudioCodec(AudioCodec.G711)
-//    rtspServerCamera1.setVideoCodec(VideoCodec.H265)
-//    rtspServerCamera1.setAuthorization("admin", "admin")
-
     surfaceView.holder.addCallback(this)
   }
 
@@ -183,13 +177,11 @@ class Camera1DemoActivity : AppCompatActivity(), ConnectChecker, View.OnClickLis
   }
 
   override fun surfaceDestroyed(surfaceHolder: SurfaceHolder) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-      if (rtspServerCamera1.isRecording) {
-        rtspServerCamera1.stopRecord()
-        bRecord.setText(R.string.start_record)
-        Toast.makeText(this, "file " + currentDateAndTime + ".mp4 saved in " + folder.absolutePath, Toast.LENGTH_SHORT).show()
-        currentDateAndTime = ""
-      }
+    if (rtspServerCamera1.isRecording) {
+      rtspServerCamera1.stopRecord()
+      bRecord.setText(R.string.start_record)
+      Toast.makeText(this, "file " + currentDateAndTime + ".mp4 saved in " + folder.absolutePath, Toast.LENGTH_SHORT).show()
+      currentDateAndTime = ""
     }
     if (rtspServerCamera1.isStreaming) {
       rtspServerCamera1.stopStream()

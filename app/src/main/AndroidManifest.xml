@@ -25,12 +25,6 @@
             android:name=".Camera1DemoActivity"
             android:screenOrientation="portrait"/>
         <activity
-            android:name=".Camera2DemoActivity"
-            android:screenOrientation="portrait"/>
-        <activity
-            android:name=".FileDemoActivity"
-            android:screenOrientation="portrait"/>
-        <activity
             android:name=".MainActivity"
             android:screenOrientation="portrait"
             android:exported="true">

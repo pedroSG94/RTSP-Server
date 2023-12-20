@@ -45,6 +45,7 @@ open class RtspServer(
   private val semaphore = Semaphore(0)
   private var videoCodec: VideoCodec = VideoCodec.H264
   private var audioCodec: AudioCodec = AudioCodec.AAC
+
   fun setAuth(user: String?, password: String?) {
     this.user = user
     this.password = password

@@ -10,18 +10,4 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:text="@string/camera1_demo" />
-    <Button
-        android:id="@+id/b_camera2_demo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:layout_below="@id/b_camera1_demo"
-        android:text="@string/camera2_demo" />
-    <Button
-        android:id="@+id/b_file_demo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/b_camera2_demo"
-        android:layout_centerInParent="true"
-        android:text="@string/file_demo" />
 </RelativeLayout>
