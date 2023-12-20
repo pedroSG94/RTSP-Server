@@ -5,11 +5,18 @@
     android:layout_height="match_parent"
     >
 
-    <com.pedro.library.view.OpenGlView
+    <!--    Used to support api 16 but OpenGlView is recommended-->
+    <SurfaceView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/surfaceView"
         />
+
+    <!--    <com.pedro.rtplibrary.view.OpenGlView-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="match_parent"-->
+    <!--        android:id="@+id/surfaceView"-->
+    <!--        />-->
 
     <TextView
         android:textSize="24sp"
@@ -21,13 +28,6 @@
         android:layout_margin="20dp"
         android:id="@+id/tv_url"
         />
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/tv_file"
-        android:textColor="@color/appColor"
-        android:layout_margin="10dp"
-        />
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -35,7 +35,7 @@
         android:layout_alignParentBottom="true"
         android:layout_margin="20dp"
         android:gravity="center"
-        android:weightSum="4"
+        android:weightSum="3"
         >
 
         <Button

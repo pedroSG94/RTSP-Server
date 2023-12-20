@@ -35,6 +35,18 @@ open class ServerClient(
   val commandsManager = ServerCommandManager(serverIp, serverPort, clientAddress)
   var canSend = false
 
+  val droppedAudioFrames: Long
+    get() = rtspSender.droppedAudioFrames
+  val droppedVideoFrames: Long
+    get() = rtspSender.droppedVideoFrames
+
+  val cacheSize: Int
+    get() = rtspSender.getCacheSize()
+  val sentAudioFrames: Long
+    get() = rtspSender.getSentAudioFrames()
+  val sentVideoFrames: Long
+    get() = rtspSender.getSentVideoFrames()
+
   init {
     commandsManager.videoDisabled = videoDisabled
     commandsManager.audioDisabled = audioDisabled
@@ -120,5 +132,36 @@ open class ServerClient(
     }
   }
 
-  fun hasCongestion(): Boolean = rtspSender.hasCongestion()
+  fun hasCongestion(percentUsed: Float): Boolean = rtspSender.hasCongestion(percentUsed)
+
+  fun resetSentAudioFrames() {
+    rtspSender.resetSentAudioFrames()
+  }
+
+  fun resetSentVideoFrames() {
+    rtspSender.resetSentVideoFrames()
+  }
+
+  fun resetDroppedAudioFrames() {
+    rtspSender.resetDroppedAudioFrames()
+  }
+
+  fun resetDroppedVideoFrames() {
+    rtspSender.resetDroppedVideoFrames()
+  }
+
+  @Throws(RuntimeException::class)
+  fun resizeCache(newSize: Int) {
+    rtspSender.resizeCache(newSize)
+  }
+
+  fun setLogs(enable: Boolean) {
+    rtspSender.setLogs(enable)
+  }
+
+  fun clearCache() {
+    rtspSender.clearCache()
+  }
+
+  fun getItemsInCache(): Int = rtspSender.getItemsInCache()
 }

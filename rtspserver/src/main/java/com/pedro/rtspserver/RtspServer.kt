@@ -46,6 +46,39 @@ open class RtspServer(
   private var videoCodec: VideoCodec = VideoCodec.H264
   private var audioCodec: AudioCodec = AudioCodec.AAC
 
+  val droppedAudioFrames: Long
+    get() = synchronized(clients) {
+      var items = 0L
+      clients.forEach { items += it.droppedAudioFrames }
+      return items
+    }
+
+  val droppedVideoFrames: Long
+    get() = synchronized(clients) {
+      var items = 0L
+      clients.forEach { items += it.droppedVideoFrames }
+      return items
+    }
+
+  val cacheSize: Int
+    get() = synchronized(clients) {
+      var items = 0
+      clients.forEach { items += it.cacheSize }
+      return items / getNumClients()
+    }
+  val sentAudioFrames: Long
+    get() = synchronized(clients) {
+      var items = 0L
+      clients.forEach { items += it.sentAudioFrames }
+      return items
+    }
+  val sentVideoFrames: Long
+    get() = synchronized(clients) {
+      var items = 0L
+      clients.forEach { items += it.sentVideoFrames }
+      return items
+    }
+
   fun setAuth(user: String?, password: String?) {
     this.user = user
     this.password = password
@@ -172,12 +205,13 @@ open class RtspServer(
     }
   }
 
-  fun setVideoInfo(sps: ByteBuffer, pps: ByteBuffer, vps: ByteBuffer?) {
+  fun setVideoInfo(sps: ByteBuffer, pps: ByteBuffer?, vps: ByteBuffer?) {
     this.sps = sps
     this.pps = pps
     this.vps = vps  //H264 has no vps so if not null assume H265
     semaphore.release()
   }
+
   fun setVideoCodec(videoCodec: VideoCodec) {
     if (!isRunning()) {
       this.videoCodec = videoCodec
@@ -186,20 +220,64 @@ open class RtspServer(
     }
   }
 
-
   fun setAudioCodec(audioCodec: AudioCodec) {
     if (!isRunning()) {
       this.audioCodec = audioCodec
     } else {
       throw RuntimeException("Please set VideoCodec before startServer.")
     }
-
   }
-  fun hasCongestion(): Boolean {
+
+  fun hasCongestion(percentUsed: Float): Boolean {
     synchronized(clients) {
       var congestion = false
-      clients.forEach { if (it.hasCongestion()) congestion = true }
+      clients.forEach { if (it.hasCongestion(percentUsed)) congestion = true }
       return congestion
+    }
+  }
+
+  fun resetSentAudioFrames() {
+    synchronized(clients) {
+      clients.forEach { it.resetSentAudioFrames() }
+    }
+  }
+
+  fun resetSentVideoFrames() {
+    synchronized(clients) {
+      clients.forEach { it.resetSentVideoFrames() }
+    }
+  }
+
+  fun resetDroppedAudioFrames() {
+    synchronized(clients) {
+      clients.forEach { it.resetDroppedAudioFrames() }
+    }
+  }
+
+  fun resetDroppedVideoFrames() {
+    synchronized(clients) {
+      clients.forEach { it.resetDroppedVideoFrames() }
+    }
+  }
+
+  @Throws(RuntimeException::class)
+  fun resizeCache(newSize: Int) {
+    synchronized(clients) {
+      clients.forEach { it.resizeCache(newSize) }
+    }
+  }
+
+  fun clearCache() {
+    synchronized(clients) {
+      clients.forEach { it.clearCache() }
+    }
+  }
+
+  fun getItemsInCache(): Int {
+    synchronized(clients) {
+      var items = 0
+      clients.forEach { items += it.getItemsInCache() }
+      return items
     }
   }
 
@@ -229,7 +307,6 @@ open class RtspServer(
     .map { it.hostAddress }
     .filter { address -> address?.contains(":") == false }
     .toList()
-
 
   companion object {
     private const val VPN_INTERFACE = "tun"

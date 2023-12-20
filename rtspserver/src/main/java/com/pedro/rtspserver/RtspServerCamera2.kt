@@ -12,6 +12,8 @@ import com.pedro.library.view.OpenGlView
 import com.pedro.common.ConnectChecker
 import com.pedro.common.VideoCodec
 import com.pedro.library.util.streamclient.StreamBaseClient
+import com.pedro.library.util.streamclient.StreamClientListener
+import com.pedro.rtspserver.util.RtspServerStreamClient
 import java.nio.ByteBuffer
 
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -34,11 +36,6 @@ open class RtspServerCamera2 : Camera2Base {
     rtspServer = RtspServer(connectCheckerRtsp, port)
   }
 
-  fun getNumClients(): Int = rtspServer.getNumClients()
-
-  fun getEndPointConnection(): String = "rtsp://${rtspServer.serverIp}:${rtspServer.port}/"
-
-
   fun startStream() {
     super.startStream("")
     rtspServer.startServer()
@@ -60,9 +57,9 @@ open class RtspServerCamera2 : Camera2Base {
     rtspServer.sendAudio(aacBuffer, info)
   }
 
-  override fun onSpsPpsVpsRtp(sps: ByteBuffer, pps: ByteBuffer, vps: ByteBuffer?) {
+  override fun onSpsPpsVpsRtp(sps: ByteBuffer, pps: ByteBuffer?, vps: ByteBuffer?) {
     val newSps = sps.duplicate()
-    val newPps = pps.duplicate()
+    val newPps = pps?.duplicate()
     val newVps = vps?.duplicate()
     rtspServer.setVideoInfo(newSps, newPps, newVps)
   }
@@ -71,9 +68,7 @@ open class RtspServerCamera2 : Camera2Base {
     rtspServer.sendVideo(h264Buffer, info)
   }
 
-  override fun getStreamClient(): StreamBaseClient {
-    return streamClient;
-  }
+  override fun getStreamClient(): RtspServerStreamClient = RtspServerStreamClient(rtspServer)
 
   override fun setVideoCodecImp(codec: VideoCodec) {
     rtspServer.setVideoCodec(codec)
@@ -82,6 +77,4 @@ open class RtspServerCamera2 : Camera2Base {
   override fun setAudioCodecImp(codec: AudioCodec) {
     rtspServer.setAudioCodec(codec);
   }
-
-
 }

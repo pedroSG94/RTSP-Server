@@ -7,6 +7,7 @@ import com.pedro.common.ConnectChecker
 import com.pedro.common.VideoCodec
 import com.pedro.encoder.utils.CodecUtil
 import com.pedro.library.util.streamclient.StreamBaseClient
+import com.pedro.rtspserver.util.RtspServerStreamClient
 import java.nio.ByteBuffer
 
 /**
@@ -21,11 +22,6 @@ open class RtspServerOnlyAudio(
   init {
     rtspServer.setOnlyAudio(true)
   }
-
-  fun getNumClients(): Int = rtspServer.getNumClients()
-
-  fun getEndPointConnection(): String = "rtsp://${rtspServer.serverIp}:${rtspServer.port}/"
-
 
   fun startStream() {
     super.startStream("")
@@ -47,9 +43,9 @@ open class RtspServerOnlyAudio(
   override fun getAacDataRtp(aacBuffer: ByteBuffer, info: MediaCodec.BufferInfo) {
     rtspServer.sendAudio(aacBuffer, info)
   }
-  override fun getStreamClient(): StreamBaseClient {
-    return streamClient;
-  }
+
+  override fun getStreamClient(): RtspServerStreamClient = RtspServerStreamClient(rtspServer)
+
   override fun setAudioCodecImp(codec: AudioCodec) {
     rtspServer.setAudioCodec(codec);
   }
