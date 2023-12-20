@@ -12,19 +12,16 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.pedro.common.ConnectChecker
 import com.pedro.encoder.input.video.CameraOpenException
-import com.pedro.encoder.utils.gl.AspectRatioMode
-import com.pedro.library.view.LightOpenGlView
 import com.pedro.library.view.OpenGlView
 import com.pedro.rtspserver.RtspServerCamera1
 
-import com.pedro.rtspserver.RtspServerCamera2
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class Camera1DemoActivity : AppCompatActivity(), ConnectChecker, View.OnClickListener,
+class CameraDemoActivity : AppCompatActivity(), ConnectChecker, View.OnClickListener,
     SurfaceHolder.Callback {
 
 
@@ -63,13 +60,13 @@ class Camera1DemoActivity : AppCompatActivity(), ConnectChecker, View.OnClickLis
 
   override fun onConnectionSuccess() {
     runOnUiThread {
-      Toast.makeText(this@Camera1DemoActivity, "Connection success", Toast.LENGTH_SHORT).show()
+      Toast.makeText(this@CameraDemoActivity, "Connection success", Toast.LENGTH_SHORT).show()
     }
   }
 
   override fun onConnectionFailed(reason: String) {
     runOnUiThread {
-      Toast.makeText(this@Camera1DemoActivity, "Connection failed. $reason", Toast.LENGTH_SHORT)
+      Toast.makeText(this@CameraDemoActivity, "Connection failed. $reason", Toast.LENGTH_SHORT)
           .show()
       rtspServerCamera1.stopStream()
       button.setText(R.string.start_button)
@@ -81,13 +78,13 @@ class Camera1DemoActivity : AppCompatActivity(), ConnectChecker, View.OnClickLis
 
   override fun onDisconnect() {
     runOnUiThread {
-      Toast.makeText(this@Camera1DemoActivity, "Disconnected", Toast.LENGTH_SHORT).show()
+      Toast.makeText(this@CameraDemoActivity, "Disconnected", Toast.LENGTH_SHORT).show()
     }
   }
 
   override fun onAuthError() {
     runOnUiThread {
-      Toast.makeText(this@Camera1DemoActivity, "Auth error", Toast.LENGTH_SHORT).show()
+      Toast.makeText(this@CameraDemoActivity, "Auth error", Toast.LENGTH_SHORT).show()
       rtspServerCamera1.stopStream()
       button.setText(R.string.start_button)
       tvUrl.text = ""
@@ -96,7 +93,7 @@ class Camera1DemoActivity : AppCompatActivity(), ConnectChecker, View.OnClickLis
 
   override fun onAuthSuccess() {
     runOnUiThread {
-      Toast.makeText(this@Camera1DemoActivity, "Auth success", Toast.LENGTH_SHORT).show()
+      Toast.makeText(this@CameraDemoActivity, "Auth success", Toast.LENGTH_SHORT).show()
     }
   }
 

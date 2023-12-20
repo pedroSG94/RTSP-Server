@@ -27,7 +27,5 @@
     <string name="start_record">Start record</string>
     <string name="stop_record">Stop record</string>
     <string name="resync_file">ReSync file</string>
-    <string name="camera1_demo">Camera1 Demo</string>
-    <string name="camera2_demo">Camera2 Demo</string>
-    <string name="file_demo">File Demo</string>
+    <string name="camera_demo">Camera Demo</string>
 </resources>
