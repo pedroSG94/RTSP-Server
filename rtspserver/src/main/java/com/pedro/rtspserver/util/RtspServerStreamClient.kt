@@ -2,6 +2,7 @@ package com.pedro.rtspserver.util
 
 import com.pedro.library.util.streamclient.StreamBaseClient
 import com.pedro.rtspserver.ClientListener
+import com.pedro.rtspserver.IpType
 import com.pedro.rtspserver.RtspServer
 
 /**
@@ -10,6 +11,10 @@ import com.pedro.rtspserver.RtspServer
 class RtspServerStreamClient(
   private val rtspServer: RtspServer,
 ): StreamBaseClient() {
+
+  fun forceIpType(ipType: IpType) {
+    rtspServer.forceIpType(ipType)
+  }
 
   fun setClientListener(clientListener: ClientListener?) {
     rtspServer.setClientListener(clientListener)

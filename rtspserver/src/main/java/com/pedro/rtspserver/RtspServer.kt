@@ -36,6 +36,7 @@ open class RtspServer(
   private val semaphore = Semaphore(0)
   private val serverCommandManager = ServerCommandManager()
   private var clientListener: ClientListener? = null
+  private var ipType = IpType.All
 
   val droppedAudioFrames: Long
     get() = synchronized(clients) {
@@ -276,6 +277,14 @@ open class RtspServer(
     }
   }
 
+  fun forceIpType(ipType: IpType) {
+    if (!isRunning()) {
+      this.ipType = ipType
+    } else {
+      throw RuntimeException("Please set IpType before startServer.")
+    }
+  }
+
   override fun onClientDisconnected(client: ServerClient) {
     synchronized(clients) {
       client.stopClient()
@@ -306,6 +315,13 @@ open class RtspServer(
       address?.startsWith("fe80") != true && // Exclude link-local addresses
       address?.startsWith("fc00") != true && // Exclude unique local addresses
       address?.startsWith("fd00") != true // Exclude unique local addresses
+    }
+    .filter { address ->
+      when (ipType) {
+        IpType.IPv4 -> address?.contains(":") == false
+        IpType.IPv6 -> address?.contains(":") == true
+        IpType.All -> true
+      }
     }
     .toList()
 
