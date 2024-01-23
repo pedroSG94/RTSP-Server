@@ -167,7 +167,7 @@ open class ServerCommandManager: CommandsManager() {
 
   private fun createDescribe(cSeq: Int, clientIp: String): String {
     val body = createBody(clientIp)
-    return "${createHeader(cSeq)}Content-Length: ${body.length}\r\nContent-Base: $serverIp:$serverPort/\r\nContent-Type: application/sdp\r\n\r\n$body"
+    return "${createHeader(cSeq)}Content-Length: ${body.length}\r\nContent-Base: rtsp://$serverIp:$serverPort/\r\nContent-Type: application/sdp\r\n\r\n$body"
   }
 
   private fun createBody(clientIp: String): String {

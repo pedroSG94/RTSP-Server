@@ -32,6 +32,7 @@ open class RtspServer(
   private val clients = mutableListOf<ServerClient>()
   private var thread: Thread? = null
   private var running = false
+  private var isEnableLogs = true
   private val semaphore = Semaphore(0)
   private val serverCommandManager = ServerCommandManager()
   private var clientListener: ClientListener? = null
@@ -110,6 +111,7 @@ open class RtspServer(
           }
           val client = ServerClient(clientSocket, serverIp, port, connectChecker, clientAddress,
             serverCommandManager, this)
+          client.setLogs(isEnableLogs)
           client.start()
           synchronized(clients) {
             clients.add(client)
@@ -170,6 +172,7 @@ open class RtspServer(
   }
 
   fun setLogs(enable: Boolean) {
+    isEnableLogs = enable;
     synchronized(clients) {
       clients.forEach { it.setLogs(enable) }
     }
