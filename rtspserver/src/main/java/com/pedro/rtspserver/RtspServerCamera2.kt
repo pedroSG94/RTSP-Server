@@ -14,7 +14,7 @@ import com.pedro.rtspserver.util.RtspServerStreamClient
 import java.nio.ByteBuffer
 
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-open class RtspServerCamera2: Camera2Base {
+class RtspServerCamera2: Camera2Base {
 
   private val rtspServer: RtspServer
 

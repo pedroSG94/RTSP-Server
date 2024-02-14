@@ -16,7 +16,7 @@ import com.pedro.rtspserver.util.RtspServerStreamClient
 import java.nio.ByteBuffer
 
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-open class RtspServerFromFile: FromFileBase {
+class RtspServerFromFile: FromFileBase {
 
   private val rtspServer: RtspServer
 

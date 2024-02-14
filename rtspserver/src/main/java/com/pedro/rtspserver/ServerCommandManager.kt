@@ -19,7 +19,7 @@ import java.util.regex.Pattern
  * Created by pedro on 23/10/19.
  *
  */
-open class ServerCommandManager: CommandsManager() {
+class ServerCommandManager: CommandsManager() {
 
   private var serverIp: String = ""
   private var serverPort: Int = 0

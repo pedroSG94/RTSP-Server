@@ -18,7 +18,7 @@ import java.nio.ByteBuffer
 /**
  * Created by pedro on 13/02/19.
  */
-open class RtspServerCamera1: Camera1Base {
+class RtspServerCamera1: Camera1Base {
 
   private val rtspServer: RtspServer
 

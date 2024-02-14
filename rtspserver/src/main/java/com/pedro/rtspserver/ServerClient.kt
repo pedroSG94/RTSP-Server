@@ -19,7 +19,7 @@ import java.net.Socket
 import java.net.SocketException
 import java.nio.ByteBuffer
 
-open class ServerClient(
+class ServerClient(
   private val socket: Socket, serverIp: String, serverPort: Int,
   private val connectChecker: ConnectChecker,
   val clientAddress: String,

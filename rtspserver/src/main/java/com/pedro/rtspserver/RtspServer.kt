@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit
  * TODO Use different session per client.
  */
 
-open class RtspServer(
+class RtspServer(
   private val connectChecker: ConnectChecker,
   val port: Int
 ): ServerListener {

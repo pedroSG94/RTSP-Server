@@ -12,7 +12,7 @@ import com.pedro.rtspserver.util.RtspServerStreamClient
 import java.nio.ByteBuffer
 
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-open class RtspServerDisplay(
+class RtspServerDisplay(
   context: Context, useOpengl: Boolean,
   connectChecker: ConnectChecker, port: Int
 ): DisplayBase(context, useOpengl) {

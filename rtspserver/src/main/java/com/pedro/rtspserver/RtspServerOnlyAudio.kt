@@ -10,7 +10,7 @@ import java.nio.ByteBuffer
 /**
  * Created by pedro on 17/04/21.
  */
-open class RtspServerOnlyAudio(
+class RtspServerOnlyAudio(
   connectChecker: ConnectChecker, port: Int
 ): OnlyAudioBase() {
 
