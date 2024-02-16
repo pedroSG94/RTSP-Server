@@ -3,7 +3,7 @@ val libraryGroup by rootProject.extra { "com.github.pedroSG94" }
 val vCode by rootProject.extra { 121 }
 val vName by rootProject.extra { "1.2.1" }
 val coroutinesVersion by rootProject.extra { "1.7.3" }
-val rootEncoderVersion by rootProject.extra { "2.3.5" }
+val rootEncoderVersion by rootProject.extra { "1627f7f62b" }
 
 plugins {
     id("com.android.application") version "8.2.2" apply false
