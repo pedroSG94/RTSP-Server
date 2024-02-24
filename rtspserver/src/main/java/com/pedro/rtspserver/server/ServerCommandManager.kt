@@ -1,8 +1,8 @@
-package com.pedro.rtspserver
+package com.pedro.rtspserver.server
 
-import android.util.Base64
 import android.util.Log
 import com.pedro.common.AudioCodec
+import com.pedro.common.VideoCodec
 import com.pedro.rtsp.rtsp.Protocol
 import com.pedro.rtsp.rtsp.commands.Command
 import com.pedro.rtsp.rtsp.commands.CommandsManager
@@ -13,12 +13,15 @@ import java.io.BufferedReader
 import java.io.IOException
 import java.net.SocketException
 import java.util.regex.Pattern
+import kotlin.io.encoding.Base64
+import kotlin.io.encoding.ExperimentalEncodingApi
 
 /**
  *
  * Created by pedro on 23/10/19.
  *
  */
+@OptIn(ExperimentalEncodingApi::class)
 class ServerCommandManager: CommandsManager() {
 
   private var serverIp: String = ""
@@ -40,7 +43,7 @@ class ServerCommandManager: CommandsManager() {
         if (needAuth()) {
           val auth = getAuth(request)
           val data = "$user:$password"
-          val base64Data = Base64.encodeToString(data.toByteArray(), Base64.DEFAULT)
+          val base64Data = Base64.encode(data.toByteArray())
           if (base64Data.trim() == auth.trim()) {
             Log.i(TAG, "basic auth success")
             createDescribe(cSeq, clientIp) // auth accepted
@@ -173,23 +176,28 @@ class ServerCommandManager: CommandsManager() {
   private fun createBody(clientIp: String): String {
     var audioBody = ""
     if (!audioDisabled) {
-      audioBody = if (audioCodec == AudioCodec.G711) {
-        SdpBody.createG711Body(RtpConstants.trackAudio, sampleRate, isStereo)
-      } else {
-        SdpBody.createAacBody(RtpConstants.trackAudio, sampleRate, isStereo)
+      audioBody = when (audioCodec) {
+        AudioCodec.AAC -> SdpBody.createAacBody(RtpConstants.trackAudio, sampleRate, isStereo)
+        AudioCodec.G711 -> SdpBody.createG711Body(RtpConstants.trackAudio, sampleRate, isStereo)
+        AudioCodec.OPUS -> SdpBody.createOpusBody(RtpConstants.trackAudio)
       }
     }
     var videoBody = ""
     if (!videoDisabled) {
-      videoBody = when {
-        vps == null && pps == null -> {
+      val sps = this.sps
+      val pps = this.pps
+      val vps = this.vps
+      videoBody = when (videoCodec) {
+        VideoCodec.H264 -> {
+          if (sps == null || pps == null) throw IllegalArgumentException("sps or pps can't be null with h264")
+          SdpBody.createH264Body(RtpConstants.trackVideo, encodeToString(sps), encodeToString(pps))
+        }
+        VideoCodec.H265 -> {
+          if (sps == null || pps == null || vps == null) throw IllegalArgumentException("sps, pps or vps can't be null with h265")
+          SdpBody.createH265Body(RtpConstants.trackVideo, encodeToString(sps), encodeToString(pps), encodeToString(vps))
+        }
+        VideoCodec.AV1 -> {
           SdpBody.createAV1Body(RtpConstants.trackVideo)
-        }
-        vps != null -> {
-          SdpBody.createH265Body(RtpConstants.trackVideo, encodeToString(sps!!)!!, encodeToString(pps!!)!!, encodeToString(vps!!)!!)
-        }
-        else -> {
-          SdpBody.createH264Body(RtpConstants.trackVideo, encodeToString(sps!!)!!, encodeToString(pps!!)!!)
         }
       }
     }
@@ -228,7 +236,7 @@ class ServerCommandManager: CommandsManager() {
     return "${createHeader(cSeq)}\r\n"
   }
 
-  private fun encodeToString(bytes: ByteArray): String? {
-    return Base64.encodeToString(bytes, 0, bytes.size, Base64.NO_WRAP)
+  private fun encodeToString(bytes: ByteArray): String {
+    return Base64.encode(bytes)
   }
 }

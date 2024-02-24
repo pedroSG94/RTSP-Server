@@ -12,6 +12,7 @@ import com.pedro.common.VideoCodec
 import com.pedro.library.base.Camera1Base
 import com.pedro.library.view.LightOpenGlView
 import com.pedro.library.view.OpenGlView
+import com.pedro.rtspserver.server.RtspServer
 import com.pedro.rtspserver.util.RtspServerStreamClient
 import java.nio.ByteBuffer
 

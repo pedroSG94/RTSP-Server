@@ -1,9 +1,8 @@
-package com.pedro.rtspserver
+package com.pedro.rtspserver.server
 
 import android.media.MediaCodec
 import android.util.Log
 import com.pedro.common.ConnectChecker
-import com.pedro.common.trySend
 import com.pedro.rtsp.rtsp.Protocol
 import com.pedro.rtsp.rtsp.RtspSender
 import com.pedro.rtsp.rtsp.commands.Method
@@ -30,7 +29,7 @@ class ServerClient(
   private val TAG = "Client"
   private val output = BufferedWriter(OutputStreamWriter(socket.getOutputStream()))
   private val input = BufferedReader(InputStreamReader(socket.getInputStream()))
-  private val rtspSender = RtspSender(connectChecker)
+  private val rtspSender = RtspSender(connectChecker, serverCommandManager)
   var canSend = false
     private set
 
@@ -75,7 +74,7 @@ class ServerClient(
             rtspSender.setVideoInfo(serverCommandManager.sps!!, serverCommandManager.pps, serverCommandManager.vps)
           }
           if (!serverCommandManager.audioDisabled) {
-            rtspSender.setAudioInfo(serverCommandManager.sampleRate, serverCommandManager.audioCodec)
+            rtspSender.setAudioInfo(serverCommandManager.sampleRate)
           }
           rtspSender.setDataStream(socket.getOutputStream(), clientAddress)
           if (serverCommandManager.protocol == Protocol.UDP) {

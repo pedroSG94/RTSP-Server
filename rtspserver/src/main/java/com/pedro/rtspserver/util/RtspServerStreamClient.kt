@@ -1,9 +1,9 @@
 package com.pedro.rtspserver.util
 
 import com.pedro.library.util.streamclient.StreamBaseClient
-import com.pedro.rtspserver.ClientListener
-import com.pedro.rtspserver.IpType
-import com.pedro.rtspserver.RtspServer
+import com.pedro.rtspserver.server.ClientListener
+import com.pedro.rtspserver.server.IpType
+import com.pedro.rtspserver.server.RtspServer
 
 /**
  * Created by pedro on 20/12/23.

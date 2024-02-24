@@ -12,11 +12,10 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.pedro.common.ConnectChecker
-import com.pedro.common.VideoCodec
 import com.pedro.encoder.input.video.CameraOpenException
-import com.pedro.rtspserver.ClientListener
+import com.pedro.rtspserver.server.ClientListener
 import com.pedro.rtspserver.RtspServerCamera1
-import com.pedro.rtspserver.ServerClient
+import com.pedro.rtspserver.server.ServerClient
 
 import java.io.File
 import java.io.IOException

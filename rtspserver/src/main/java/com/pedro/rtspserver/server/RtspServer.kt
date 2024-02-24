@@ -1,4 +1,4 @@
-package com.pedro.rtspserver
+package com.pedro.rtspserver.server
 
 import android.media.MediaCodec
 import android.util.Log
@@ -210,7 +210,7 @@ class RtspServer(
 
   fun setVideoCodec(videoCodec: VideoCodec) {
     if (!isRunning()) {
-      serverCommandManager.setVideoCodec(videoCodec)
+      serverCommandManager.videoCodec = videoCodec
     } else {
       throw RuntimeException("Please set VideoCodec before startServer.")
     }
