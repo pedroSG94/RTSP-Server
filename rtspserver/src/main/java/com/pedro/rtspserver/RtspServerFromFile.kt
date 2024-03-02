@@ -10,7 +10,6 @@ import com.pedro.common.VideoCodec
 import com.pedro.encoder.input.decoder.AudioDecoderInterface
 import com.pedro.encoder.input.decoder.VideoDecoderInterface
 import com.pedro.library.base.FromFileBase
-import com.pedro.library.view.LightOpenGlView
 import com.pedro.library.view.OpenGlView
 import com.pedro.rtspserver.server.RtspServer
 import com.pedro.rtspserver.util.RtspServerStreamClient
@@ -24,13 +23,6 @@ class RtspServerFromFile: FromFileBase {
   constructor(openGlView: OpenGlView, connectCheckerRtsp: ConnectChecker, port: Int,
     videoDecoderInterface: VideoDecoderInterface,
     audioDecoderInterface: AudioDecoderInterface): super(openGlView, videoDecoderInterface,
-    audioDecoderInterface) {
-    rtspServer = RtspServer(connectCheckerRtsp, port)
-  }
-
-  constructor(lightOpenGlView: LightOpenGlView, connectCheckerRtsp: ConnectChecker, port: Int,
-    videoDecoderInterface: VideoDecoderInterface,
-    audioDecoderInterface: AudioDecoderInterface): super(lightOpenGlView, videoDecoderInterface,
     audioDecoderInterface) {
     rtspServer = RtspServer(connectCheckerRtsp, port)
   }

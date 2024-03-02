@@ -8,7 +8,6 @@ import com.pedro.common.AudioCodec
 import com.pedro.common.ConnectChecker
 import com.pedro.common.VideoCodec
 import com.pedro.library.base.Camera2Base
-import com.pedro.library.view.LightOpenGlView
 import com.pedro.library.view.OpenGlView
 import com.pedro.rtspserver.server.RtspServer
 import com.pedro.rtspserver.util.RtspServerStreamClient
@@ -21,10 +20,6 @@ class RtspServerCamera2: Camera2Base {
 
   constructor(openGlView: OpenGlView, connectChecker: ConnectChecker, port: Int): super(openGlView) {
     rtspServer = RtspServer(connectChecker, port)
-  }
-
-  constructor(lightOpenGlView: LightOpenGlView, connectCheckerRtsp: ConnectChecker, port: Int): super(lightOpenGlView) {
-    rtspServer = RtspServer(connectCheckerRtsp, port)
   }
 
   constructor(context: Context, useOpengl: Boolean, connectCheckerRtsp: ConnectChecker, port: Int): super(context, useOpengl) {

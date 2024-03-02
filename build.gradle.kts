@@ -1,9 +1,9 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 val libraryGroup by rootProject.extra { "com.github.pedroSG94" }
-val vCode by rootProject.extra { 122 }
-val vName by rootProject.extra { "1.2.2" }
+val vCode by rootProject.extra { 123 }
+val vName by rootProject.extra { "1.2.3" }
 val coroutinesVersion by rootProject.extra { "1.7.3" }
-val rootEncoderVersion by rootProject.extra { "2.3.6" }
+val rootEncoderVersion by rootProject.extra { "2.3.7" }
 
 plugins {
     id("com.android.application") version "8.2.2" apply false

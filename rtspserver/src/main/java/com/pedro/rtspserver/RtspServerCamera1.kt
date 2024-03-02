@@ -10,7 +10,6 @@ import com.pedro.common.AudioCodec
 import com.pedro.common.ConnectChecker
 import com.pedro.common.VideoCodec
 import com.pedro.library.base.Camera1Base
-import com.pedro.library.view.LightOpenGlView
 import com.pedro.library.view.OpenGlView
 import com.pedro.rtspserver.server.RtspServer
 import com.pedro.rtspserver.util.RtspServerStreamClient
@@ -34,11 +33,6 @@ class RtspServerCamera1: Camera1Base {
   @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
   constructor(openGlView: OpenGlView, connectChecker: ConnectChecker, port: Int): super(openGlView) {
     rtspServer = RtspServer(connectChecker, port)
-  }
-
-  @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
-  constructor(lightOpenGlView: LightOpenGlView, connectCheckerRtsp: ConnectChecker, port: Int): super(lightOpenGlView) {
-    rtspServer = RtspServer(connectCheckerRtsp, port)
   }
 
   @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)

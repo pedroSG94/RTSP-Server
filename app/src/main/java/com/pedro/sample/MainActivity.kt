@@ -13,7 +13,7 @@ import androidx.core.app.ActivityCompat
 
 class MainActivity : AppCompatActivity() {
 
-  private val PERMISSIONS = arrayOf(Manifest.permission.RECORD_AUDIO, Manifest.permission.CAMERA)
+  private val permissions = arrayOf(Manifest.permission.RECORD_AUDIO, Manifest.permission.CAMERA)
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -22,8 +22,8 @@ class MainActivity : AppCompatActivity() {
     val bCameraDemo = findViewById<Button>(R.id.b_camera_demo)
 
     bCameraDemo.setOnClickListener {
-      if (!hasPermissions(this, *PERMISSIONS)) {
-        ActivityCompat.requestPermissions(this, PERMISSIONS, 1)
+      if (!hasPermissions(this, *permissions)) {
+        ActivityCompat.requestPermissions(this, permissions, 1)
       } else {
         startActivity(Intent(this, CameraDemoActivity::class.java))
       }
