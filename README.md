@@ -2,7 +2,7 @@
 
 [![Release](https://jitpack.io/v/pedroSG94/RTSP-Server.svg)](https://jitpack.io/#pedroSG94/RTSP-Server)
 
-Plugin of rtmp-rtsp-stream-client-java to stream directly to RTSP player.
+Plugin of RootEncoder to stream directly to RTSP player.
 
 ## Compile
 
@@ -15,8 +15,8 @@ allprojects {
   }
 }
 dependencies {
-  implementation 'com.github.pedroSG94:RTSP-Server:1.2.5'
-  implementation 'com.github.pedroSG94.RootEncoder:library:2.4.0'
+  implementation 'com.github.pedroSG94:RTSP-Server:1.2.6'
+  implementation 'com.github.pedroSG94.RootEncoder:library:2.4.3'
 }
 
 ```
