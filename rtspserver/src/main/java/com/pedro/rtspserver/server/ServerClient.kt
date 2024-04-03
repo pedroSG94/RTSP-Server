@@ -3,6 +3,7 @@ package com.pedro.rtspserver.server
 import android.media.MediaCodec
 import android.util.Log
 import com.pedro.common.ConnectChecker
+import com.pedro.common.onMainThreadHandler
 import com.pedro.rtsp.rtsp.Protocol
 import com.pedro.rtsp.rtsp.RtspSender
 import com.pedro.rtsp.rtsp.commands.Method
@@ -86,12 +87,16 @@ class ServerClient(
             }
           }
           rtspSender.start()
-          connectChecker.onConnectionSuccess()
+          onMainThreadHandler {
+            connectChecker.onConnectionSuccess()
+          }
           canSend = true
         } else if (request.method == Method.TEARDOWN) {
           Log.i(TAG, "Client disconnected")
           listener.onClientDisconnected(this)
-          connectChecker.onDisconnect()
+          onMainThreadHandler {
+            connectChecker.onDisconnect()
+          }
         }
       } catch (e: SocketException) { // Client has left
         Log.e(TAG, "Client disconnected", e)

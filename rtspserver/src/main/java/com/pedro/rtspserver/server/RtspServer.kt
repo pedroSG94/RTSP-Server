@@ -5,6 +5,7 @@ import android.util.Log
 import com.pedro.common.AudioCodec
 import com.pedro.common.ConnectChecker
 import com.pedro.common.VideoCodec
+import com.pedro.common.onMainThreadHandler
 import com.pedro.rtsp.utils.RtpConstants
 import java.io.*
 import java.lang.RuntimeException
@@ -90,13 +91,17 @@ class RtspServer(
             semaphore.tryAcquire(5000, TimeUnit.MILLISECONDS)
           }
           if (!serverCommandManager.videoInfoReady()) {
-            connectChecker.onConnectionFailed("video info is null")
+            onMainThreadHandler {
+              connectChecker.onConnectionFailed("video info is null")
+            }
             return@Thread
           }
         }
         server = ServerSocket(port)
       } catch (e: IOException) {
-        connectChecker.onConnectionFailed("Server creation failed")
+        onMainThreadHandler {
+          connectChecker.onConnectionFailed("Server creation failed")
+        }
         Log.e(TAG, "Error", e)
         return@Thread
       }
@@ -117,7 +122,9 @@ class RtspServer(
           synchronized(clients) {
             clients.add(client)
           }
-          clientListener?.onClientConnected(client)
+          onMainThreadHandler {
+            clientListener?.onClientConnected(client)
+          }
         } catch (e: SocketException) {
           // server.close called
           break
@@ -289,7 +296,9 @@ class RtspServer(
     synchronized(clients) {
       client.stopClient()
       clients.remove(client)
-      clientListener?.onClientDisconnected(client)
+      onMainThreadHandler {
+        clientListener?.onClientDisconnected(client)
+      }
     }
   }
 
