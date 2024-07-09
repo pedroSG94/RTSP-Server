@@ -1,0 +1,29 @@
+[versions]
+libraryGroup = "com.github.pedroSG94"
+versionCode = "130"
+versionName = "1.3.0"
+
+#plugins versions
+agp = "8.5.0"
+kotlin = "2.0.0"
+dokka = "1.9.20"
+
+#dependencies versions
+#noinspection GradleDependency, version 1.7.0 need min sdk 21
+appcompat = "1.6.1"
+constraintlayout = "2.1.4"
+coroutines = "1.8.1"
+rootencoder = "2.4.6"
+
+[libraries]
+androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
+androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayout" }
+kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
+rootencoder-library = { module = "com.github.pedroSG94.RootEncoder:library", version.ref = "rootencoder" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+maven-publish = { id = "maven-publish", version.ref = "agp" }
+jetbrains-kotlin = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+jetbrains-dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
