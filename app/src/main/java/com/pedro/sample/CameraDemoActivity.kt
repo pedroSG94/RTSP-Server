@@ -1,7 +1,10 @@
 package com.pedro.sample
 
+import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.SurfaceHolder
 import android.view.WindowManager
 import android.widget.ImageView
@@ -49,7 +52,16 @@ class CameraDemoActivity : AppCompatActivity(), ConnectChecker, ClientListener {
       }
 
       override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
-        if (!rtspServerCamera2.isOnPreview) rtspServerCamera2.startPreview()
+        val ids = rtspServerCamera2.camerasAvailable
+        Log.e("Pedro", "cameraIds: ${ids.contentToString()}")
+        val manager = getSystemService(CAMERA_SERVICE) as CameraManager
+        ids.forEach {
+          val characteristics = manager.getCameraCharacteristics(it)
+          val facing = characteristics.get(CameraCharacteristics.LENS_FACING)
+          Log.e("Pedro", "id: $it, facing: $facing")
+        }
+        rtspServerCamera2.cameraCharacteristics
+        if (!rtspServerCamera2.isOnPreview) rtspServerCamera2.startPreview("0")
       }
 
       override fun surfaceDestroyed(holder: SurfaceHolder) {
