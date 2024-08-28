@@ -1,10 +1,7 @@
 package com.pedro.sample
 
-import android.hardware.camera2.CameraCharacteristics
-import android.hardware.camera2.CameraManager
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.SurfaceHolder
 import android.view.WindowManager
 import android.widget.ImageView
@@ -33,6 +30,7 @@ class CameraDemoActivity : AppCompatActivity(), ConnectChecker, ClientListener {
   private lateinit var surfaceView: OpenGlView
   private lateinit var tvUrl: TextView
   private var recordPath = ""
+  private var currentCamera = 0
 
   @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,16 +50,7 @@ class CameraDemoActivity : AppCompatActivity(), ConnectChecker, ClientListener {
       }
 
       override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
-        val ids = rtspServerCamera2.camerasAvailable
-        Log.e("Pedro", "cameraIds: ${ids.contentToString()}")
-        val manager = getSystemService(CAMERA_SERVICE) as CameraManager
-        ids.forEach {
-          val characteristics = manager.getCameraCharacteristics(it)
-          val facing = characteristics.get(CameraCharacteristics.LENS_FACING)
-          Log.e("Pedro", "id: $it, facing: $facing")
-        }
-        rtspServerCamera2.cameraCharacteristics
-        if (!rtspServerCamera2.isOnPreview) rtspServerCamera2.startPreview("0")
+        if (!rtspServerCamera2.isOnPreview) rtspServerCamera2.startPreview(rtspServerCamera2.camerasAvailable[currentCamera])
       }
 
       override fun surfaceDestroyed(holder: SurfaceHolder) {
@@ -121,7 +110,12 @@ class CameraDemoActivity : AppCompatActivity(), ConnectChecker, ClientListener {
     }
     bSwitchCamera.setOnClickListener {
       try {
-        rtspServerCamera2.switchCamera()
+        currentCamera = if (currentCamera == 0) {
+          1
+        } else {
+          0
+        }
+        rtspServerCamera2.switchCamera(rtspServerCamera2.camerasAvailable[currentCamera])
       } catch (e: CameraOpenException) {
         Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show()
       }
