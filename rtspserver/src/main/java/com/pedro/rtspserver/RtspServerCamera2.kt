@@ -22,7 +22,7 @@ class RtspServerCamera2: Camera2Base {
     rtspServer = RtspServer(connectChecker, port)
   }
 
-  constructor(context: Context, useOpengl: Boolean, connectCheckerRtsp: ConnectChecker, port: Int): super(context, useOpengl) {
+  constructor(context: Context, connectCheckerRtsp: ConnectChecker, port: Int): super(context) {
     rtspServer = RtspServer(connectCheckerRtsp, port)
   }
 
@@ -31,30 +31,30 @@ class RtspServerCamera2: Camera2Base {
     rtspServer.startServer()
   }
 
-  override fun prepareAudioRtp(isStereo: Boolean, sampleRate: Int) {
+  override fun onAudioInfoImp(isStereo: Boolean, sampleRate: Int) {
     rtspServer.setAudioInfo(sampleRate, isStereo)
   }
 
-  override fun startStreamRtp(url: String) { //unused
+  override fun startStreamImp(url: String?) { //unused
   }
 
-  override fun stopStreamRtp() {
+  override fun stopStreamImp() {
     rtspServer.stopServer()
   }
 
-  override fun getAacDataRtp(aacBuffer: ByteBuffer, info: MediaCodec.BufferInfo) {
-    rtspServer.sendAudio(aacBuffer, info)
+  override fun getAudioDataImp(audioBuffer: ByteBuffer, info: MediaCodec.BufferInfo) {
+    rtspServer.sendAudio(audioBuffer, info)
   }
 
-  override fun onSpsPpsVpsRtp(sps: ByteBuffer, pps: ByteBuffer?, vps: ByteBuffer?) {
+  override fun onVideoInfoImp(sps: ByteBuffer, pps: ByteBuffer?, vps: ByteBuffer?) {
     val newSps = sps.duplicate()
     val newPps = pps?.duplicate()
     val newVps = vps?.duplicate()
     rtspServer.setVideoInfo(newSps, newPps, newVps)
   }
 
-  override fun getH264DataRtp(h264Buffer: ByteBuffer, info: MediaCodec.BufferInfo) {
-    rtspServer.sendVideo(h264Buffer, info)
+  override fun getVideoDataImp(videoBuffer: ByteBuffer, info: MediaCodec.BufferInfo) {
+    rtspServer.sendVideo(videoBuffer, info)
   }
 
   override fun getStreamClient(): RtspServerStreamClient = RtspServerStreamClient(rtspServer)
