@@ -1,10 +1,6 @@
-val vCode: Int by rootProject.extra
-val vName: String by rootProject.extra
-val rootEncoderVersion: String by rootProject.extra
-
 plugins {
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.jetbrains.kotlin)
 }
 
 android {
@@ -15,8 +11,8 @@ android {
         applicationId = "com.pedro.sample"
         minSdk = 16
         targetSdk = 34
-        versionCode = vCode
-        versionName = vName
+        versionCode = libs.versions.versionCode.get().toInt()
+        versionName = libs.versions.versionName.get()
     }
     buildTypes {
         release {
@@ -36,7 +32,7 @@ android {
 
 dependencies {
     implementation(project(":rtspserver"))
-    implementation("com.github.pedroSG94.RootEncoder:library:$rootEncoderVersion")
-    implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    implementation(libs.rootEncoder.library)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.constraintlayout)
 }

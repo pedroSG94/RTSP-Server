@@ -1,0 +1,32 @@
+[versions]
+libraryGroup = "com.github.pedroSG94"
+versionCode = "130"
+versionName = "1.3.0"
+
+#plugins versions
+agp = "8.6.1"
+kotlin = "2.0.21"
+dokka = "1.9.20"
+
+#dependencies versions
+#noinspection GradleDependency, version 1.7.0 need min sdk 21
+appcompat = "1.6.1"
+constraintlayout = "2.1.4"
+coroutines = "1.9.0"
+ktor = "3.0.0"
+rootEncoder = "2.5.3"
+
+[libraries]
+androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
+androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayout" }
+kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
+ktor-network = { module = "io.ktor:ktor-network", version.ref = "ktor" }
+ktor-network-tls = { module = "io.ktor:ktor-network-tls", version.ref = "ktor" }
+rootEncoder-library = { module = "com.github.pedroSG94.RootEncoder:library", version.ref = "rootEncoder" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+maven-publish = { id = "maven-publish", version.ref = "agp" }
+jetbrains-kotlin = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+jetbrains-dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
