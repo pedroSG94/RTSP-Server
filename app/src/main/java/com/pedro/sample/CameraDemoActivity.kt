@@ -4,6 +4,7 @@ import android.graphics.SurfaceTexture
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.util.Log
 import android.view.TextureView
 import android.view.View
 import android.view.WindowManager
@@ -121,6 +122,7 @@ class CameraDemoActivity : AppCompatActivity(), ConnectChecker, ClientListener,
   }
 
   override fun onConnectionFailed(reason: String) {
+    Log.e("Pedro", "failed: $reason")
     toast("Failed: $reason")
     rtspServerCamera1.stopStream()
     if (!rtspServerCamera1.isRecording) ScreenOrientation.unlockScreen(this)
@@ -146,11 +148,11 @@ class CameraDemoActivity : AppCompatActivity(), ConnectChecker, ClientListener,
   }
 
   override fun onClientConnected(client: ServerClient) {
-    toast("Client connected: ${client.clientAddress}")
+    toast("Client connected: ${client.getAddress()}")
   }
 
   override fun onClientDisconnected(client: ServerClient) {
-    toast("Client disconnected: ${client.clientAddress}")
+    toast("Client disconnected: ${client.getAddress()}")
   }
 
   override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {

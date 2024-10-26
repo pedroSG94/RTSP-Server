@@ -7,9 +7,20 @@ import com.pedro.common.ConnectChecker
 import com.pedro.common.VideoCodec
 import com.pedro.common.onMainThreadHandler
 import com.pedro.rtsp.utils.RtpConstants
-import java.io.*
+import io.ktor.network.selector.SelectorManager
+import io.ktor.network.sockets.ServerSocket
+import io.ktor.network.sockets.aSocket
+import io.ktor.network.sockets.isClosed
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import java.io.IOException
 import java.lang.RuntimeException
-import java.net.*
+import java.net.NetworkInterface
+import java.net.SocketException
 import java.nio.ByteBuffer
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
@@ -31,7 +42,8 @@ class RtspServer(
   private var server: ServerSocket? = null
   val serverIp: String get() = getIPAddress()
   private val clients = mutableListOf<ServerClient>()
-  private var thread: Thread? = null
+  private val scope = CoroutineScope(Dispatchers.IO)
+  private var job: Job? = null
   private var running = false
   private var isEnableLogs = true
   private val semaphore = Semaphore(0)
@@ -81,8 +93,8 @@ class RtspServer(
   }
 
   fun startServer() {
-    stopServer()
-    thread = Thread {
+    running = true
+    job = scope.launch {
       try {
         if (!serverCommandManager.videoDisabled) {
           if (!serverCommandManager.videoInfoReady()) {
@@ -94,49 +106,45 @@ class RtspServer(
             onMainThreadHandler {
               connectChecker.onConnectionFailed("video info is null")
             }
-            return@Thread
+            return@launch
           }
         }
-        server = ServerSocket(port)
-      } catch (e: IOException) {
+        val selectorManager = SelectorManager(Dispatchers.IO)
+        server = aSocket(selectorManager).tcp().bind("0.0.0.0", port)
+        Log.i(TAG, "Server started: $serverIp:$port")
+      } catch (e: Exception) {
         onMainThreadHandler {
           connectChecker.onConnectionFailed("Server creation failed")
         }
         Log.e(TAG, "Error", e)
-        return@Thread
+        return@launch
       }
-      Log.i(TAG, "Server started $serverIp:$port")
-      while (!Thread.interrupted()) {
+      while (running) {
         try {
-          val clientSocket = server?.accept() ?: continue
-          val clientAddress = clientSocket.inetAddress.hostAddress
-          if (clientAddress == null) {
-            Log.e(TAG, "Unknown client ip, closing clientSocket...")
-            if (!clientSocket.isClosed) clientSocket.close()
-            continue
-          }
-          val client = ServerClient(clientSocket, serverIp, port, connectChecker, clientAddress,
-            serverCommandManager, this)
+          Log.i(TAG, "Waiting client...")
+          val socket = server?.accept() ?: continue
+          val clientSocket = ClientSocket(socket)
+          Log.i(TAG, "Client connected: ${clientSocket.getHost()}")
+          val client = ServerClient(clientSocket, serverIp, port, connectChecker,
+            serverCommandManager, this@RtspServer)
           client.setLogs(isEnableLogs)
-          client.start()
+          client.startClient()
           synchronized(clients) {
             clients.add(client)
           }
           onMainThreadHandler {
             clientListener?.onClientConnected(client)
           }
-        } catch (e: SocketException) {
+        } catch (e: IOException) {
           // server.close called
           break
-        } catch (e: IOException) {
+        } catch (e: Exception) {
           Log.e(TAG, "Error", e)
           continue
         }
       }
       Log.i(TAG, "Server finished")
     }
-    running = true
-    thread?.start()
   }
 
   fun getNumClients(): Int = clients.size
@@ -147,15 +155,12 @@ class RtspServer(
       clients.clear()
     }
     if (server?.isClosed == false) server?.close()
-    thread?.interrupt()
-    try {
-      thread?.join(100)
-    } catch (e: InterruptedException) {
-      thread?.interrupt()
+    CoroutineScope(Dispatchers.IO).launch {
+      job?.cancelAndJoin()
+      job = null
+      semaphore.release()
     }
-    semaphore.release()
     running = false
-    thread = null
   }
 
   fun isRunning(): Boolean = running
@@ -186,21 +191,21 @@ class RtspServer(
     }
   }
 
-  fun sendVideo(h264Buffer: ByteBuffer, info: MediaCodec.BufferInfo) {
+  fun sendVideo(videoBuffer: ByteBuffer, info: MediaCodec.BufferInfo) {
     synchronized(clients) {
       clients.forEach {
-        if (it.isAlive && it.canSend && !serverCommandManager.videoDisabled) {
-          it.sendVideoFrame(h264Buffer.duplicate(), info)
+        if (it.isAlive() && it.canSend && !serverCommandManager.videoDisabled) {
+          it.sendVideoFrame(videoBuffer.duplicate(), info)
         }
       }
     }
   }
 
-  fun sendAudio(aacBuffer: ByteBuffer, info: MediaCodec.BufferInfo) {
+  fun sendAudio(audioBuffer: ByteBuffer, info: MediaCodec.BufferInfo) {
     synchronized(clients) {
       clients.forEach {
-        if (it.isAlive && it.canSend && !serverCommandManager.audioDisabled) {
-          it.sendAudioFrame(aacBuffer.duplicate(), info)
+        if (it.isAlive() && it.canSend && !serverCommandManager.audioDisabled) {
+          it.sendAudioFrame(audioBuffer.duplicate(), info)
         }
       }
     }
@@ -273,6 +278,20 @@ class RtspServer(
   fun clearCache() {
     synchronized(clients) {
       clients.forEach { it.clearCache() }
+    }
+  }
+
+  fun setBitrateExponentialFactor(factor: Float) {
+    synchronized(clients) {
+      clients.forEach { it.setBitrateExponentialFactor(factor) }
+    }
+  }
+
+  fun getBitrateExponentialFactor(): Float {
+    synchronized(clients) {
+      var factor = 0f
+      clients.forEach { factor += it.getBitrateExponentialFactor() }
+      return factor / clients.size
     }
   }
 

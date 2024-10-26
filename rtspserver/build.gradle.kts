@@ -58,4 +58,7 @@ afterEvaluate {
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion")
     implementation("com.github.pedroSG94.RootEncoder:library:$rootEncoderVersion")
+    val ktorVersion = "3.0.0"
+    implementation("io.ktor:ktor-network:$ktorVersion")
+    implementation("io.ktor:ktor-network-tls:$ktorVersion")
 }

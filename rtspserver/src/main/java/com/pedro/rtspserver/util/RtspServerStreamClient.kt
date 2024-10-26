@@ -28,6 +28,10 @@ class RtspServerStreamClient(
     rtspServer.setAuth(user, password)
   }
 
+  override fun setBitrateExponentialFactor(factor: Float) {
+    rtspServer.setBitrateExponentialFactor(factor)
+  }
+
   override fun setReTries(reTries: Int) {
   }
 
@@ -51,6 +55,8 @@ class RtspServerStreamClient(
   override fun clearCache() {
     rtspServer.clearCache()
   }
+
+  override fun getBitrateExponentialFactor(): Float = rtspServer.getBitrateExponentialFactor()
 
   override fun getCacheSize(): Int = rtspServer.cacheSize
 

@@ -21,22 +21,22 @@ class RtspServerOnlyAudio(
 
   fun startStream() {
     super.startStream("")
-    rtspServer.startServer()
   }
 
-  override fun prepareAudioRtp(isStereo: Boolean, sampleRate: Int) {
+  override fun onAudioInfoImp(isStereo: Boolean, sampleRate: Int) {
     rtspServer.setAudioInfo(sampleRate, isStereo)
   }
 
-  override fun startStreamRtp(url: String) { //unused
+  override fun startStreamImp(url: String) {
+    rtspServer.startServer()
   }
 
-  override fun stopStreamRtp() {
+  override fun stopStreamImp() {
     rtspServer.stopServer()
   }
 
-  override fun getAacDataRtp(aacBuffer: ByteBuffer, info: MediaCodec.BufferInfo) {
-    rtspServer.sendAudio(aacBuffer, info)
+  override fun getAudioDataImp(audioBuffer: ByteBuffer, info: MediaCodec.BufferInfo) {
+    rtspServer.sendAudio(audioBuffer, info)
   }
 
   override fun getStreamClient(): RtspServerStreamClient = RtspServerStreamClient(rtspServer)

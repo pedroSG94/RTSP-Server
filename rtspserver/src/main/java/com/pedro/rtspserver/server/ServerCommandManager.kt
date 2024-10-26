@@ -3,12 +3,15 @@ package com.pedro.rtspserver.server
 import android.util.Log
 import com.pedro.common.AudioCodec
 import com.pedro.common.VideoCodec
+import com.pedro.common.socket.TcpStreamSocket
 import com.pedro.rtsp.rtsp.Protocol
 import com.pedro.rtsp.rtsp.commands.Command
 import com.pedro.rtsp.rtsp.commands.CommandsManager
 import com.pedro.rtsp.rtsp.commands.Method
 import com.pedro.rtsp.rtsp.commands.SdpBody
 import com.pedro.rtsp.utils.RtpConstants
+import com.pedro.rtsp.utils.encodeToString
+import com.pedro.rtsp.utils.getData
 import java.io.BufferedReader
 import java.io.IOException
 import java.net.SocketException
@@ -138,8 +141,8 @@ class ServerCommandManager: CommandsManager() {
   }
 
   @Throws(IOException::class, IllegalStateException::class, SocketException::class)
-  fun getRequest(input: BufferedReader): Command {
-    return super.getResponse(input, Method.UNKNOWN)
+  suspend fun getRequest(socket: TcpStreamSocket): Command {
+    return super.getResponse(socket, Method.UNKNOWN)
   }
 
   private fun createStatus(code: Int): String {
@@ -190,11 +193,11 @@ class ServerCommandManager: CommandsManager() {
       videoBody = when (videoCodec) {
         VideoCodec.H264 -> {
           if (sps == null || pps == null) throw IllegalArgumentException("sps or pps can't be null with h264")
-          SdpBody.createH264Body(RtpConstants.trackVideo, encodeToString(sps), encodeToString(pps))
+          SdpBody.createH264Body(RtpConstants.trackVideo, spsString, ppsString)
         }
         VideoCodec.H265 -> {
           if (sps == null || pps == null || vps == null) throw IllegalArgumentException("sps, pps or vps can't be null with h265")
-          SdpBody.createH265Body(RtpConstants.trackVideo, encodeToString(sps), encodeToString(pps), encodeToString(vps))
+          SdpBody.createH265Body(RtpConstants.trackVideo, spsString, ppsString, vpsString)
         }
         VideoCodec.AV1 -> {
           SdpBody.createAV1Body(RtpConstants.trackVideo)
