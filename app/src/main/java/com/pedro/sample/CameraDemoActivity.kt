@@ -148,6 +148,8 @@ class CameraDemoActivity : AppCompatActivity(), ConnectChecker, ClientListener,
     toast("Client disconnected: ${client.getAddress()}")
   }
 
+  override fun onClientNewBitrate(bitrate: Long, client: ServerClient) {}
+
   override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
     if (!rtspServerCamera1.isOnPreview) {
       rtspServerCamera1.startPreview()

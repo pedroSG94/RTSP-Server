@@ -8,4 +8,6 @@ interface ClientListener {
   fun onClientConnected(client: ServerClient)
 
   fun onClientDisconnected(client: ServerClient)
+
+  fun onClientNewBitrate(bitrate: Long, client: ServerClient)
 }

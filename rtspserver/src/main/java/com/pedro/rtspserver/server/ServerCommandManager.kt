@@ -28,8 +28,8 @@ class ServerCommandManager: CommandsManager() {
   private var serverPort: Int = 0
 
   private val TAG = "ServerCommandManager"
-  var audioPorts = ArrayList<Int?>()
-  var videoPorts = ArrayList<Int?>()
+  var audioPorts = mutableListOf<Int?>(null, null)
+  var videoPorts = mutableListOf<Int?>(null, null)
 
   fun setServerInfo(serverIp: String, serverPort: Int) {
     this.serverIp = serverIp

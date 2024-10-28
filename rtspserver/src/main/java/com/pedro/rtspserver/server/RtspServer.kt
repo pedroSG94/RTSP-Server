@@ -5,6 +5,7 @@ import android.util.Log
 import com.pedro.common.AudioCodec
 import com.pedro.common.ConnectChecker
 import com.pedro.common.VideoCodec
+import com.pedro.common.onMainThread
 import com.pedro.common.onMainThreadHandler
 import com.pedro.rtsp.utils.RtpConstants
 import io.ktor.network.selector.SelectorManager
@@ -33,7 +34,7 @@ import java.util.concurrent.TimeUnit
 class RtspServer(
   private val connectChecker: ConnectChecker,
   val port: Int
-): ServerListener {
+): ClientListener {
 
   private val TAG = "RtspServer"
   private var server: ServerSocket? = null
@@ -100,8 +101,8 @@ class RtspServer(
             semaphore.tryAcquire(5000, TimeUnit.MILLISECONDS)
           }
           if (!serverCommandManager.videoInfoReady()) {
-            onMainThreadHandler {
-              connectChecker.onConnectionFailed("video info is null")
+            onMainThread {
+              connectChecker.onConnectionFailed("Video info is null")
             }
             return@launch
           }
@@ -110,7 +111,7 @@ class RtspServer(
         server = aSocket(selectorManager).tcp().bind("0.0.0.0", port)
         Log.i(TAG, "Server started: $serverIp:$port")
       } catch (e: Exception) {
-        onMainThreadHandler {
+        onMainThread {
           connectChecker.onConnectionFailed("Server creation failed")
         }
         Log.e(TAG, "Error", e)
@@ -122,15 +123,12 @@ class RtspServer(
           val socket = server?.accept() ?: continue
           val clientSocket = ClientSocket(socket)
           Log.i(TAG, "Client connected: ${clientSocket.getHost()}")
-          val client = ServerClient(clientSocket, serverIp, port, connectChecker,
+          val client = ServerClient(clientSocket, serverIp, port,
             serverCommandManager, this@RtspServer)
           client.setLogs(isEnableLogs)
           client.startClient()
           synchronized(clients) {
             clients.add(client)
-          }
-          onMainThreadHandler {
-            clientListener?.onClientConnected(client)
           }
         } catch (e: IOException) {
           // server.close called
@@ -308,14 +306,20 @@ class RtspServer(
     }
   }
 
+  override fun onClientConnected(client: ServerClient) {
+    onMainThreadHandler { clientListener?.onClientConnected(client) }
+  }
+
   override fun onClientDisconnected(client: ServerClient) {
     synchronized(clients) {
       client.stopClient()
       clients.remove(client)
-      onMainThreadHandler {
-        clientListener?.onClientDisconnected(client)
-      }
     }
+    onMainThreadHandler { clientListener?.onClientDisconnected(client) }
+  }
+
+  override fun onClientNewBitrate(bitrate: Long, client: ServerClient) {
+    onMainThreadHandler { clientListener?.onClientNewBitrate(bitrate, client) }
   }
 
   private fun getIPAddress(): String {

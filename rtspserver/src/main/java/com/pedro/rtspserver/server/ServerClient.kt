@@ -5,10 +5,9 @@ import android.util.Log
 import com.pedro.common.ConnectChecker
 import com.pedro.common.clone
 import com.pedro.common.frame.MediaFrame
-import com.pedro.common.onMainThreadHandler
-import com.pedro.common.toMediaFrameInfo
 import com.pedro.rtsp.rtsp.RtspSender
 import com.pedro.rtsp.rtsp.commands.Method
+import com.pedro.rtspserver.util.toMediaFrameInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -19,17 +18,32 @@ import java.nio.ByteBuffer
 
 class ServerClient(
   private val socket: ClientSocket, serverIp: String, serverPort: Int,
-  private val connectChecker: ConnectChecker,
   private val serverCommandManager: ServerCommandManager,
-  private val listener: ServerListener
+  private val listener: ClientListener
 ) {
 
   private val TAG = "Client"
+  private val connectChecker = object: ConnectChecker {
+    override fun onAuthError() {}
+    override fun onAuthSuccess() {}
+    override fun onConnectionStarted(url: String) {}
+    override fun onConnectionSuccess() {}
+    override fun onDisconnect() {}
+
+    override fun onNewBitrate(bitrate: Long) {
+      listener.onClientNewBitrate(bitrate, this@ServerClient)
+    }
+    override fun onConnectionFailed(reason: String) {
+      listener.onClientDisconnected(this@ServerClient)
+    }
+  }
   private val rtspSender = RtspSender(connectChecker, serverCommandManager)
   private val scope = CoroutineScope(Dispatchers.IO)
   private var job: Job? = null
   var canSend = false
     private set
+  //few players need start with timestamp 0 to work
+  private var startTs = 0L
 
   val droppedAudioFrames: Long
     get() = rtspSender.droppedAudioFrames
@@ -49,6 +63,7 @@ class ServerClient(
 
   fun startClient() {
     job = scope.launch {
+      startTs = 0L
       socket.connect()
       while (job?.isActive == true) {
         try {
@@ -96,16 +111,11 @@ class ServerClient(
             )
             rtspSender.setSocket(socket)
             rtspSender.start()
-            onMainThreadHandler {
-              connectChecker.onConnectionSuccess()
-            }
+            listener.onClientConnected(this@ServerClient)
             canSend = true
           } else if (request.method == Method.TEARDOWN) {
             Log.i(TAG, "Client disconnected")
             listener.onClientDisconnected(this@ServerClient)
-            onMainThreadHandler {
-              connectChecker.onDisconnect()
-            }
           }
         } catch (e: IOException) { // Client has left
           Log.e(TAG, "Client disconnected", e)
@@ -121,6 +131,7 @@ class ServerClient(
   fun stopClient() {
     CoroutineScope(Dispatchers.IO).launch {
       canSend = false
+      startTs = 0L
       rtspSender.stop()
       job?.cancelAndJoin()
       job = null
@@ -166,11 +177,17 @@ class ServerClient(
   fun getItemsInCache(): Int = rtspSender.getItemsInCache()
 
   fun sendVideoFrame(videoBuffer: ByteBuffer, info: MediaCodec.BufferInfo) {
-    rtspSender.sendMediaFrame(MediaFrame(videoBuffer.clone(), info.toMediaFrameInfo(), MediaFrame.Type.VIDEO))
+    if (canSend) {
+      if (startTs == 0L) startTs = info.presentationTimeUs
+      rtspSender.sendMediaFrame(MediaFrame(videoBuffer.clone(), info.toMediaFrameInfo(startTs), MediaFrame.Type.VIDEO))
+    }
   }
 
   fun sendAudioFrame(audioBuffer: ByteBuffer, info: MediaCodec.BufferInfo) {
-    rtspSender.sendMediaFrame(MediaFrame(audioBuffer.clone(), info.toMediaFrameInfo(), MediaFrame.Type.AUDIO))
+    if (canSend) {
+      if (startTs == 0L) startTs = info.presentationTimeUs
+      rtspSender.sendMediaFrame(MediaFrame(audioBuffer.clone(), info.toMediaFrameInfo(startTs), MediaFrame.Type.AUDIO))
+    }
   }
 
   fun setBitrateExponentialFactor(factor: Float) {
