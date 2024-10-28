@@ -10,9 +10,6 @@ import com.pedro.rtsp.rtsp.commands.CommandsManager
 import com.pedro.rtsp.rtsp.commands.Method
 import com.pedro.rtsp.rtsp.commands.SdpBody
 import com.pedro.rtsp.utils.RtpConstants
-import com.pedro.rtsp.utils.encodeToString
-import com.pedro.rtsp.utils.getData
-import java.io.BufferedReader
 import java.io.IOException
 import java.net.SocketException
 import java.util.regex.Pattern
@@ -31,8 +28,8 @@ class ServerCommandManager: CommandsManager() {
   private var serverPort: Int = 0
 
   private val TAG = "ServerCommandManager"
-  var audioPorts = ArrayList<Int>()
-  var videoPorts = ArrayList<Int>()
+  var audioPorts = ArrayList<Int?>()
+  var videoPorts = ArrayList<Int?>()
 
   fun setServerInfo(serverIp: String, serverPort: Int) {
     this.serverIp = serverIp

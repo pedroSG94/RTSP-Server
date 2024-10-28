@@ -74,13 +74,25 @@ class ServerClient(
               rtspSender.setAudioInfo(serverCommandManager.sampleRate, serverCommandManager.isStereo)
             }
 
+            val videoPorts = if (!serverCommandManager.videoDisabled) {
+              serverCommandManager.videoPorts.toTypedArray()
+            } else arrayOf<Int?>(null, null)
+            val videoServerPorts = if (!serverCommandManager.videoDisabled) {
+              serverCommandManager.videoServerPorts
+            } else arrayOf<Int?>(null, null)
+            val audioPorts = if (!serverCommandManager.audioDisabled) {
+              serverCommandManager.audioPorts.toTypedArray()
+            } else arrayOf<Int?>(null, null)
+            val audioServerPorts = if (!serverCommandManager.audioDisabled) {
+              serverCommandManager.audioServerPorts
+            } else arrayOf<Int?>(null, null)
+
             rtspSender.setSocketsInfo(
               serverCommandManager.protocol,
               socket.getHost(),
-              serverCommandManager.videoServerPorts,
-              serverCommandManager.audioServerPorts,
-              serverCommandManager.videoPorts.toIntArray(),
-              serverCommandManager.audioPorts.toIntArray(),
+              videoServerPorts,
+              audioServerPorts,
+              videoPorts, audioPorts
             )
             rtspSender.setSocket(socket)
             rtspSender.start()

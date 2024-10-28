@@ -3,12 +3,8 @@ package com.pedro.sample
 import android.graphics.SurfaceTexture
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
-import android.util.Log
 import android.view.TextureView
-import android.view.View
 import android.view.WindowManager
-import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -21,8 +17,6 @@ import com.pedro.library.view.AutoFitTextureView
 import com.pedro.rtspserver.RtspServerCamera1
 import com.pedro.rtspserver.server.ClientListener
 import com.pedro.rtspserver.server.ServerClient
-import java.io.File
-import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -122,7 +116,6 @@ class CameraDemoActivity : AppCompatActivity(), ConnectChecker, ClientListener,
   }
 
   override fun onConnectionFailed(reason: String) {
-    Log.e("Pedro", "failed: $reason")
     toast("Failed: $reason")
     rtspServerCamera1.stopStream()
     if (!rtspServerCamera1.isRecording) ScreenOrientation.unlockScreen(this)
