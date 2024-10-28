@@ -180,7 +180,7 @@ class RtspServer(
   }
 
   fun setLogs(enable: Boolean) {
-    isEnableLogs = enable;
+    isEnableLogs = enable
     synchronized(clients) {
       clients.forEach { it.setLogs(enable) }
     }

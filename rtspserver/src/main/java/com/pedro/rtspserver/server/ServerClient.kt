@@ -18,7 +18,7 @@ import java.nio.ByteBuffer
 
 class ServerClient(
   private val socket: ClientSocket, serverIp: String, serverPort: Int,
-  private val serverCommandManager: ServerCommandManager,
+  serverCommandManager: ServerCommandManager,
   private val listener: ClientListener
 ) {
 
@@ -37,7 +37,18 @@ class ServerClient(
       listener.onClientDisconnected(this@ServerClient)
     }
   }
-  private val rtspSender = RtspSender(connectChecker, serverCommandManager)
+  private val commandManager by lazy {
+    ServerCommandManager().apply {
+      setVideoInfo(serverCommandManager.sps!!, serverCommandManager.pps, serverCommandManager.vps)
+      setAudioInfo(serverCommandManager.sampleRate, serverCommandManager.isStereo)
+      setAuth(serverCommandManager.user, serverCommandManager.password)
+      videoCodec = serverCommandManager.videoCodec
+      audioCodec = serverCommandManager.audioCodec
+      audioDisabled = serverCommandManager.audioDisabled
+      videoDisabled = serverCommandManager.videoDisabled
+    }
+  }
+  private val rtspSender = RtspSender(connectChecker, commandManager)
   private val scope = CoroutineScope(Dispatchers.IO)
   private var job: Job? = null
   var canSend = false
@@ -67,43 +78,43 @@ class ServerClient(
       socket.connect()
       while (job?.isActive == true) {
         try {
-          val request = serverCommandManager.getRequest(socket)
+          val request = commandManager.getRequest(socket)
           val cSeq = request.cSeq //update cSeq
           if (cSeq == -1) { //If cSeq parsed fail send error to client
-            socket.write(serverCommandManager.createError(500, cSeq))
+            socket.write(commandManager.createError(500, cSeq))
             socket.flush()
             continue
           }
-          val response = serverCommandManager.createResponse(request.method, request.text, cSeq, socket.getHost())
+          val response = commandManager.createResponse(request.method, request.text, cSeq, socket.getHost())
           Log.i(TAG, response)
           socket.write(response)
           socket.flush()
 
           if (request.method == Method.PLAY) {
-            Log.i(TAG, "Protocol ${serverCommandManager.protocol}")
+            Log.i(TAG, "Protocol ${commandManager.protocol}")
 
-            if (!serverCommandManager.videoDisabled) {
-              rtspSender.setVideoInfo(serverCommandManager.sps!!, serverCommandManager.pps, serverCommandManager.vps)
+            if (!commandManager.videoDisabled) {
+              rtspSender.setVideoInfo(commandManager.sps!!, commandManager.pps, commandManager.vps)
             }
-            if (!serverCommandManager.audioDisabled) {
-              rtspSender.setAudioInfo(serverCommandManager.sampleRate, serverCommandManager.isStereo)
+            if (!commandManager.audioDisabled) {
+              rtspSender.setAudioInfo(commandManager.sampleRate, commandManager.isStereo)
             }
 
-            val videoPorts = if (!serverCommandManager.videoDisabled) {
-              serverCommandManager.videoPorts.toTypedArray()
+            val videoPorts = if (!commandManager.videoDisabled) {
+              commandManager.videoPorts
             } else arrayOf<Int?>(null, null)
-            val videoServerPorts = if (!serverCommandManager.videoDisabled) {
-              serverCommandManager.videoServerPorts
+            val videoServerPorts = if (!commandManager.videoDisabled) {
+              commandManager.videoServerPorts
             } else arrayOf<Int?>(null, null)
-            val audioPorts = if (!serverCommandManager.audioDisabled) {
-              serverCommandManager.audioPorts.toTypedArray()
+            val audioPorts = if (!commandManager.audioDisabled) {
+              commandManager.audioPorts
             } else arrayOf<Int?>(null, null)
-            val audioServerPorts = if (!serverCommandManager.audioDisabled) {
-              serverCommandManager.audioServerPorts
+            val audioServerPorts = if (!commandManager.audioDisabled) {
+              commandManager.audioServerPorts
             } else arrayOf<Int?>(null, null)
 
             rtspSender.setSocketsInfo(
-              serverCommandManager.protocol,
+              commandManager.protocol,
               socket.getHost(),
               videoServerPorts,
               audioServerPorts,

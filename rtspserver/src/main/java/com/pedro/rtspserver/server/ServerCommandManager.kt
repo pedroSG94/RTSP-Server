@@ -28,8 +28,8 @@ class ServerCommandManager: CommandsManager() {
   private var serverPort: Int = 0
 
   private val TAG = "ServerCommandManager"
-  var audioPorts = mutableListOf<Int?>(null, null)
-  var videoPorts = mutableListOf<Int?>(null, null)
+  val audioPorts = arrayOf<Int?>(null, null)
+  val videoPorts = arrayOf<Int?>(null, null)
 
   fun setServerInfo(serverIp: String, serverPort: Int) {
     this.serverIp = serverIp
@@ -115,14 +115,12 @@ class ServerCommandManager: CommandsManager() {
       return false
     }
     if (track == RtpConstants.trackAudio) { //audio ports
-      audioPorts.clear()
-      audioPorts.add(ports[0])
-      audioPorts.add(ports[1])
+      audioPorts[0] = ports[0]
+      audioPorts[1] = ports[1]
       Log.i(TAG, "Audio ports: $audioPorts")
     } else { //video ports
-      videoPorts.clear()
-      videoPorts.add(ports[0])
-      videoPorts.add(ports[1])
+      videoPorts[0] = ports[0]
+      videoPorts[1] = ports[1]
       Log.i(TAG, "Video ports: $videoPorts")
     }
     return true
@@ -234,9 +232,5 @@ class ServerCommandManager: CommandsManager() {
 
   private fun createTeardown(cSeq: Int): String {
     return "${createHeader(cSeq)}\r\n"
-  }
-
-  private fun encodeToString(bytes: ByteArray): String {
-    return Base64.encode(bytes)
   }
 }
