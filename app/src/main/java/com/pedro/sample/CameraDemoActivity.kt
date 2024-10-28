@@ -107,10 +107,6 @@ class CameraDemoActivity : AppCompatActivity(), ConnectChecker, ClientListener,
     surfaceView.setAspectRatio(w, h)
   }
 
-  override fun onNewBitrate(bitrate: Long) {
-
-  }
-
   override fun onConnectionSuccess() {
     toast("Connected")
   }
