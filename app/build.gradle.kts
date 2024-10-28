@@ -5,12 +5,12 @@ plugins {
 
 android {
     namespace = "com.pedro.sample"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.pedro.sample"
         minSdk = 16
-        targetSdk = 34
+        targetSdk = 35
         versionCode = libs.versions.versionCode.get().toInt()
         versionName = libs.versions.versionName.get()
     }
