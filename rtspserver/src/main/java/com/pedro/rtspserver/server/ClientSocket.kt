@@ -11,6 +11,7 @@ import io.ktor.util.network.hostname
 import io.ktor.util.network.port
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.ByteWriteChannel
+import io.ktor.utils.io.close
 import io.ktor.utils.io.readFully
 import io.ktor.utils.io.readUTF8Line
 import io.ktor.utils.io.writeByte
@@ -37,7 +38,7 @@ class ClientSocket(
     }
 
     override suspend fun close() {
-        runCatching { output?.flushAndClose() }
+        runCatching { output?.close() }
         runCatching {
             address = null
             input = null
