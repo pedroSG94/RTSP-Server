@@ -5,6 +5,7 @@ import android.util.Log
 import com.pedro.common.ConnectChecker
 import com.pedro.common.clone
 import com.pedro.common.frame.MediaFrame
+import com.pedro.common.socket.base.SocketType
 import com.pedro.rtsp.rtsp.RtspSender
 import com.pedro.rtsp.rtsp.commands.Method
 import com.pedro.rtspserver.util.toMediaFrameInfo
@@ -114,6 +115,7 @@ class ServerClient(
             } else arrayOf<Int?>(null, null)
 
             rtspSender.setSocketsInfo(
+              SocketType.JAVA,
               commandManager.protocol,
               socket.getHost(),
               videoServerPorts,

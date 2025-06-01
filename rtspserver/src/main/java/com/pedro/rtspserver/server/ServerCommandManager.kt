@@ -3,7 +3,7 @@ package com.pedro.rtspserver.server
 import android.util.Log
 import com.pedro.common.AudioCodec
 import com.pedro.common.VideoCodec
-import com.pedro.common.socket.TcpStreamSocket
+import com.pedro.common.socket.base.TcpStreamSocket
 import com.pedro.rtsp.rtsp.Protocol
 import com.pedro.rtsp.rtsp.commands.Command
 import com.pedro.rtsp.rtsp.commands.CommandsManager

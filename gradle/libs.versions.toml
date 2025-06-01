@@ -14,7 +14,7 @@ appcompat = "1.6.1"
 constraintlayout = "2.1.4"
 coroutines = "1.9.0"
 ktor = "3.0.0"
-rootEncoder = "2.5.4"
+rootEncoder = "2.6.1"
 
 [libraries]
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }

@@ -1,5 +1,6 @@
 package com.pedro.rtspserver.util
 
+import com.pedro.common.socket.base.SocketType
 import com.pedro.library.util.streamclient.StreamBaseClient
 import com.pedro.rtspserver.server.ClientListener
 import com.pedro.rtspserver.server.IpType
@@ -57,6 +58,12 @@ class RtspServerStreamClient(
   }
 
   override fun getBitrateExponentialFactor(): Float = rtspServer.getBitrateExponentialFactor()
+
+  override fun setSocketType(type: SocketType) {
+  }
+
+  override fun setDelay(millis: Long) {
+  }
 
   override fun getCacheSize(): Int = rtspServer.cacheSize
 
