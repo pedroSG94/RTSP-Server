@@ -5,6 +5,8 @@ import android.util.Log
 import com.pedro.common.ConnectChecker
 import com.pedro.common.clone
 import com.pedro.common.frame.MediaFrame
+import com.pedro.common.socket.base.SocketType
+import com.pedro.common.socket.base.TcpStreamSocket
 import com.pedro.rtsp.rtsp.RtspSender
 import com.pedro.rtsp.rtsp.commands.Method
 import com.pedro.rtspserver.util.toMediaFrameInfo
@@ -17,7 +19,10 @@ import java.io.IOException
 import java.nio.ByteBuffer
 
 class ServerClient(
-  private val socket: ClientSocket, serverIp: String, serverPort: Int,
+  private val delay: Long? = null,
+  private val socketType: SocketType,
+  private val host: String,
+  private val socket: TcpStreamSocket, serverIp: String, serverPort: Int,
   serverCommandManager: ServerCommandManager,
   private val listener: ClientListener
 ) {
@@ -48,7 +53,9 @@ class ServerClient(
       videoDisabled = serverCommandManager.videoDisabled
     }
   }
-  private val rtspSender = RtspSender(connectChecker, commandManager)
+  private val rtspSender = RtspSender(connectChecker, commandManager).apply {
+    if (delay != null) setDelay(delay)
+  }
   private val scope = CoroutineScope(Dispatchers.IO)
   private var job: Job? = null
   var canSend = false
@@ -85,7 +92,7 @@ class ServerClient(
             socket.flush()
             continue
           }
-          val response = commandManager.createResponse(request.method, request.text, cSeq, socket.getHost())
+          val response = commandManager.createResponse(request.method, request.text, cSeq, host)
           Log.i(TAG, response)
           socket.write(response)
           socket.flush()
@@ -114,8 +121,9 @@ class ServerClient(
             } else arrayOf<Int?>(null, null)
 
             rtspSender.setSocketsInfo(
+              socketType,
               commandManager.protocol,
-              socket.getHost(),
+              host,
               videoServerPorts,
               audioServerPorts,
               videoPorts, audioPorts
@@ -150,7 +158,7 @@ class ServerClient(
     }
   }
 
-  fun getAddress() = socket.getHost()
+  fun getAddress() = host
 
   fun isAlive(): Boolean = job?.isActive == true
 

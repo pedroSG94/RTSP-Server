@@ -1,5 +1,6 @@
 package com.pedro.rtspserver.util
 
+import com.pedro.common.socket.base.SocketType
 import com.pedro.library.util.streamclient.StreamBaseClient
 import com.pedro.rtspserver.server.ClientListener
 import com.pedro.rtspserver.server.IpType
@@ -35,6 +36,10 @@ class RtspServerStreamClient(
   override fun setReTries(reTries: Int) {
   }
 
+  override fun setSocketType(type: SocketType) {
+    rtspServer.setSocketType(type)
+  }
+
   override fun reTry(delay: Long, reason: String, backupUrl: String?): Boolean {
     return false
   }
@@ -46,6 +51,10 @@ class RtspServerStreamClient(
   }
 
   override fun setCheckServerAlive(enabled: Boolean) {
+  }
+
+  override fun setDelay(millis: Long) {
+    rtspServer.setDelay(millis)
   }
 
   override fun resizeCache(newSize: Int) {

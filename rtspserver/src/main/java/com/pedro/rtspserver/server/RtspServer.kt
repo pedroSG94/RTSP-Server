@@ -7,11 +7,9 @@ import com.pedro.common.ConnectChecker
 import com.pedro.common.VideoCodec
 import com.pedro.common.onMainThread
 import com.pedro.common.onMainThreadHandler
+import com.pedro.common.socket.base.SocketType
 import com.pedro.rtsp.utils.RtpConstants
-import io.ktor.network.selector.SelectorManager
-import io.ktor.network.sockets.ServerSocket
-import io.ktor.network.sockets.aSocket
-import io.ktor.network.sockets.isClosed
+import com.pedro.rtspserver.socket.StreamServerSocket
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -37,7 +35,8 @@ class RtspServer(
 ): ClientListener {
 
   private val TAG = "RtspServer"
-  private var server: ServerSocket? = null
+  private var socketType = SocketType.JAVA
+  private var server = StreamServerSocket(socketType)
   val serverIp: String get() = getIPAddress()
   private val clients = mutableListOf<ServerClient>()
   private val scope = CoroutineScope(Dispatchers.IO)
@@ -48,6 +47,7 @@ class RtspServer(
   private val serverCommandManager = ServerCommandManager()
   private var clientListener: ClientListener? = null
   private var ipType = IpType.All
+  private var delay: Long? = null
 
   val droppedAudioFrames: Long
     get() = synchronized(clients) {
@@ -86,6 +86,17 @@ class RtspServer(
     this.clientListener = clientListener
   }
 
+  fun setDelay(delay: Long) {
+    this.delay = delay
+  }
+
+  fun setSocketType(socketType: SocketType) {
+    if (!isRunning()) {
+      this.socketType = socketType
+      server = StreamServerSocket(socketType)
+    }
+  }
+
   fun setAuth(user: String?, password: String?) {
     serverCommandManager.setAuth(user, password)
   }
@@ -107,8 +118,7 @@ class RtspServer(
             return@launch
           }
         }
-        val selectorManager = SelectorManager(Dispatchers.IO)
-        server = aSocket(selectorManager).tcp().bind("0.0.0.0", port)
+        server.create(port)
         Log.i(TAG, "Server started: $serverIp:$port")
       } catch (e: Exception) {
         onMainThread {
@@ -120,10 +130,9 @@ class RtspServer(
       while (running) {
         try {
           Log.i(TAG, "Waiting client...")
-          val socket = server?.accept() ?: continue
-          val clientSocket = ClientSocket(socket)
-          Log.i(TAG, "Client connected: ${clientSocket.getHost()}")
-          val client = ServerClient(clientSocket, serverIp, port,
+          val clientSocket = server.accept()
+          Log.i(TAG, "Client connected: ${clientSocket.host}")
+          val client = ServerClient(delay, socketType, clientSocket.host, clientSocket.socket, serverIp, port,
             serverCommandManager, this@RtspServer)
           client.setLogs(isEnableLogs)
           client.startClient()
@@ -149,7 +158,7 @@ class RtspServer(
       clients.forEach { it.stopClient() }
       clients.clear()
     }
-    if (server?.isClosed == false) server?.close()
+    if (server.isClosed()) server.close()
     CoroutineScope(Dispatchers.IO).launch {
       job?.cancelAndJoin()
       job = null
