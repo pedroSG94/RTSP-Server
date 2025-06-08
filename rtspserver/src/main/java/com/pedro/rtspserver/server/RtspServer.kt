@@ -158,7 +158,7 @@ class RtspServer(
       clients.forEach { it.stopClient() }
       clients.clear()
     }
-    if (server.isClosed()) server.close()
+    server.close()
     CoroutineScope(Dispatchers.IO).launch {
       job?.cancelAndJoin()
       job = null

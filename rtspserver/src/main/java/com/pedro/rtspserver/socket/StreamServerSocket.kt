@@ -3,7 +3,6 @@ package com.pedro.rtspserver.socket
 import com.pedro.common.socket.base.SocketType
 import io.ktor.network.selector.SelectorManager
 import io.ktor.network.sockets.aSocket
-import io.ktor.network.sockets.isClosed
 import io.ktor.network.sockets.toJavaAddress
 import io.ktor.util.network.address
 import io.ktor.util.network.port
@@ -16,7 +15,7 @@ class StreamServerSocket(
     private var ktorServer: io.ktor.network.sockets.ServerSocket? = null
     private var javaServer: ServerSocket? = null
 
-    suspend fun create(port: Int) {
+    fun create(port: Int) {
         when (type) {
             SocketType.KTOR -> {
                 val selectorManager = SelectorManager(Dispatchers.IO)
@@ -26,13 +25,6 @@ class StreamServerSocket(
             SocketType.JAVA -> {
                 javaServer = ServerSocket(port)
             }
-        }
-    }
-
-    fun isClosed(): Boolean {
-        return when (type) {
-            SocketType.KTOR -> ktorServer?.isClosed ?: true
-            SocketType.JAVA -> javaServer?.isClosed ?: true
         }
     }
 
@@ -59,9 +51,11 @@ class StreamServerSocket(
     }
 
     fun close() {
-        when (type) {
-            SocketType.KTOR -> ktorServer?.close()
-            SocketType.JAVA -> javaServer?.close()
-        }
+        try {
+            when (type) {
+                SocketType.KTOR -> ktorServer?.close()
+                SocketType.JAVA -> javaServer?.close()
+            }
+        } catch (ignored: Exception) {}
     }
 }
