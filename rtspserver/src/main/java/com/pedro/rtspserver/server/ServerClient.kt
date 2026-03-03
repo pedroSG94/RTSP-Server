@@ -88,6 +88,7 @@ class ServerClient(
     job = scope.launch {
       startTs = 0L
       socket.connect()
+      delay(100)
       while (job?.isActive == true) {
         try {
           val request = commandManager.getRequest(socket)
