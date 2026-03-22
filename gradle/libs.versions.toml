@@ -20,6 +20,7 @@ kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutine
 ktor-network = { module = "io.ktor:ktor-network", version.ref = "ktor" }
 ktor-network-tls = { module = "io.ktor:ktor-network-tls", version.ref = "ktor" }
 rootEncoder-library = { module = "com.github.pedroSG94.RootEncoder:library", version.ref = "rootEncoder" }
+rootEncoder-extra-sources = { module = "com.github.pedroSG94.RootEncoder:extra-sources", version.ref = "rootEncoder" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId = "com.pedro.sample"
-        minSdk = 16
+        minSdk = 23
         targetSdk = 36
         versionCode = project.version.toString().replace(".", "").toInt()
         versionName = project.version.toString()
@@ -32,6 +32,7 @@ android {
 dependencies {
     implementation(project(":rtspserver"))
     implementation(libs.rootEncoder.library)
+    implementation(libs.rootEncoder.extra.sources)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.constraintlayout)
 }

@@ -10,6 +10,7 @@ import android.view.WindowManager
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import com.pedro.sample.utils.fitAppPadding
 
 class MainActivity : AppCompatActivity() {
 
@@ -17,6 +18,7 @@ class MainActivity : AppCompatActivity() {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+    fitAppPadding()
     window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     setContentView(R.layout.activity_main)
     val bCameraDemo = findViewById<Button>(R.id.b_camera_demo)
@@ -25,7 +27,7 @@ class MainActivity : AppCompatActivity() {
       if (!hasPermissions(this, *permissions)) {
         ActivityCompat.requestPermissions(this, permissions, 1)
       } else {
-        startActivity(Intent(this, CameraDemoActivity::class.java))
+        startActivity(Intent(this, RotationActivity::class.java))
       }
     }
   }
