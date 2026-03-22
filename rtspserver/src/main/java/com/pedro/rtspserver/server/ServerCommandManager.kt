@@ -59,15 +59,12 @@ class ServerCommandManager: CommandsManager() {
         val track = getTrack(request)
         if (track != null) {
           protocol = getProtocol(request, track)
-          return when (protocol) {
+          when (protocol) {
             Protocol.TCP -> {
               createSetup(cSeq, track, clientIp)
             }
             Protocol.UDP -> {
               if (loadPorts(request, track)) createSetup(cSeq, track, clientIp) else createError(500, cSeq)
-            }
-            else -> {
-              createError(500, cSeq)
             }
           }
         } else {

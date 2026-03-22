@@ -14,6 +14,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.io.IOException
 import java.nio.ByteBuffer
@@ -88,7 +89,7 @@ class ServerClient(
     job = scope.launch {
       startTs = 0L
       socket.connect()
-      while (job?.isActive == true) {
+      while (isActive) {
         try {
           val request = commandManager.getRequest(socket)
           val cSeq = request.cSeq //update cSeq

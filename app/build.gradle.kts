@@ -11,13 +11,13 @@ android {
         applicationId = "com.pedro.sample"
         minSdk = 16
         targetSdk = 36
-        versionCode = libs.versions.versionCode.get().toInt()
-        versionName = libs.versions.versionName.get()
+        versionCode = project.version.toString().replace(".", "").toInt()
+        versionName = project.version.toString()
     }
     buildTypes {
         release {
             isMinifyEnabled = false
-            proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
     compileOptions {
