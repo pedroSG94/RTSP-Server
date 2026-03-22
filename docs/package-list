@@ -1,0 +1,8 @@
+$dokka.format:html-v1
+$dokka.linkExtension:html
+
+module:rtspserver
+com.pedro.rtspserver
+com.pedro.rtspserver.server
+com.pedro.rtspserver.socket
+com.pedro.rtspserver.util

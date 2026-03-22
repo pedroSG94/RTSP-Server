@@ -15,8 +15,8 @@ allprojects {
   }
 }
 dependencies {
-  implementation 'com.github.pedroSG94:RTSP-Server:1.3.6'
-  implementation 'com.github.pedroSG94.RootEncoder:library:2.6.1'
+  implementation 'com.github.pedroSG94:RTSP-Server:1.3.7'
+  implementation 'com.github.pedroSG94.RootEncoder:library:2.7.1'
 }
 
 ```

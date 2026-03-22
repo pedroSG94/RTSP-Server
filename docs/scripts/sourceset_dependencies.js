@@ -1,0 +1,1 @@
+sourceset_dependencies = '{":rtspserver/debug":[],":rtspserver/main":[],":rtspserver/release":[]}'

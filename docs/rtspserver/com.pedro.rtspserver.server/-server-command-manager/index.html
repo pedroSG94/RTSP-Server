@@ -1,0 +1,855 @@
+<!doctype html>
+<html class="no-js" lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>ServerCommandManager</title>
+<link href="../../../images/logo-icon.svg" rel="icon" type="image/svg"><script>var pathToRoot = "../../../";</script>
+    <script>document.documentElement.classList.replace("no-js", "js");</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+      if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      } else {
+        const savedDarkMode = JSON.parse(storage)
+        if (savedDarkMode === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      }
+    </script>
+<script type="text/javascript" src="https://unpkg.com/kotlin-playground@1/dist/playground.min.js" async></script>
+<script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async></script>
+<link href="../../../styles/style.css" rel="Stylesheet">
+<link href="../../../styles/main.css" rel="Stylesheet">
+<link href="../../../styles/prism.css" rel="Stylesheet">
+<link href="../../../styles/logo-styles.css" rel="Stylesheet">
+<link href="../../../ui-kit/ui-kit.min.css" rel="Stylesheet">
+<script type="text/javascript" src="../../../scripts/safe-local-storage_blocking.js"></script>
+<script type="text/javascript" src="../../../scripts/navigation-loader.js" async></script>
+<script type="text/javascript" src="../../../scripts/platform-content-handler.js" async></script>
+<script type="text/javascript" src="../../../scripts/main.js" defer></script>
+<script type="text/javascript" src="../../../scripts/prism.js" async></script>
+<script type="text/javascript" src="../../../ui-kit/ui-kit.min.js" defer></script></head>
+<body>
+<div class="root">
+    <header class="navigation theme-dark" id="navigation-wrapper" role="banner">
+<a class="library-name--link" href="../../../index.html" tabindex="1">
+                    RTSP-Server
+            </a>        <button class="navigation-controls--btn navigation-controls--btn_toc ui-kit_mobile-only" id="toc-toggle" type="button">Toggle table of contents
+        </button>
+        <div class="navigation-controls--break ui-kit_mobile-only"></div>
+        <div class="library-version" id="library-version">1.3.7
+        </div>
+        <div class="navigation-controls">
+        <ul class="filter-section filter-section_loading" id="filter-section" aria-label="Target filter">
+                <button class="platform-tag platform-selector jvm-like" data-active="" aria-pressed="true" data-filter=":rtspserver/main">androidJvm</button>
+            <div class="dropdown filter-section--dropdown" data-role="dropdown" id="filter-section-dropdown">
+                <button class="button button_dropdown filter-section--dropdown-toggle" role="combobox" data-role="dropdown-toggle" aria-controls="platform-tags-listbox" aria-haspopup="listbox" aria-expanded="false" aria-label="Toggle source sets"></button>
+                <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox" aria-label="Target filter">
+                    <div class="dropdown--header"><span>Target filter</span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close target filter">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                        <li role="option" class="dropdown--option platform-selector-option jvm-like" tabindex="0">
+                            <label class="checkbox">
+                                <input type="checkbox" class="checkbox--input" id=":rtspserver/main" data-filter=":rtspserver/main">
+                                <span class="checkbox--icon"></span>
+                                androidJvm
+                            </label>
+                        </li>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </ul>
+            <button class="navigation-controls--btn navigation-controls--btn_theme" id="theme-toggle-button" type="button">Switch theme
+            </button>
+            <div class="navigation-controls--btn navigation-controls--btn_search" id="searchBar" role="button">Search in
+                API
+            </div>
+        </div>
+    </header>
+    <div id="container">
+        <nav id="leftColumn" class="sidebar" data-item-type="SECTION" data-item-config="{&quot;defaultSize&quot;: 280, &quot;minSize&quot;: 200, &quot;maxSize&quot;: 400}">
+            <a class="toc--skip-link" href="#main">Skip to content</a>
+            <div class="dropdown theme-dark_mobile" data-role="dropdown" id="toc-dropdown">
+                <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list" data-role="dropdown-listbox" aria-label="Table of contents">
+                    <div class="dropdown--header">
+                            <span>
+                                    RTSP-Server
+                            </span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close table of contents">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                    <div class="sidebar--inner" id="sideMenu"></div>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </nav>
+        <div id="resizer" class="resizer" data-item-type="BAR"></div>
+        <div id="main" data-item-type="SECTION" role="main">
+<div class="main-content" data-page-type="classlike" id="content" pageids="rtspserver::com.pedro.rtspserver.server/ServerCommandManager///PointingToDeclaration//1565245447">
+  <div class="breadcrumbs"><a href="../../index.html">rtspserver</a><span class="delimiter">/</span><a href="../index.html">com.pedro.rtspserver.server</a><span class="delimiter">/</span><span class="current">ServerCommandManager</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span>Server</span><wbr><span>Command</span><wbr><span><span>Manager</span></span></h1>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":rtspserver/main"><div class="symbol monospace"><span class="token keyword">class </span><a href="index.html">ServerCommandManager</a> : <span data-unresolved-link="com.pedro.rtsp.rtsp.commands/CommandsManager///PointingToDeclaration/">CommandsManager</span></div><p class="paragraph">Created by pedro on 23/10/19.</p></div></div>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION">Members</button></div>
+    <div class="tabs-section-body">
+      <div data-togglable="CONSTRUCTOR">
+        <h2 class="tableheader">Constructors</h2>
+        <div class="table"><a data-name="515226621%2FConstructors%2F1565245447" anchor-label="ServerCommandManager" id="515226621%2FConstructors%2F1565245447" data-filterable-set=":rtspserver/main"></a>
+          <div class="table-row table-row_content" data-togglable="CONSTRUCTOR" data-filterable-current=":rtspserver/main" data-filterable-set=":rtspserver/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-server-command-manager.html"><span>Server</span><wbr><span>Command</span><wbr><span><span>Manager</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="515226621%2FConstructors%2F1565245447"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":rtspserver/main"><div class="symbol monospace"><span class="token keyword">constructor</span><span class="token punctuation">(</span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="PROPERTY">
+        <h2 class="tableheader">Properties</h2>
+        <div class="table"><a data-name="-2075208918%2FProperties%2F1565245447" anchor-label="audioClientPorts" id="-2075208918%2FProperties%2F1565245447" data-filterable-set=":rtspserver/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":rtspserver/main" data-filterable-set=":rtspserver/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#-2075208918%2FProperties%2F1565245447"><span>audio</span><wbr><span>Client</span><wbr><span><span>Ports</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2075208918%2FProperties%2F1565245447"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":rtspserver/main"><div class="symbol monospace"><span class="token keyword">val </span><a href="index.html#-2075208918%2FProperties%2F1565245447">audioClientPorts</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-array/index.html">Array</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-int/index.html">Int</a><span class="token operator">?</span><span class="token operator">&gt;</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1923185659%2FProperties%2F1565245447" anchor-label="audioCodec" id="1923185659%2FProperties%2F1565245447" data-filterable-set=":rtspserver/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":rtspserver/main" data-filterable-set=":rtspserver/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#1923185659%2FProperties%2F1565245447"><span>audio</span><wbr><span><span>Codec</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1923185659%2FProperties%2F1565245447"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":rtspserver/main"><div class="symbol monospace"><span class="token keyword">var </span><a href="index.html#1923185659%2FProperties%2F1565245447">audioCodec</a><span class="token operator">: </span><span data-unresolved-link="com.pedro.common/AudioCodec///PointingToDeclaration/">AudioCodec</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1528926381%2FProperties%2F1565245447" anchor-label="audioDisabled" id="1528926381%2FProperties%2F1565245447" data-filterable-set=":rtspserver/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":rtspserver/main" data-filterable-set=":rtspserver/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#1528926381%2FProperties%2F1565245447"><span>audio</span><wbr><span><span>Disabled</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1528926381%2FProperties%2F1565245447"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":rtspserver/main"><div class="symbol monospace"><span class="token keyword">var </span><a href="index.html#1528926381%2FProperties%2F1565245447">audioDisabled</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1466043290%2FProperties%2F1565245447" anchor-label="audioPorts" id="-1466043290%2FProperties%2F1565245447" data-filterable-set=":rtspserver/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":rtspserver/main" data-filterable-set=":rtspserver/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="audio-ports.html"><span>audio</span><wbr><span><span>Ports</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1466043290%2FProperties%2F1565245447"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":rtspserver/main"><div class="symbol monospace"><span class="token keyword">val </span><a href="audio-ports.html">audioPorts</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-array/index.html">Array</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-int/index.html">Int</a><span class="token operator">?</span><span class="token operator">&gt;</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-2042450782%2FProperties%2F1565245447" anchor-label="audioServerPorts" id="-2042450782%2FProperties%2F1565245447" data-filterable-set=":rtspserver/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":rtspserver/main" data-filterable-set=":rtspserver/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#-2042450782%2FProperties%2F1565245447"><span>audio</span><wbr><span>Server</span><wbr><span><span>Ports</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2042450782%2FProperties%2F1565245447"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":rtspserver/main"><div class="symbol monospace"><span class="token keyword">val </span><a href="index.html#-2042450782%2FProperties%2F1565245447">audioServerPorts</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-array/index.html">Array</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-int/index.html">Int</a><span class="token operator">?</span><span class="token operator">&gt;</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1196998579%2FProperties%2F1565245447" anchor-label="host" id="1196998579%2FProperties%2F1565245447" data-filterable-set=":rtspserver/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":rtspserver/main" data-filterable-set=":rtspserver/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#1196998579%2FProperties%2F1565245447"><span><span>host</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1196998579%2FProperties%2F1565245447"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":rtspserver/main"><div class="symbol monospace"><span class="token keyword">var </span><a href="index.html#1196998579%2FProperties%2F1565245447">host</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="506371545%2FProperties%2F1565245447" anchor-label="isStereo" id="506371545%2FProperties%2F1565245447" data-filterable-set=":rtspserver/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":rtspserver/main" data-filterable-set=":rtspserver/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#506371545%2FProperties%2F1565245447"><span>is</span><wbr><span><span>Stereo</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="506371545%2FProperties%2F1565245447"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":rtspserver/main"><div class="symbol monospace"><span class="token keyword">var </span><a href="index.html#506371545%2FProperties%2F1565245447">isStereo</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-2112953568%2FProperties%2F1565245447" anchor-label="password" id="-2112953568%2FProperties%2F1565245447" data-filterable-set=":rtspserver/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":rtspserver/main" data-filterable-set=":rtspserver/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#-2112953568%2FProperties%2F1565245447"><span><span>password</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2112953568%2FProperties%2F1565245447"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":rtspserver/main"><div class="symbol monospace"><span class="token keyword">var </span><a href="index.html#-2112953568%2FProperties%2F1565245447">password</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1987401770%2FProperties%2F1565245447" anchor-label="path" id="-1987401770%2FProperties%2F1565245447" data-filterable-set=":rtspserver/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":rtspserver/main" data-filterable-set=":rtspserver/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#-1987401770%2FProperties%2F1565245447"><span><span>path</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1987401770%2FProperties%2F1565245447"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":rtspserver/main"><div class="symbol monospace"><span class="token keyword">var </span><a href="index.html#-1987401770%2FProperties%2F1565245447">path</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1485230842%2FProperties%2F1565245447" anchor-label="port" id="1485230842%2FProperties%2F1565245447" data-filterable-set=":rtspserver/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":rtspserver/main" data-filterable-set=":rtspserver/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#1485230842%2FProperties%2F1565245447"><span><span>port</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1485230842%2FProperties%2F1565245447"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":rtspserver/main"><div class="symbol monospace"><span class="token keyword">var </span><a href="index.html#1485230842%2FProperties%2F1565245447">port</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-int/index.html">Int</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-396453812%2FProperties%2F1565245447" anchor-label="pps" id="-396453812%2FProperties%2F1565245447" data-filterable-set=":rtspserver/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":rtspserver/main" data-filterable-set=":rtspserver/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#-396453812%2FProperties%2F1565245447"><span><span>pps</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-396453812%2FProperties%2F1565245447"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":rtspserver/main"><div class="symbol monospace"><span class="token keyword">var </span><a href="index.html#-396453812%2FProperties%2F1565245447">pps</a><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/nio/ByteBuffer.html">ByteBuffer</a><span class="token operator">?</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="155110907%2FProperties%2F1565245447" anchor-label="ppsString" id="155110907%2FProperties%2F1565245447" data-filterable-set=":rtspserver/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":rtspserver/main" data-filterable-set=":rtspserver/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#155110907%2FProperties%2F1565245447"><span>pps</span><wbr><span><span>String</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="155110907%2FProperties%2F1565245447"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":rtspserver/main"><div class="symbol monospace"><span class="token keyword">val </span><a href="index.html#155110907%2FProperties%2F1565245447">ppsString</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="148411843%2FProperties%2F1565245447" anchor-label="protocol" id="148411843%2FProperties%2F1565245447" data-filterable-set=":rtspserver/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":rtspserver/main" data-filterable-set=":rtspserver/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#148411843%2FProperties%2F1565245447"><span><span>protocol</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="148411843%2FProperties%2F1565245447"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":rtspserver/main"><div class="symbol monospace"><span class="token keyword">var </span><a href="index.html#148411843%2FProperties%2F1565245447">protocol</a><span class="token operator">: </span><span data-unresolved-link="com.pedro.rtsp.rtsp/Protocol///PointingToDeclaration/">Protocol</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-999154831%2FProperties%2F1565245447" anchor-label="sampleRate" id="-999154831%2FProperties%2F1565245447" data-filterable-set=":rtspserver/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":rtspserver/main" data-filterable-set=":rtspserver/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#-999154831%2FProperties%2F1565245447"><span>sample</span><wbr><span><span>Rate</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-999154831%2FProperties%2F1565245447"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":rtspserver/main"><div class="symbol monospace"><span class="token keyword">var </span><a href="index.html#-999154831%2FProperties%2F1565245447">sampleRate</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-int/index.html">Int</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1160663447%2FProperties%2F1565245447" anchor-label="sps" id="-1160663447%2FProperties%2F1565245447" data-filterable-set=":rtspserver/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":rtspserver/main" data-filterable-set=":rtspserver/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#-1160663447%2FProperties%2F1565245447"><span><span>sps</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1160663447%2FProperties%2F1565245447"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":rtspserver/main"><div class="symbol monospace"><span class="token keyword">var </span><a href="index.html#-1160663447%2FProperties%2F1565245447">sps</a><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/nio/ByteBuffer.html">ByteBuffer</a><span class="token operator">?</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1063380392%2FProperties%2F1565245447" anchor-label="spsString" id="-1063380392%2FProperties%2F1565245447" data-filterable-set=":rtspserver/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":rtspserver/main" data-filterable-set=":rtspserver/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#-1063380392%2FProperties%2F1565245447"><span>sps</span><wbr><span><span>String</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1063380392%2FProperties%2F1565245447"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":rtspserver/main"><div class="symbol monospace"><span class="token keyword">val </span><a href="index.html#-1063380392%2FProperties%2F1565245447">spsString</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-41294096%2FProperties%2F1565245447" anchor-label="user" id="-41294096%2FProperties%2F1565245447" data-filterable-set=":rtspserver/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":rtspserver/main" data-filterable-set=":rtspserver/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#-41294096%2FProperties%2F1565245447"><span><span>user</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-41294096%2FProperties%2F1565245447"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":rtspserver/main"><div class="symbol monospace"><span class="token keyword">var </span><a href="index.html#-41294096%2FProperties%2F1565245447">user</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1925225807%2FProperties%2F1565245447" anchor-label="videoClientPorts" id="1925225807%2FProperties%2F1565245447" data-filterable-set=":rtspserver/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":rtspserver/main" data-filterable-set=":rtspserver/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#1925225807%2FProperties%2F1565245447"><span>video</span><wbr><span>Client</span><wbr><span><span>Ports</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1925225807%2FProperties%2F1565245447"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":rtspserver/main"><div class="symbol monospace"><span class="token keyword">val </span><a href="index.html#1925225807%2FProperties%2F1565245447">videoClientPorts</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-array/index.html">Array</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-int/index.html">Int</a><span class="token operator">?</span><span class="token operator">&gt;</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-466942496%2FProperties%2F1565245447" anchor-label="videoCodec" id="-466942496%2FProperties%2F1565245447" data-filterable-set=":rtspserver/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":rtspserver/main" data-filterable-set=":rtspserver/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#-466942496%2FProperties%2F1565245447"><span>video</span><wbr><span><span>Codec</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-466942496%2FProperties%2F1565245447"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":rtspserver/main"><div class="symbol monospace"><span class="token keyword">var </span><a href="index.html#-466942496%2FProperties%2F1565245447">videoCodec</a><span class="token operator">: </span><span data-unresolved-link="com.pedro.common/VideoCodec///PointingToDeclaration/">VideoCodec</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-811106136%2FProperties%2F1565245447" anchor-label="videoDisabled" id="-811106136%2FProperties%2F1565245447" data-filterable-set=":rtspserver/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":rtspserver/main" data-filterable-set=":rtspserver/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#-811106136%2FProperties%2F1565245447"><span>video</span><wbr><span><span>Disabled</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-811106136%2FProperties%2F1565245447"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":rtspserver/main"><div class="symbol monospace"><span class="token keyword">var </span><a href="index.html#-811106136%2FProperties%2F1565245447">videoDisabled</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="438795851%2FProperties%2F1565245447" anchor-label="videoPorts" id="438795851%2FProperties%2F1565245447" data-filterable-set=":rtspserver/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":rtspserver/main" data-filterable-set=":rtspserver/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="video-ports.html"><span>video</span><wbr><span><span>Ports</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="438795851%2FProperties%2F1565245447"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":rtspserver/main"><div class="symbol monospace"><span class="token keyword">val </span><a href="video-ports.html">videoPorts</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-array/index.html">Array</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-int/index.html">Int</a><span class="token operator">?</span><span class="token operator">&gt;</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1957983943%2FProperties%2F1565245447" anchor-label="videoServerPorts" id="1957983943%2FProperties%2F1565245447" data-filterable-set=":rtspserver/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":rtspserver/main" data-filterable-set=":rtspserver/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#1957983943%2FProperties%2F1565245447"><span>video</span><wbr><span>Server</span><wbr><span><span>Ports</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1957983943%2FProperties%2F1565245447"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":rtspserver/main"><div class="symbol monospace"><span class="token keyword">val </span><a href="index.html#1957983943%2FProperties%2F1565245447">videoServerPorts</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-array/index.html">Array</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-int/index.html">Int</a><span class="token operator">?</span><span class="token operator">&gt;</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1924873082%2FProperties%2F1565245447" anchor-label="vps" id="-1924873082%2FProperties%2F1565245447" data-filterable-set=":rtspserver/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":rtspserver/main" data-filterable-set=":rtspserver/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#-1924873082%2FProperties%2F1565245447"><span><span>vps</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1924873082%2FProperties%2F1565245447"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":rtspserver/main"><div class="symbol monospace"><span class="token keyword">var </span><a href="index.html#-1924873082%2FProperties%2F1565245447">vps</a><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/nio/ByteBuffer.html">ByteBuffer</a><span class="token operator">?</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="2013095605%2FProperties%2F1565245447" anchor-label="vpsString" id="2013095605%2FProperties%2F1565245447" data-filterable-set=":rtspserver/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":rtspserver/main" data-filterable-set=":rtspserver/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#2013095605%2FProperties%2F1565245447"><span>vps</span><wbr><span><span>String</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="2013095605%2FProperties%2F1565245447"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":rtspserver/main"><div class="symbol monospace"><span class="token keyword">val </span><a href="index.html#2013095605%2FProperties%2F1565245447">vpsString</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="FUNCTION">
+        <h2 class="tableheader">Functions</h2>
+        <div class="table"><a data-name="327114034%2FFunctions%2F1565245447" anchor-label="clear" id="327114034%2FFunctions%2F1565245447" data-filterable-set=":rtspserver/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":rtspserver/main" data-filterable-set=":rtspserver/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#327114034%2FFunctions%2F1565245447"><span><span>clear</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="327114034%2FFunctions%2F1565245447"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":rtspserver/main"><div class="symbol monospace"><span class="token keyword">fun </span><a href="index.html#327114034%2FFunctions%2F1565245447"><span class="token function">clear</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-2023961354%2FFunctions%2F1565245447" anchor-label="createAnnounce" id="-2023961354%2FFunctions%2F1565245447" data-filterable-set=":rtspserver/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":rtspserver/main" data-filterable-set=":rtspserver/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#-2023961354%2FFunctions%2F1565245447"><span>create</span><wbr><span><span>Announce</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2023961354%2FFunctions%2F1565245447"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":rtspserver/main"><div class="symbol monospace"><span class="token keyword">fun </span><a href="index.html#-2023961354%2FFunctions%2F1565245447"><span class="token function">createAnnounce</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1574334980%2FFunctions%2F1565245447" anchor-label="createAnnounceWithAuth" id="-1574334980%2FFunctions%2F1565245447" data-filterable-set=":rtspserver/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":rtspserver/main" data-filterable-set=":rtspserver/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#-1574334980%2FFunctions%2F1565245447"><span>create</span><wbr><span>Announce</span><wbr><span>With</span><wbr><span><span>Auth</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1574334980%2FFunctions%2F1565245447"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":rtspserver/main"><div class="symbol monospace"><span class="token keyword">fun </span><a href="index.html#-1574334980%2FFunctions%2F1565245447"><span class="token function">createAnnounceWithAuth</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">authResponse<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1771084819%2FFunctions%2F1565245447" anchor-label="createError" id="1771084819%2FFunctions%2F1565245447" data-filterable-set=":rtspserver/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":rtspserver/main" data-filterable-set=":rtspserver/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="create-error.html"><span>create</span><wbr><span><span>Error</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1771084819%2FFunctions%2F1565245447"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":rtspserver/main"><div class="symbol monospace"><span class="token keyword">fun </span><a href="create-error.html"><span class="token function">createError</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">code<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-int/index.html">Int</a><span class="token punctuation">, </span></span><span class="parameter ">cSeq<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-int/index.html">Int</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-433161556%2FFunctions%2F1565245447" anchor-label="createGetParameter" id="-433161556%2FFunctions%2F1565245447" data-filterable-set=":rtspserver/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":rtspserver/main" data-filterable-set=":rtspserver/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#-433161556%2FFunctions%2F1565245447"><span>create</span><wbr><span>Get</span><wbr><span><span>Parameter</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-433161556%2FFunctions%2F1565245447"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":rtspserver/main"><div class="symbol monospace"><span class="token keyword">fun </span><a href="index.html#-433161556%2FFunctions%2F1565245447"><span class="token function">createGetParameter</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1759621859%2FFunctions%2F1565245447" anchor-label="createOptions" id="-1759621859%2FFunctions%2F1565245447" data-filterable-set=":rtspserver/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":rtspserver/main" data-filterable-set=":rtspserver/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#-1759621859%2FFunctions%2F1565245447"><span>create</span><wbr><span><span>Options</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1759621859%2FFunctions%2F1565245447"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":rtspserver/main"><div class="symbol monospace"><span class="token keyword">fun </span><a href="index.html#-1759621859%2FFunctions%2F1565245447"><span class="token function">createOptions</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1467901883%2FFunctions%2F1565245447" anchor-label="createPause" id="-1467901883%2FFunctions%2F1565245447" data-filterable-set=":rtspserver/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":rtspserver/main" data-filterable-set=":rtspserver/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#-1467901883%2FFunctions%2F1565245447"><span>create</span><wbr><span><span>Pause</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1467901883%2FFunctions%2F1565245447"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":rtspserver/main"><div class="symbol monospace"><span class="token keyword">fun </span><a href="index.html#-1467901883%2FFunctions%2F1565245447"><span class="token function">createPause</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="235442571%2FFunctions%2F1565245447" anchor-label="createPlay" id="235442571%2FFunctions%2F1565245447" data-filterable-set=":rtspserver/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":rtspserver/main" data-filterable-set=":rtspserver/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#235442571%2FFunctions%2F1565245447"><span>create</span><wbr><span><span>Play</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="235442571%2FFunctions%2F1565245447"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":rtspserver/main"><div class="symbol monospace"><span class="token keyword">fun </span><a href="index.html#235442571%2FFunctions%2F1565245447"><span class="token function">createPlay</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="336634510%2FFunctions%2F1565245447" anchor-label="createRecord" id="336634510%2FFunctions%2F1565245447" data-filterable-set=":rtspserver/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":rtspserver/main" data-filterable-set=":rtspserver/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#336634510%2FFunctions%2F1565245447"><span>create</span><wbr><span><span>Record</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="336634510%2FFunctions%2F1565245447"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":rtspserver/main"><div class="symbol monospace"><span class="token keyword">fun </span><a href="index.html#336634510%2FFunctions%2F1565245447"><span class="token function">createRecord</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1816994019%2FFunctions%2F1565245447" anchor-label="createRedirect" id="1816994019%2FFunctions%2F1565245447" data-filterable-set=":rtspserver/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":rtspserver/main" data-filterable-set=":rtspserver/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#1816994019%2FFunctions%2F1565245447"><span>create</span><wbr><span><span>Redirect</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1816994019%2FFunctions%2F1565245447"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":rtspserver/main"><div class="symbol monospace"><span class="token keyword">fun </span><a href="index.html#1816994019%2FFunctions%2F1565245447"><span class="token function">createRedirect</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1257530120%2FFunctions%2F1565245447" anchor-label="createResponse" id="-1257530120%2FFunctions%2F1565245447" data-filterable-set=":rtspserver/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":rtspserver/main" data-filterable-set=":rtspserver/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="create-response.html"><span>create</span><wbr><span><span>Response</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1257530120%2FFunctions%2F1565245447"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":rtspserver/main"><div class="symbol monospace"><span class="token keyword">fun </span><a href="create-response.html"><span class="token function">createResponse</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">method<span class="token operator">: </span><span data-unresolved-link="com.pedro.rtsp.rtsp.commands/Method///PointingToDeclaration/">Method</span><span class="token punctuation">, </span></span><span class="parameter ">request<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">cSeq<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-int/index.html">Int</a><span class="token punctuation">, </span></span><span class="parameter ">clientIp<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-770939720%2FFunctions%2F1565245447" anchor-label="createSetParameter" id="-770939720%2FFunctions%2F1565245447" data-filterable-set=":rtspserver/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":rtspserver/main" data-filterable-set=":rtspserver/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#-770939720%2FFunctions%2F1565245447"><span>create</span><wbr><span>Set</span><wbr><span><span>Parameter</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-770939720%2FFunctions%2F1565245447"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":rtspserver/main"><div class="symbol monospace"><span class="token keyword">fun </span><a href="index.html#-770939720%2FFunctions%2F1565245447"><span class="token function">createSetParameter</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1413473724%2FFunctions%2F1565245447" anchor-label="createSetup" id="1413473724%2FFunctions%2F1565245447" data-filterable-set=":rtspserver/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":rtspserver/main" data-filterable-set=":rtspserver/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#1413473724%2FFunctions%2F1565245447"><span>create</span><wbr><span><span>Setup</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1413473724%2FFunctions%2F1565245447"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":rtspserver/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="index.html#1413473724%2FFunctions%2F1565245447"><span class="token function">createSetup</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">track<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-int/index.html">Int</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1000509509%2FFunctions%2F1565245447" anchor-label="createTeardown" id="-1000509509%2FFunctions%2F1565245447" data-filterable-set=":rtspserver/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":rtspserver/main" data-filterable-set=":rtspserver/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#-1000509509%2FFunctions%2F1565245447"><span>create</span><wbr><span><span>Teardown</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1000509509%2FFunctions%2F1565245447"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":rtspserver/main"><div class="symbol monospace"><span class="token keyword">fun </span><a href="index.html#-1000509509%2FFunctions%2F1565245447"><span class="token function">createTeardown</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="2058194667%2FFunctions%2F1565245447" anchor-label="getRequest" id="2058194667%2FFunctions%2F1565245447" data-filterable-set=":rtspserver/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":rtspserver/main" data-filterable-set=":rtspserver/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="get-request.html"><span>get</span><wbr><span><span>Request</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="2058194667%2FFunctions%2F1565245447"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":rtspserver/main"><div class="symbol monospace"><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="get-request.html"><span class="token function">getRequest</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">socket<span class="token operator">: </span><span data-unresolved-link="com.pedro.common.socket.base/TcpStreamSocket///PointingToDeclaration/">TcpStreamSocket</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="com.pedro.rtsp.rtsp.commands/Command///PointingToDeclaration/">Command</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-2076480811%2FFunctions%2F1565245447" anchor-label="getResponse" id="-2076480811%2FFunctions%2F1565245447" data-filterable-set=":rtspserver/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":rtspserver/main" data-filterable-set=":rtspserver/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#-2076480811%2FFunctions%2F1565245447"><span>get</span><wbr><span><span>Response</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2076480811%2FFunctions%2F1565245447"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":rtspserver/main"><div class="symbol monospace"><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="index.html#-2076480811%2FFunctions%2F1565245447"><span class="token function">getResponse</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">socket<span class="token operator">: </span><span data-unresolved-link="com.pedro.common.socket.base/TcpStreamSocket///PointingToDeclaration/">TcpStreamSocket</span><span class="token punctuation">, </span></span><span class="parameter ">method<span class="token operator">: </span><span data-unresolved-link="com.pedro.rtsp.rtsp.commands/Method///PointingToDeclaration/">Method</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="com.pedro.rtsp.rtsp.commands/Command///PointingToDeclaration/">Command</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1733772042%2FFunctions%2F1565245447" anchor-label="retryClear" id="-1733772042%2FFunctions%2F1565245447" data-filterable-set=":rtspserver/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":rtspserver/main" data-filterable-set=":rtspserver/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#-1733772042%2FFunctions%2F1565245447"><span>retry</span><wbr><span><span>Clear</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1733772042%2FFunctions%2F1565245447"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":rtspserver/main"><div class="symbol monospace"><span class="token keyword">fun </span><a href="index.html#-1733772042%2FFunctions%2F1565245447"><span class="token function">retryClear</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1413651213%2FFunctions%2F1565245447" anchor-label="setAudioInfo" id="1413651213%2FFunctions%2F1565245447" data-filterable-set=":rtspserver/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":rtspserver/main" data-filterable-set=":rtspserver/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#1413651213%2FFunctions%2F1565245447"><span>set</span><wbr><span>Audio</span><wbr><span><span>Info</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1413651213%2FFunctions%2F1565245447"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":rtspserver/main"><div class="symbol monospace"><span class="token keyword">fun </span><a href="index.html#1413651213%2FFunctions%2F1565245447"><span class="token function">setAudioInfo</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">sampleRate<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-int/index.html">Int</a><span class="token punctuation">, </span></span><span class="parameter ">isStereo<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></span></span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="125397514%2FFunctions%2F1565245447" anchor-label="setAuth" id="125397514%2FFunctions%2F1565245447" data-filterable-set=":rtspserver/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":rtspserver/main" data-filterable-set=":rtspserver/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#125397514%2FFunctions%2F1565245447"><span>set</span><wbr><span><span>Auth</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="125397514%2FFunctions%2F1565245447"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":rtspserver/main"><div class="symbol monospace"><span class="token keyword">fun </span><a href="index.html#125397514%2FFunctions%2F1565245447"><span class="token function">setAuth</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">user<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token punctuation">, </span></span><span class="parameter ">password<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span></span></span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-200814530%2FFunctions%2F1565245447" anchor-label="setServerInfo" id="-200814530%2FFunctions%2F1565245447" data-filterable-set=":rtspserver/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":rtspserver/main" data-filterable-set=":rtspserver/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="set-server-info.html"><span>set</span><wbr><span>Server</span><wbr><span><span>Info</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-200814530%2FFunctions%2F1565245447"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":rtspserver/main"><div class="symbol monospace"><span class="token keyword">fun </span><a href="set-server-info.html"><span class="token function">setServerInfo</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">serverIp<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">serverPort<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-int/index.html">Int</a></span></span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-265310450%2FFunctions%2F1565245447" anchor-label="setUrl" id="-265310450%2FFunctions%2F1565245447" data-filterable-set=":rtspserver/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":rtspserver/main" data-filterable-set=":rtspserver/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#-265310450%2FFunctions%2F1565245447"><span>set</span><wbr><span><span>Url</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-265310450%2FFunctions%2F1565245447"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":rtspserver/main"><div class="symbol monospace"><span class="token keyword">fun </span><a href="index.html#-265310450%2FFunctions%2F1565245447"><span class="token function">setUrl</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">host<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token punctuation">, </span></span><span class="parameter ">port<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-int/index.html">Int</a><span class="token punctuation">, </span></span><span class="parameter ">path<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span></span></span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1871590560%2FFunctions%2F1565245447" anchor-label="setVideoInfo" id="1871590560%2FFunctions%2F1565245447" data-filterable-set=":rtspserver/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":rtspserver/main" data-filterable-set=":rtspserver/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#1871590560%2FFunctions%2F1565245447"><span>set</span><wbr><span>Video</span><wbr><span><span>Info</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1871590560%2FFunctions%2F1565245447"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":rtspserver/main"><div class="symbol monospace"><span class="token keyword">fun </span><a href="index.html#1871590560%2FFunctions%2F1565245447"><span class="token function">setVideoInfo</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">sps<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/nio/ByteBuffer.html">ByteBuffer</a><span class="token punctuation">, </span></span><span class="parameter ">pps<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/nio/ByteBuffer.html">ByteBuffer</a><span class="token operator">?</span><span class="token punctuation">, </span></span><span class="parameter ">vps<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/nio/ByteBuffer.html">ByteBuffer</a><span class="token operator">?</span></span></span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="2140851393%2FFunctions%2F1565245447" anchor-label="videoInfoReady" id="2140851393%2FFunctions%2F1565245447" data-filterable-set=":rtspserver/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":rtspserver/main" data-filterable-set=":rtspserver/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#2140851393%2FFunctions%2F1565245447"><span>video</span><wbr><span>Info</span><wbr><span><span>Ready</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="2140851393%2FFunctions%2F1565245447"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":rtspserver/main"><div class="symbol monospace"><span class="token keyword">fun </span><a href="index.html#2140851393%2FFunctions%2F1565245447"><span class="token function">videoInfoReady</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    <div class="footer">
+        <div class="footer--container">
+            <a href="#content" id="go-to-top-link" class="footer--button footer--button_go-to-top"></a>
+            <div class="footer--content">
+                <div>
+                    <span>Generated by </span>
+                    <a class="footer--link footer--link_external" href="https://github.com/Kotlin/dokka">
+                        Dokka
+                    </a>
+                    <div>© 2026 Copyright</div>
+                </div>
+            </div>
+        </div>
+    </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
