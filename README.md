@@ -8,6 +8,7 @@ Plugin of RootEncoder to stream directly to RTSP player.
 ## Compile
 
 Require API 16+
+
 To use this library in your project with gradle add this to your build.gradle:
 
 ```gradle
