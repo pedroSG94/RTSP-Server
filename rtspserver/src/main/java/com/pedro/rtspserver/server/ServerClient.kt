@@ -67,9 +67,9 @@ class ServerClient(
   private var startTs = 0L
 
   val droppedAudioFrames: Long
-    get() = rtspSender.droppedAudioFrames
+    get() = rtspSender.getDroppedAudioFrames()
   val droppedVideoFrames: Long
-    get() = rtspSender.droppedVideoFrames
+    get() = rtspSender.getDroppedVideoFrames()
 
   val cacheSize: Int
     get() = rtspSender.getCacheSize()
@@ -78,7 +78,7 @@ class ServerClient(
   val sentVideoFrames: Long
     get() = rtspSender.getSentVideoFrames()
   val bytesSend: Long
-    get() = rtspSender.bytesSend
+    get() = rtspSender.getBytesSend()
 
   init {
     serverCommandManager.setServerInfo(serverIp, serverPort)

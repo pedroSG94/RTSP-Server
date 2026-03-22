@@ -7,7 +7,7 @@ plugins {
     alias(libs.plugins.jetbrains.dokka) apply true
 }
 
-tasks.register("clean") {
+tasks.named<Delete>("clean") {
     delete(layout.buildDirectory)
 }
 
