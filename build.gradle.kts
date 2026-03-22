@@ -1,7 +1,7 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 allprojects {
     group = "com.github.pedroSG94"
-    version = "1.3.7"
+    version = "1.4.0"
 
     plugins.withType<PublishingPlugin> {
         configure<PublishingExtension> {
