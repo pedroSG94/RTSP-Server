@@ -1,6 +1,7 @@
 # RTSP-Server
 
 [![Release](https://jitpack.io/v/pedroSG94/RTSP-Server.svg)](https://jitpack.io/#pedroSG94/RTSP-Server)
+[![Documentation](https://img.shields.io/badge/library-documentation-orange)](https://pedroSG94.github.io/RTSP-Server)
 
 Plugin of RootEncoder to stream directly to RTSP player.
 
