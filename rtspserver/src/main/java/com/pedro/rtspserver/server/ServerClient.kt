@@ -17,7 +17,6 @@ import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.io.IOException
-import java.net.DatagramSocket
 import java.nio.ByteBuffer
 
 class ServerClient(
@@ -25,8 +24,8 @@ class ServerClient(
   private val socketType: SocketType,
   private val host: String,
   private val socket: TcpStreamSocket,
-  private val serverIp: String,
-  private val serverPort: Int,
+  serverIp: String,
+  serverPort: Int,
   private var socketTimeout: Long,
   serverCommandManager: ServerCommandManager,
   private val listener: ClientListener
@@ -49,7 +48,6 @@ class ServerClient(
   }
   private val commandManager by lazy {
     ServerCommandManager().apply {
-      setServerInfo(serverIp, serverPort)
       setVideoInfo(serverCommandManager.sps!!, serverCommandManager.pps, serverCommandManager.vps)
       setAudioInfo(serverCommandManager.sampleRate, serverCommandManager.isStereo)
       setAuth(serverCommandManager.user, serverCommandManager.password)
@@ -57,11 +55,6 @@ class ServerClient(
       audioCodec = serverCommandManager.audioCodec
       audioDisabled = serverCommandManager.audioDisabled
       videoDisabled = serverCommandManager.videoDisabled
-      val udpPorts = findFreeUdpPortPairs()
-      videoServerPorts[0] = udpPorts[0]
-      videoServerPorts[1] = udpPorts[1]
-      audioServerPorts[0] = udpPorts[2]
-      audioServerPorts[1] = udpPorts[3]
     }
   }
   private val rtspSender = RtspSender(connectChecker, commandManager).apply {
@@ -236,33 +229,5 @@ class ServerClient(
 
   fun setSocketTimeout(timeout: Long) {
     socketTimeout = timeout
-  }
-
-  @Throws(IOException::class)
-  private fun findFreeUdpPortPairs(): IntArray {
-    val reservedSockets = mutableListOf<DatagramSocket>()
-    try {
-      val videoPort = reservePortPair(reservedSockets)
-      val audioPort = reservePortPair(reservedSockets)
-      return intArrayOf(videoPort, videoPort + 1, audioPort, audioPort + 1)
-    } finally {
-      reservedSockets.forEach { runCatching { it.close() } }
-    }
-  }
-
-  //RTP must use an even port and RTCP the next odd port (RFC 3550)
-  @Throws(IOException::class)
-  private fun reservePortPair(reservedSockets: MutableList<DatagramSocket>): Int {
-    repeat(100) {
-      val seed = DatagramSocket(0)
-      val candidate = seed.localPort.let { if (it % 2 == 0) it else it + 1 }
-      seed.close()
-      try {
-        reservedSockets.add(DatagramSocket(candidate))
-        reservedSockets.add(DatagramSocket(candidate + 1))
-        return candidate
-      } catch (_: IOException) { }
-    }
-    throw IOException("No free UDP port pair available")
   }
 }

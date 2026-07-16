@@ -9,6 +9,7 @@ import com.pedro.rtsp.rtsp.commands.Command
 import com.pedro.rtsp.rtsp.commands.CommandsManager
 import com.pedro.rtsp.rtsp.commands.Method
 import com.pedro.rtsp.rtsp.commands.SdpBody
+import com.pedro.rtsp.utils.RtpConstants
 import java.io.IOException
 import java.net.SocketException
 import java.util.regex.Pattern
@@ -110,14 +111,14 @@ class ServerCommandManager: CommandsManager() {
       Log.e(TAG, "UDP ports not found")
       return false
     }
-    if (track == rtpTracks.trackAudio) { //audio ports
+    if (track == RtpConstants.trackAudio) { //audio ports
       audioPorts[0] = ports[0]
       audioPorts[1] = ports[1]
-      Log.i(TAG, "Audio ports: ${audioPorts.contentToString()}")
+      Log.i(TAG, "Audio ports: $audioPorts")
     } else { //video ports
       videoPorts[0] = ports[0]
       videoPorts[1] = ports[1]
-      Log.i(TAG, "Video ports: ${videoPorts.contentToString()}")
+      Log.i(TAG, "Video ports: $videoPorts")
     }
     return true
   }
@@ -133,7 +134,7 @@ class ServerCommandManager: CommandsManager() {
 
   @Throws(IOException::class, IllegalStateException::class, SocketException::class)
   suspend fun getRequest(socket: TcpStreamSocket): Command {
-    return super.getResponse(socket, Method.UNKNOWN, null)
+    return super.getResponse(socket, Method.UNKNOWN)
   }
 
   private fun createStatus(code: Int): String {
@@ -171,9 +172,9 @@ class ServerCommandManager: CommandsManager() {
     var audioBody = ""
     if (!audioDisabled) {
       audioBody = when (audioCodec) {
-        AudioCodec.AAC -> SdpBody.createAacBody(rtpTracks.trackAudio, sampleRate, isStereo)
-        AudioCodec.G711 -> SdpBody.createG711Body(rtpTracks.trackAudio, sampleRate, isStereo)
-        AudioCodec.OPUS -> SdpBody.createOpusBody(rtpTracks.trackAudio)
+        AudioCodec.AAC -> SdpBody.createAacBody(RtpConstants.trackAudio, sampleRate, isStereo)
+        AudioCodec.G711 -> SdpBody.createG711Body(RtpConstants.trackAudio, sampleRate, isStereo)
+        AudioCodec.OPUS -> SdpBody.createOpusBody(RtpConstants.trackAudio)
       }
     }
     var videoBody = ""
@@ -184,14 +185,14 @@ class ServerCommandManager: CommandsManager() {
       videoBody = when (videoCodec) {
         VideoCodec.H264 -> {
           if (sps == null || pps == null) throw IllegalArgumentException("sps or pps can't be null with h264")
-          SdpBody.createH264Body(rtpTracks.trackVideo, spsString, ppsString)
+          SdpBody.createH264Body(RtpConstants.trackVideo, spsString, ppsString)
         }
         VideoCodec.H265 -> {
           if (sps == null || pps == null || vps == null) throw IllegalArgumentException("sps, pps or vps can't be null with h265")
-          SdpBody.createH265Body(rtpTracks.trackVideo, spsString, ppsString, vpsString)
+          SdpBody.createH265Body(RtpConstants.trackVideo, spsString, ppsString, vpsString)
         }
         VideoCodec.AV1 -> {
-          SdpBody.createAV1Body(rtpTracks.trackVideo)
+          SdpBody.createAV1Body(RtpConstants.trackVideo)
         }
       }
     }
@@ -201,8 +202,8 @@ class ServerCommandManager: CommandsManager() {
 
   private fun createSetup(cSeq: Int, track: Int, clientIp: String): String {
     val protocolSetup = if (protocol == Protocol.UDP) {
-      val clientPorts = if (track == rtpTracks.trackAudio) audioPorts else videoPorts
-      val serverPorts = if (track == rtpTracks.trackAudio) audioServerPorts else videoServerPorts
+      val clientPorts = if (track == RtpConstants.trackAudio) audioPorts else videoPorts
+      val serverPorts = if (track == RtpConstants.trackAudio) audioServerPorts else videoServerPorts
       "UDP;unicast;destination=$clientIp;client_port=${clientPorts[0]}-${clientPorts[1]};server_port=${serverPorts[0]}-${serverPorts[1]}"
     } else {
       "TCP;unicast;interleaved=" + (2 * track) + "-" + (2 * track + 1)
@@ -213,11 +214,11 @@ class ServerCommandManager: CommandsManager() {
   private fun createPlay(cSeq: Int): String {
     var info = ""
     if (!videoDisabled) {
-      info += "url=rtsp://$serverIp:$serverPort/streamid=${rtpTracks.trackVideo};seq=1;rtptime=0"
+      info += "url=rtsp://$serverIp:$serverPort/streamid=${RtpConstants.trackVideo};seq=1;rtptime=0"
     }
     if (!audioDisabled) {
       if (!videoDisabled) info += ","
-      info += "url=rtsp://$serverIp:$serverPort/streamid=${rtpTracks.trackAudio};seq=1;rtptime=0"
+      info += "url=rtsp://$serverIp:$serverPort/streamid=${RtpConstants.trackAudio};seq=1;rtptime=0"
     }
     return "${createHeader(cSeq)}Content-Length: 0\r\nRTP-Info: $info\r\nSession: 1185d20035702ca\r\n\r\n"
   }

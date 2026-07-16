@@ -70,6 +70,6 @@ class StreamServerSocket(
                     javaServer = null
                 }
             }
-        } catch (_: Exception) {}
+        } catch (ignored: Exception) {}
     }
 }
