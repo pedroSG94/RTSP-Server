@@ -42,6 +42,6 @@ class RtspServerOnlyAudio(
   override fun getStreamClient(): RtspServerStreamClient = RtspServerStreamClient(rtspServer)
 
   override fun setAudioCodecImp(codec: AudioCodec) {
-    rtspServer.setAudioCodec(codec);
+    rtspServer.setAudioCodec(codec)
   }
 }

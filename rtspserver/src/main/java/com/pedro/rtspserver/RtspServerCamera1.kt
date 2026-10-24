@@ -78,6 +78,6 @@ class RtspServerCamera1: Camera1Base {
   }
 
   override fun setAudioCodecImp(codec: AudioCodec) {
-    rtspServer.setAudioCodec(codec);
+    rtspServer.setAudioCodec(codec)
   }
 }

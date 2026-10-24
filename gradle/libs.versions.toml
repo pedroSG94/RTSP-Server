@@ -1,19 +1,15 @@
 [versions]
 #plugins versions
-agp = "8.13.2"
-kotlin = "2.3.20"
-dokka = "2.1.0"
-junit = "4.13.2"
-robolectric = "4.14.1"
+agp = "9.3.2"
+kotlin = "2.3.21"
+dokka = "2.2.0"
 
 #dependencies versions
-#noinspection GradleDependency, version 1.7.0 need min sdk 21
-appcompat = "1.6.1"
-#noinspection GradleDependency, version 2.2.0 need min sdk 21
-constraintlayout = "2.1.4"
-coroutines = "1.10.2"
-ktor = "3.4.1"
-rootEncoder = "2.7.1"
+appcompat = "1.7.1"
+constraintlayout = "2.2.1"
+coroutines = "1.11.0"
+ktor = "3.5.2"
+rootEncoder = "2.8.1"
 
 [libraries]
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
@@ -24,6 +20,7 @@ ktor-network-tls = { module = "io.ktor:ktor-network-tls", version.ref = "ktor" }
 rootEncoder-library = { module = "com.github.pedroSG94.RootEncoder:library", version.ref = "rootEncoder" }
 junit = { module = "junit:junit", version.ref = "junit" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
+rootEncoder-extra-sources = { module = "com.github.pedroSG94.RootEncoder:extra-sources", version.ref = "rootEncoder" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

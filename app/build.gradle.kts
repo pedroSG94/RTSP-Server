@@ -1,16 +1,15 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.jetbrains.kotlin)
 }
 
 android {
     namespace = "com.pedro.sample"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.pedro.sample"
-        minSdk = 16
-        targetSdk = 36
+        minSdk = 23
+        targetSdk = 37
         versionCode = project.version.toString().replace(".", "").toInt()
         versionName = project.version.toString()
     }
@@ -24,14 +23,16 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlin {
-        jvmToolchain(17)
-    }
+}
+
+kotlin {
+    jvmToolchain(17)
 }
 
 dependencies {
     implementation(project(":rtspserver"))
     implementation(libs.rootEncoder.library)
+    implementation(libs.rootEncoder.extra.sources)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.constraintlayout)
 }

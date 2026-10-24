@@ -72,6 +72,6 @@ class RtspServerFromFile: FromFileBase {
   }
 
   override fun setAudioCodecImp(codec: AudioCodec) {
-    rtspServer.setAudioCodec(codec);
+    rtspServer.setAudioCodec(codec)
   }
 }

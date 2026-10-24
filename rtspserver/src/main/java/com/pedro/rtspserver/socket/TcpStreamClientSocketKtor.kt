@@ -9,7 +9,10 @@ class TcpStreamClientSocketKtor(
     host: String, port: Int
 ): TcpStreamSocketKtorBase(host, port) {
 
-    override suspend fun onConnectSocket(timeout: Long): ReadWriteSocket {
+    override suspend fun onConnectSocket(
+        timeout: Long,
+        error: (Throwable) -> Unit
+    ): ReadWriteSocket {
         return socket
     }
 }

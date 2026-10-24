@@ -3,7 +3,7 @@ package com.pedro.rtspserver.server
 import android.media.MediaCodec
 import android.util.Log
 import com.pedro.common.ConnectChecker
-import com.pedro.common.clone
+import com.pedro.common.StreamingStatsReport
 import com.pedro.common.frame.MediaFrame
 import com.pedro.common.socket.base.SocketType
 import com.pedro.common.socket.base.TcpStreamSocket
@@ -24,8 +24,8 @@ class ServerClient(
   private val socketType: SocketType,
   private val host: String,
   private val socket: TcpStreamSocket,
-  serverIp: String,
-  serverPort: Int,
+  private val serverIp: String,
+  private val serverPort: Int,
   private var socketTimeout: Long,
   serverCommandManager: ServerCommandManager,
   private val listener: ClientListener
@@ -42,12 +42,16 @@ class ServerClient(
     override fun onNewBitrate(bitrate: Long) {
       listener.onClientNewBitrate(bitrate, this@ServerClient)
     }
+    override fun onStreamingStats(report: StreamingStatsReport) {
+      listener.onClientStreamingStats(report, this@ServerClient)
+    }
     override fun onConnectionFailed(reason: String) {
       listener.onClientDisconnected(this@ServerClient)
     }
   }
   private val commandManager by lazy {
     ServerCommandManager().apply {
+      setServerInfo(serverIp, serverPort)
       setVideoInfo(serverCommandManager.sps!!, serverCommandManager.pps, serverCommandManager.vps)
       setAudioInfo(serverCommandManager.sampleRate, serverCommandManager.isStereo)
       setAuth(serverCommandManager.user, serverCommandManager.password)
@@ -55,6 +59,7 @@ class ServerClient(
       audioCodec = serverCommandManager.audioCodec
       audioDisabled = serverCommandManager.audioDisabled
       videoDisabled = serverCommandManager.videoDisabled
+      if (!findFreeServerPorts()) throw IllegalStateException("No free UDP port pair available")
     }
   }
   private val rtspSender = RtspSender(connectChecker, commandManager).apply {
@@ -80,6 +85,8 @@ class ServerClient(
     get() = rtspSender.getSentVideoFrames()
   val bytesSend: Long
     get() = rtspSender.getBytesSend()
+  val queueBytesOut: Long
+    get() = rtspSender.getQueueBytesOut()
 
   init {
     serverCommandManager.setServerInfo(serverIp, serverPort)
@@ -210,14 +217,14 @@ class ServerClient(
   fun sendVideoFrame(videoBuffer: ByteBuffer, info: MediaCodec.BufferInfo) {
     if (canSend) {
       if (startTs == 0L) startTs = info.presentationTimeUs
-      rtspSender.sendMediaFrame(MediaFrame(videoBuffer.clone(), info.toMediaFrameInfo(startTs), MediaFrame.Type.VIDEO))
+      rtspSender.sendMediaFrame(videoBuffer, info.toMediaFrameInfo(startTs), MediaFrame.Type.VIDEO)
     }
   }
 
   fun sendAudioFrame(audioBuffer: ByteBuffer, info: MediaCodec.BufferInfo) {
     if (canSend) {
       if (startTs == 0L) startTs = info.presentationTimeUs
-      rtspSender.sendMediaFrame(MediaFrame(audioBuffer.clone(), info.toMediaFrameInfo(startTs), MediaFrame.Type.AUDIO))
+      rtspSender.sendMediaFrame(audioBuffer, info.toMediaFrameInfo(startTs), MediaFrame.Type.AUDIO)
     }
   }
 

@@ -1,11 +1,10 @@
 package com.pedro.rtspserver.socket
 
+import android.os.Build
 import com.pedro.common.socket.base.SocketType
 import io.ktor.network.selector.SelectorManager
 import io.ktor.network.sockets.aSocket
 import io.ktor.network.sockets.toJavaAddress
-import io.ktor.util.network.address
-import io.ktor.util.network.port
 import kotlinx.coroutines.Dispatchers
 import java.net.InetSocketAddress
 import java.net.ServerSocket
@@ -37,7 +36,10 @@ class StreamServerSocket(
             SocketType.KTOR -> {
                 val socket = ktorServer?.accept() ?: throw IllegalStateException("Server not available")
                 val address = socket.remoteAddress.toJavaAddress() as InetSocketAddress
-                val hostAddress: String = address.address?.hostAddress ?: address.hostString!!
+                val hostAddress = address.address?.hostAddress ?: run {
+                    val host = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) address.hostString else null
+                    host ?: "0.0.0.0"
+                }
                 ClientSocket(
                     host = hostAddress,
                     port = address.port,
@@ -70,6 +72,6 @@ class StreamServerSocket(
                     javaServer = null
                 }
             }
-        } catch (ignored: Exception) {}
+        } catch (_: Exception) {}
     }
 }

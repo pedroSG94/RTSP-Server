@@ -9,7 +9,6 @@ import com.pedro.rtsp.rtsp.commands.Command
 import com.pedro.rtsp.rtsp.commands.CommandsManager
 import com.pedro.rtsp.rtsp.commands.Method
 import com.pedro.rtsp.rtsp.commands.SdpBody
-import com.pedro.rtsp.utils.RtpConstants
 import java.io.IOException
 import java.net.SocketException
 import java.util.regex.Pattern
@@ -25,6 +24,8 @@ import kotlin.io.encoding.ExperimentalEncodingApi
 class ServerCommandManager: CommandsManager() {
 
   private var serverIp: String = ""
+  private val urlServer: String
+    get() = if (serverIp.contains(":")) "[$serverIp]" else serverIp
   private var serverPort: Int = 0
 
   private val TAG = "ServerCommandManager"
@@ -103,20 +104,21 @@ class ServerCommandManager: CommandsManager() {
     val portsMatcher =
         Pattern.compile("client_port=(\\d+)(?:-(\\d+))?", Pattern.CASE_INSENSITIVE).matcher(request)
     if (portsMatcher.find()) {
-      portsMatcher.group(1)?.toInt()?.let { ports.add(it) }
-      portsMatcher.group(2)?.toInt()?.let { ports.add(it) }
-    } else {
+      portsMatcher.group(1)?.toIntOrNull()?.let { ports.add(it) }
+      portsMatcher.group(2)?.toIntOrNull()?.let { ports.add(it) }
+    }
+    if (ports.size < 2) {
       Log.e(TAG, "UDP ports not found")
       return false
     }
-    if (track == RtpConstants.trackAudio) { //audio ports
+    if (track == rtpTracks.trackAudio) { //audio ports
       audioPorts[0] = ports[0]
       audioPorts[1] = ports[1]
-      Log.i(TAG, "Audio ports: $audioPorts")
+      Log.i(TAG, "Audio ports: ${audioPorts.contentToString()}")
     } else { //video ports
       videoPorts[0] = ports[0]
       videoPorts[1] = ports[1]
-      Log.i(TAG, "Video ports: $videoPorts")
+      Log.i(TAG, "Video ports: ${videoPorts.contentToString()}")
     }
     return true
   }
@@ -132,7 +134,7 @@ class ServerCommandManager: CommandsManager() {
 
   @Throws(IOException::class, IllegalStateException::class, SocketException::class)
   suspend fun getRequest(socket: TcpStreamSocket): Command {
-    return super.getResponse(socket, Method.UNKNOWN)
+    return super.getResponse(socket, Method.UNKNOWN, null)
   }
 
   private fun createStatus(code: Int): String {
@@ -163,16 +165,17 @@ class ServerCommandManager: CommandsManager() {
 
   private fun createDescribe(cSeq: Int, clientIp: String): String {
     val body = createBody(clientIp)
-    return "${createHeader(cSeq)}Content-Length: ${body.length}\r\nContent-Base: rtsp://$serverIp:$serverPort/\r\nContent-Type: application/sdp\r\n\r\n$body"
+    return "${createHeader(cSeq)}Content-Length: ${body.length}\r\nContent-Base: rtsp://$urlServer:$serverPort/\r\nContent-Type: application/sdp\r\n\r\n$body"
   }
 
   private fun createBody(clientIp: String): String {
     var audioBody = ""
     if (!audioDisabled) {
       audioBody = when (audioCodec) {
-        AudioCodec.AAC -> SdpBody.createAacBody(RtpConstants.trackAudio, sampleRate, isStereo)
-        AudioCodec.G711 -> SdpBody.createG711Body(RtpConstants.trackAudio, sampleRate, isStereo)
-        AudioCodec.OPUS -> SdpBody.createOpusBody(RtpConstants.trackAudio)
+        AudioCodec.AAC -> SdpBody.createAacBody(rtpTracks.trackAudio, sampleRate, isStereo, false)
+        AudioCodec.HE_AAC -> SdpBody.createAacBody(rtpTracks.trackAudio, sampleRate, isStereo, true)
+        AudioCodec.G711 -> SdpBody.createG711Body(rtpTracks.trackAudio)
+        AudioCodec.OPUS -> SdpBody.createOpusBody(rtpTracks.trackAudio, sampleRate, isStereo)
       }
     }
     var videoBody = ""
@@ -183,14 +186,21 @@ class ServerCommandManager: CommandsManager() {
       videoBody = when (videoCodec) {
         VideoCodec.H264 -> {
           if (sps == null || pps == null) throw IllegalArgumentException("sps or pps can't be null with h264")
-          SdpBody.createH264Body(RtpConstants.trackVideo, spsString, ppsString)
+          SdpBody.createH264Body(rtpTracks.trackVideo, sps, pps)
         }
         VideoCodec.H265 -> {
           if (sps == null || pps == null || vps == null) throw IllegalArgumentException("sps, pps or vps can't be null with h265")
-          SdpBody.createH265Body(RtpConstants.trackVideo, spsString, ppsString, vpsString)
+          SdpBody.createH265Body(rtpTracks.trackVideo, sps, pps, vps)
+        }
+        VideoCodec.VP8 -> {
+          SdpBody.createVp8Body(rtpTracks.trackVideo)
+        }
+        VideoCodec.VP9 -> {
+          SdpBody.createVp9Body(rtpTracks.trackVideo)
         }
         VideoCodec.AV1 -> {
-          SdpBody.createAV1Body(RtpConstants.trackVideo)
+          if (sps == null) throw IllegalArgumentException("header can't be null with av1")
+          SdpBody.createAV1Body(rtpTracks.trackVideo, sps)
         }
       }
     }
@@ -200,8 +210,8 @@ class ServerCommandManager: CommandsManager() {
 
   private fun createSetup(cSeq: Int, track: Int, clientIp: String): String {
     val protocolSetup = if (protocol == Protocol.UDP) {
-      val clientPorts = if (track == RtpConstants.trackAudio) audioPorts else videoPorts
-      val serverPorts = if (track == RtpConstants.trackAudio) audioServerPorts else videoServerPorts
+      val clientPorts = if (track == rtpTracks.trackAudio) audioPorts else videoPorts
+      val serverPorts = if (track == rtpTracks.trackAudio) audioServerPorts else videoServerPorts
       "UDP;unicast;destination=$clientIp;client_port=${clientPorts[0]}-${clientPorts[1]};server_port=${serverPorts[0]}-${serverPorts[1]}"
     } else {
       "TCP;unicast;interleaved=" + (2 * track) + "-" + (2 * track + 1)
@@ -212,11 +222,11 @@ class ServerCommandManager: CommandsManager() {
   private fun createPlay(cSeq: Int): String {
     var info = ""
     if (!videoDisabled) {
-      info += "url=rtsp://$serverIp:$serverPort/streamid=${RtpConstants.trackVideo};seq=1;rtptime=0"
+      info += "url=rtsp://$urlServer:$serverPort/streamid=${rtpTracks.trackVideo};seq=1;rtptime=0"
     }
     if (!audioDisabled) {
       if (!videoDisabled) info += ","
-      info += "url=rtsp://$serverIp:$serverPort/streamid=${RtpConstants.trackAudio};seq=1;rtptime=0"
+      info += "url=rtsp://$urlServer:$serverPort/streamid=${rtpTracks.trackAudio};seq=1;rtptime=0"
     }
     return "${createHeader(cSeq)}Content-Length: 0\r\nRTP-Info: $info\r\nSession: 1185d20035702ca\r\n\r\n"
   }
